@@ -1,0 +1,23 @@
+<nav class="w-full h-20 bg-green-600 items-center relative">
+    <div class="absolute left-5 top-1/2 -translate-y-1/2">
+        <img src="fieldsightsolutions.png" alt="FieldSightSolutions logo" class="h-12 w-auto">
+    </div>
+    <ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+        <li>
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                class="mr-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">Map</a>
+        </li>
+        <li>
+            <a routerLink="/schadeclaims" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">Schadeclaims</a>
+        </li>
+    </ul>
+    <div class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
+        <div class="w-12 h-12 mr-5">
+            <img src="profile_placeholder.png" alt="Profile Picture" class="rounded-full">
+        </div>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">Evert
+            Janssens</a>
+    </div>
+</nav>
