@@ -1,3 +1,3 @@
 export interface DamageRequestDto {
-    type: String;
+    type: string;
 }
