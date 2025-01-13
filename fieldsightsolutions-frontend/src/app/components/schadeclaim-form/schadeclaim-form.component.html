@@ -1,0 +1,126 @@
+<form class="bg-white shadow-md rounded p-6 grid grid-cols-2">
+    <!-- Gegevens van het veld -->
+    <div class="grid grid-cols-2 gap-4 m-1 h-min">
+      <div class="col-span-2">
+          <h2 class="font-semibold text-xl">Gegevens van veld</h2>
+      </div>
+      <div class="col-span-1">
+        <label for="field-name" class="block text-sm font-medium text-gray-700">Naam veld</label>
+        <input type="text" id="field-name" name="field-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="field-crop" class="block text-sm font-medium text-gray-700">Teelt</label>
+        <input type="text" id="field-crop" name="field-crop" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="field-municipality" class="block text-sm font-medium text-gray-700">Hoofdgemeente</label>
+        <input type="text" id="field-municipality" name="field-municipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="field-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
+        <input type="text" id="field-postcode" name="field-postcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="field-area" class="block text-sm font-medium text-gray-700">Oppervlakte (ha)</label>
+        <input type="number" id="field-area" name="field-area" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+    </div>
+
+    <!-- Gegevens van de boer -->
+    <div class="grid grid-cols-2 gap-4 m-1">
+      <div class="col-span-2">
+          <h2 class="font-semibold text-xl">Gegevens van veld eigenaar</h2>
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-firstname" class="block text-sm font-medium text-gray-700">Voornaam</label>
+        <input type="text" id="farmer-firstname" name="farmer-firstname" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-name" class="block text-sm font-medium text-gray-700">Naam</label>
+        <input type="text" id="farmer-name" name="farmer-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-street" class="block text-sm font-medium text-gray-700">Straat</label>
+        <input type="text" id="farmer-street" name="farmer-street" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-number" class="block text-sm font-medium text-gray-700">Nr</label>
+        <input type="text" id="farmer-number" name="farmer-number" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-municipality" class="block text-sm font-medium text-gray-700">Gemeente</label>
+        <input type="text" id="farmer-municipality" name="farmer-municipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-1">
+        <label for="farmer-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
+        <input type="text" id="farmer-postcode" name="farmer-postcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-2">
+        <label for="farmer-email" class="block text-sm font-medium text-gray-700">Emailadres</label>
+        <input type="email" id="farmer-email" name="farmer-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+    </div>
+
+    
+
+    <!-- Datum, schadeprijs en type schade -->
+    <div class="grid grid-cols-4 gap-4 m-1 mt-6">
+      <div class="col-span-2">
+        <label for="damage-date" class="block text-sm font-medium text-gray-700 col-span-2">startdatum schade</label>
+        <input type="date" id="damage-date" name="damage-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div class="col-span-2">
+          <label for="damage-date" class="block text-sm font-medium text-gray-700 col-span-2">einddatum schade</label>
+          <input type="date" id="damage-date" name="damage-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+        </div>
+      <div class="col-span-2">
+        <label for="damage-type" class="block text-sm font-medium text-gray-700 col-span-2">Type schade</label>
+        <select id="damage-type" name="damage-type" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+          <option value="">Selecteer type schade</option>
+          <option value="water">Waterschade</option>
+          <option value="storm">Stormschade</option>
+          <option value="hagel">Hagelschade</option>
+          <option value="overig">Overige schade</option>
+        </select>
+      </div>
+      <div class="col-span-2">
+        <label for="damage-amount" class="block text-sm font-medium text-gray-700 col-span-2">Schadebedrag (€)</label>
+        <input type="number" id="damage-amount" name="damage-amount" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+      <div>
+          <label for="weather-insurance" class="block text-sm font-medium text-gray-700">Brede weersverzekering?</label>
+          <div class="mt-1 flex items-center">
+              <input type="radio" id="weather-insurance-yes" name="weather-insurance" value="yes" class="mr-2">
+              <label for="weather-insurance-yes" class="text-sm text-gray-700 mr-4">Ja</label>
+
+              <input type="radio" id="weather-insurance-no" name="weather-insurance" value="no" class="mr-2">
+              <label for="weather-insurance-no" class="text-sm text-gray-700">Nee</label>
+          </div>
+      </div>
+    </div>
+
+    <!-- Foto's uploaden -->
+    <div class="grid grid-cols-4 gap-4 m-1 mt-6">
+      <div class="col-span-4">
+        <label for="photos" class="block text-sm font-medium text-gray-700">Foto's uploaden</label>
+        <input type="file" id="photos" name="photos" multiple class="mt-1 block w-full text-sm text-gray-500 border border-gray-300 rounded-md shadow-sm p-2">
+      </div>
+    </div>
+
+    <!-- Extra uitleg en oordeel -->
+    <div class="grid grid-cols-4 gap-4 mt-6">
+      <div class="col-span-3">
+        <label for="additional-info" class="block text-sm font-medium text-gray-700">Extra uitleg</label>
+        <textarea id="additional-info" name="additional-info" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+      </div>
+      <!-- <div>
+        <label for="judgment" class="block text-sm font-medium text-gray-700">Oordeel</label>
+        <div id="judgment" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"></div>
+      </div> -->
+    </div>
+
+    <!-- Verzenden knop -->
+    <div class="mt-20 text-right">
+      <button type="submit" class="px-6 py-2 bg-primary_dark text-white font-semibold rounded-md shadow-md hover:bg-primary">Verstuur Schadeclaim</button>
+    </div>
+  </form>
