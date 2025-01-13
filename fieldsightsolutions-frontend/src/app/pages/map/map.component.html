@@ -1,1 +1,55 @@
-<p>map works!</p>
+<div id="percelenManager"
+    class="percelenManager h-screen pt-24 px-5 text-center bg-gray-50 absolute right-0 top-0 z-40 w-1/4 transform transition-all duration-300 ease-in-out"
+    [class.open]="isOpen">
+    @if(!nieuwPerceel && !geselecteerdPerceel){
+    <p class="text-green-800 text-2xl pb-4">Mijn percelen</p>
+    <input type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md"
+        placeholder="Zoek perceel op naam, gemeente of postcode" />
+    @for (perceel of percelen; track $index) {
+    <app-perceelknop [perceel]="perceel" (click)="focusOnField(perceel.id)"></app-perceelknop>
+    }
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
+        <button (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+            <p>Voeg perceel toe</p>
+        </button>
+        <button class="w-3/5 bg-green-600 h-12 rounded-md">
+            <p>Toegang beheren</p>
+        </button>
+    </div>
+    }@else if ( geselecteerdPerceel ) {
+    <p class="text-green-800 text-2xl pb-4">{{ geselecteerdPerceel.name }}</p>
+    <p>{{ geselecteerdPerceel.acreage }}</p>
+    <p>{{ geselecteerdPerceel.municipality }}</p>
+    <p>{{ geselecteerdPerceel.postalcode }}</p>
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
+        <button (click)="wisGeselecteerdPerceel()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+            <p>Terug</p>
+        </button>
+        <button class="w-3/5 bg-green-600 h-12 rounded-md">
+            <p>Schadeclaim maken</p>
+        </button>
+    </div>
+    }
+    @else {
+    <p class="text-green-800 text-2xl pb-4">Nieuw perceel toevoegen</p>
+    <form>
+        <input type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md" placeholder="Naam" />
+        <input type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md" placeholder="Oppervlakte" />
+        <input type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md" placeholder="Gemeente" />
+        <input type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md" placeholder="Postcode" />
+        <select class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md bg-white">
+            <option [value]="null" disabled selected>Gewas</option>
+            <option *ngFor="let crop of crops" [value]="crop.id">{{ crop.name }}</option>
+        </select>
+    </form>
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
+        <button (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+            <p>Terug</p>
+        </button>
+        <button class="w-3/5 bg-green-600 h-12 rounded-md">
+            <p>Toevoegen</p>
+        </button>
+    </div>
+    }
+</div>
+<div id="map" class="h-screen w-full z-30"></div>

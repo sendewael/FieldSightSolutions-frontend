@@ -1,0 +1,14 @@
+/* Ensure that the percelenManager starts off-screen to the right
+.percelenManager {
+    width: 0;
+}
+
+.percelenManager.open {
+    width: 25%;
+}
+
+.rotate {
+    rotate: -180deg;
+    transition: all;
+    transition-duration: 300ms;
+} */
