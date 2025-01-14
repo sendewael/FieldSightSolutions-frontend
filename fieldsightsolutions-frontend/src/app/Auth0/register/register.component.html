@@ -1,0 +1,38 @@
+<main class="form-signin w-100 m-auto">
+    <form [formGroup]="form" (submit)="submit()">
+      <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
+      <h1 class="h3 mb-3 fw-normal">Registreer</h1>
+  
+      <div class="form-floating">
+        <input formControlName="firstName" type="text" class="form-control" id="floatingInput" placeholder="Jeff">
+        <label for="floatingInput">First Name</label>
+      </div>
+
+      <div class="form-floating">
+        <input formControlName="lastName" type="text" class="form-control" id="floatingInput" placeholder="Jansen">
+        <label for="floatingInput">Last Name</label>
+      </div>
+
+      <div class="form-floating">
+        <input formControlName="email" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <label for="floatingInput">Email address</label>
+      </div>
+
+      <div class="form-floating">
+        <input formControlName="adres" type="text" class="form-control" id="floatingInput" placeholder="heerstraat 26">
+        <label for="floatingInput">Adres</label>
+      </div>
+
+      <div class="form-floating">
+        <input formControlName="gemeente" type="text" class="form-control" id="floatingInput" placeholder="Geel">
+        <label for="floatingInput">Gemeente</label>
+      </div>
+
+      <div class="form-floating">
+        <input formControlName="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+        <label for="floatingPassword">Password</label>
+      </div>
+
+      <button class="btn btn-primary w-100 py-2" type="submit">Submit</button>
+    </form>
+  </main>

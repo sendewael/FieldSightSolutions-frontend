@@ -1,0 +1,13 @@
+.claims-container {
+    padding-bottom: 20px; /* Optional: Give space at the bottom */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust this margin for spacing between the claims and the button */
+}
+
+a {
+    display: inline-block;
+}

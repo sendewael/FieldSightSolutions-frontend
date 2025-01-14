@@ -1,0 +1,31 @@
+<div *ngIf="claims.length > 0; else noClaims" class="claims-container">
+    <h2>Your Insurance Claims</h2>
+    <ul>
+        <li *ngFor="let claim of claims">
+            <p>Claim ID: {{ claim.id }}</p>
+            <p>Start Date: {{ claim.startDate }}</p>
+            <p>End Date: {{ claim.endDate }}</p>
+            <p>Status: {{ claim.active ? 'Active' : 'Inactive' }}</p>
+            <hr />
+        </li>
+    </ul>
+
+    <!-- Centered button below the claims section -->
+    <div class="button-container">
+        <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+           class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+           schadeclaim aanmaken
+        </a>
+    </div>
+</div>
+
+<ng-template #noClaims>
+    <p>No insurance claims found for this user.</p>
+
+    <div class="button-container">
+        <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+           class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+           schadeclaim aanmaken
+        </a>
+    </div>
+</ng-template>
