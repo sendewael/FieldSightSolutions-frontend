@@ -11,25 +11,46 @@ export class FieldService {
   getFields(): FieldResponsetDto[] {
     let fields: FieldResponsetDto[] = [
       {
+        id: 5,
+        name: "Veld Geel Hoog",
+        acreage: "90 acres",
+        municipality: "Geel",
+        postalcode: "2440"
+      },
+      {
+        id: 6,
+        name: "Veld Geel Hoog 2",
+        acreage: "85 acres",
+        municipality: "Geel",
+        postalcode: "2440"
+      },
+      {
         id: 1,
-        name: "Field A",
+        name: "Veld Geel Markt",
         acreage: "100 acres",
-        municipality: "Municipality A",
-        postalcode: "12345"
+        municipality: "Geel",
+        postalcode: "2440"
       },
       {
         id: 2,
-        name: "Field B",
-        acreage: "200 acres",
-        municipality: "Municipality B",
-        postalcode: "23456"
+        name: "Veld Geel Markt 2",
+        acreage: "100 acres",
+        municipality: "Geel",
+        postalcode: "2440"
       },
       {
         id: 3,
-        name: "Field C",
+        name: "Veld Olen",
+        acreage: "200 acres",
+        municipality: "Olen",
+        postalcode: "2440"
+      },
+      {
+        id: 4,
+        name: "Veld Mol",
         acreage: "150 acres",
-        municipality: "Municipality C",
-        postalcode: "34567"
+        municipality: "Mol",
+        postalcode: "2450"
       }
     ];
 
@@ -50,5 +71,17 @@ export class FieldService {
   getFieldsByPostalCode(postalCode: string): FieldResponsetDto[] {
     const fields = this.getFields();
     return fields.filter(f => f.postalcode === postalCode);
+  }
+
+  updateField(id: number, updatedField: Partial<FieldResponsetDto>): boolean {
+    const fields = this.getFields();
+    const fieldIndex = fields.findIndex(f => f.id === id);
+
+    if (fieldIndex === -1) {
+      return false;
+    }
+
+    fields[fieldIndex] = { ...fields[fieldIndex], ...updatedField };
+    return true;
   }
 }
