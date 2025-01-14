@@ -11,6 +11,20 @@ export class FieldService {
   getFields(): FieldResponsetDto[] {
     let fields: FieldResponsetDto[] = [
       {
+        id: 5,
+        name: "Veld Geel Hoog",
+        acreage: "90 acres",
+        municipality: "Geel",
+        postalcode: "2440"
+      },
+      {
+        id: 6,
+        name: "Veld Geel Hoog 2",
+        acreage: "85 acres",
+        municipality: "Geel",
+        postalcode: "2440"
+      },
+      {
         id: 1,
         name: "Veld Geel Markt",
         acreage: "100 acres",
@@ -57,5 +71,17 @@ export class FieldService {
   getFieldsByPostalCode(postalCode: string): FieldResponsetDto[] {
     const fields = this.getFields();
     return fields.filter(f => f.postalcode === postalCode);
+  }
+
+  updateField(id: number, updatedField: Partial<FieldResponsetDto>): boolean {
+    const fields = this.getFields();
+    const fieldIndex = fields.findIndex(f => f.id === id);
+
+    if (fieldIndex === -1) {
+      return false;
+    }
+
+    fields[fieldIndex] = { ...fields[fieldIndex], ...updatedField };
+    return true;
   }
 }

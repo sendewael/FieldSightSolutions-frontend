@@ -11,6 +11,65 @@ export class CornerService {
   getCorners(): CornerResponseDto[] {
     // Corners logically distributed around Geel, Olen, and Mol (latitude and longitude)
     let corners: CornerResponseDto[] = [
+      // Field 5: Geel Hoog
+      {
+        id: 17,
+        fieldId: 5,
+        index: 1,
+        xCord: "51.1630",
+        yCord: "4.9900"
+      },
+      {
+        id: 18,
+        fieldId: 5,
+        index: 2,
+        xCord: "51.1632",
+        yCord: "4.9915"
+      },
+      {
+        id: 19,
+        fieldId: 5,
+        index: 3,
+        xCord: "51.1627",
+        yCord: "4.9920"
+      },
+      {
+        id: 20,
+        fieldId: 5,
+        index: 4,
+        xCord: "51.1625",
+        yCord: "4.9905"
+      },
+
+      // Field 6: Geel Hoog 2
+      {
+        id: 21,
+        fieldId: 6,
+        index: 1,
+        xCord: "51.1635",
+        yCord: "4.9920"
+      },
+      {
+        id: 22,
+        fieldId: 6,
+        index: 2,
+        xCord: "51.1637",
+        yCord: "4.9935"
+      },
+      {
+        id: 23,
+        fieldId: 6,
+        index: 3,
+        xCord: "51.1632",
+        yCord: "4.9940"
+      },
+      {
+        id: 24,
+        fieldId: 6,
+        index: 4,
+        xCord: "51.1630",
+        yCord: "4.9925"
+      },
       // Field 1: Geel
       {
         id: 1,
