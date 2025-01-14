@@ -1,65 +1,65 @@
 <form class="bg-white shadow-md rounded p-6 grid grid-cols-2">
-    <!-- Gegevens van het veld -->
-    <div class="grid grid-cols-2 gap-4 m-1 h-min">
-      <div class="col-span-2">
-          <h2 class="font-semibold text-xl">Gegevens van veld</h2>
-      </div>
-      <div class="col-span-1">
-        <label for="field-name" class="block text-sm font-medium text-gray-700">Naam veld</label>
-        <input type="text" id="field-name" name="field-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="field-crop" class="block text-sm font-medium text-gray-700">Teelt</label>
-        <input type="text" id="field-crop" name="field-crop" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="field-municipality" class="block text-sm font-medium text-gray-700">Hoofdgemeente</label>
-        <input type="text" id="field-municipality" name="field-municipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="field-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
-        <input type="text" id="field-postcode" name="field-postcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="field-area" class="block text-sm font-medium text-gray-700">Oppervlakte (ha)</label>
-        <input type="number" id="field-area" name="field-area" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
+  <!-- Gegevens van het veld -->
+  <div class="grid grid-cols-2 gap-4 m-1 h-min">
+    <div class="col-span-2">
+      <h2 class="font-semibold text-xl">Gegevens van veld</h2>
     </div>
+    <div class="col-span-1">
+      <label for="field-name" class="block text-sm font-medium text-gray-700">Naam veld</label>
+      <input type="text" id="field-name" [(ngModel)]="schadeclaimForm.fieldName" name="fieldName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="field-crop" class="block text-sm font-medium text-gray-700">Teelt</label>
+      <input type="text" id="field-crop" [(ngModel)]="schadeclaimForm.fieldCrop" name="fieldCrop" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="field-municipality" class="block text-sm font-medium text-gray-700">Hoofdgemeente</label>
+      <input type="text" id="field-municipality" [(ngModel)]="schadeclaimForm.fieldMunicipality" name="fieldMunicipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="field-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
+      <input type="text" id="field-postcode" [(ngModel)]="schadeclaimForm.fieldPostcode" name="fieldPostcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="field-area" class="block text-sm font-medium text-gray-700">Oppervlakte (ha)</label>
+      <input type="number" id="field-area" [(ngModel)]="schadeclaimForm.fieldArea" name="fieldArea" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+  </div>
 
-    <!-- Gegevens van de boer -->
-    <div class="grid grid-cols-2 gap-4 m-1">
-      <div class="col-span-2">
-          <h2 class="font-semibold text-xl">Gegevens van veld eigenaar</h2>
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-firstname" class="block text-sm font-medium text-gray-700">Voornaam</label>
-        <input type="text" id="farmer-firstname" name="farmer-firstname" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-name" class="block text-sm font-medium text-gray-700">Naam</label>
-        <input type="text" id="farmer-name" name="farmer-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-street" class="block text-sm font-medium text-gray-700">Straat</label>
-        <input type="text" id="farmer-street" name="farmer-street" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-number" class="block text-sm font-medium text-gray-700">Nr</label>
-        <input type="text" id="farmer-number" name="farmer-number" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-municipality" class="block text-sm font-medium text-gray-700">Gemeente</label>
-        <input type="text" id="farmer-municipality" name="farmer-municipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-1">
-        <label for="farmer-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
-        <input type="text" id="farmer-postcode" name="farmer-postcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
-      <div class="col-span-2">
-        <label for="farmer-email" class="block text-sm font-medium text-gray-700">Emailadres</label>
-        <input type="email" id="farmer-email" name="farmer-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-      </div>
+  <!-- Gegevens van de boer -->
+  <div class="grid grid-cols-2 gap-4 m-1">
+    <div class="col-span-2">
+      <h2 class="font-semibold text-xl">Gegevens van veld eigenaar</h2>
     </div>
+    <div class="col-span-1">
+      <label for="farmer-firstname" class="block text-sm font-medium text-gray-700">Voornaam</label>
+      <input type="text" id="farmer-firstname" [(ngModel)]="schadeclaimForm.farmerFirstname" name="farmerFirstname" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="farmer-name" class="block text-sm font-medium text-gray-700">Naam</label>
+      <input type="text" id="farmer-name" [(ngModel)]="schadeclaimForm.farmerName" name="farmerName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="farmer-street" class="block text-sm font-medium text-gray-700">Straat</label>
+      <input type="text" id="farmer-street" [(ngModel)]="schadeclaimForm.farmerStreet" name="farmerStreet" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="farmer-number" class="block text-sm font-medium text-gray-700">Nr</label>
+      <input type="text" id="farmer-number" [(ngModel)]="schadeclaimForm.farmerNumber" name="farmerNumber" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="farmer-municipality" class="block text-sm font-medium text-gray-700">Gemeente</label>
+      <input type="text" id="farmer-municipality" [(ngModel)]="schadeclaimForm.farmerMunicipality" name="farmerMunicipality" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-1">
+      <label for="farmer-postcode" class="block text-sm font-medium text-gray-700">Postcode</label>
+      <input type="text" id="farmer-postcode" [(ngModel)]="schadeclaimForm.farmerPostcode" name="farmerPostcode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+    <div class="col-span-2">
+      <label for="farmer-email" class="block text-sm font-medium text-gray-700">Emailadres</label>
+      <input type="email" id="farmer-email" [(ngModel)]="schadeclaimForm.farmerEmail" name="farmerEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+    </div>
+  </div>
 
     
 

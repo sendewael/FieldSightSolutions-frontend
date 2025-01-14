@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+// import { Router, RouterModule } from '@angular/router';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -31,7 +32,7 @@ export class SchadeclaimsComponent implements OnInit {
 
   fetchInsuranceClaims(userId: number): void {
     // Make the API call to get insurance claims based on the user ID
-    this.http.get(`http://localhost:8000/api/insurance-claims/${userId}/`, { withCredentials: true })
+    this.http.get(`http://localhost:8000/api/insurance-claims/${userId}`, { withCredentials: true })
       .subscribe({
         next: (response: any) => {
           this.claims = response;  // Assign the response data to the claims array
@@ -41,4 +42,10 @@ export class SchadeclaimsComponent implements OnInit {
         }
       });
   }
+
+  editClaim(claimId: number): void {
+    // Navigate to the edit claim page, passing the claim ID in the route
+    this.router.navigate(['/edit-schadeclaim', claimId]);
+}
+
 }

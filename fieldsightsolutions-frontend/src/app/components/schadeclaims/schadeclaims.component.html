@@ -1,20 +1,32 @@
 <div *ngIf="claims.length > 0; else noClaims" class="claims-container">
-    <h2>Your Insurance Claims</h2>
-    <ul>
-        <li *ngFor="let claim of claims">
-            <p>Claim ID: {{ claim.id }}</p>
-            <p>Start Date: {{ claim.startDate }}</p>
-            <p>End Date: {{ claim.endDate }}</p>
-            <p>Status: {{ claim.active ? 'Active' : 'Inactive' }}</p>
-            <hr />
-        </li>
-    </ul>
+
+    <!-- Header Section -->
+    <div class="claims-row-header">
+        <div class="header-item">Veld Naam</div>
+        <div class="header-item">Datum (van - tot)</div>
+        <div class="header-item">Soort Schade</div>
+        <div class="header-item"></div>
+    </div>
+
+    <!-- Claim Rows Section -->
+    <div *ngFor="let claim of claims" class="claim-card">
+        <div class="card-content">
+            <div class="card-item">{{ claim.field_name }}</div>
+            <div class="card-item">
+                {{ claim.startDate | date:'shortDate' }} - {{ claim.endDate | date:'shortDate' }}
+            </div>
+            <div class="card-item">{{ claim.damage_type }}</div>
+            <div class="card-item">
+                <button (click)="editClaim(claim.id)" class="edit-button">Bekijk/Bewerk</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Centered button below the claims section -->
     <div class="button-container">
         <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
            class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
-           schadeclaim aanmaken
+           Create Insurance Claim
         </a>
     </div>
 </div>
@@ -25,7 +37,7 @@
     <div class="button-container">
         <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
            class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
-           schadeclaim aanmaken
+           Create Insurance Claim
         </a>
     </div>
 </ng-template>
