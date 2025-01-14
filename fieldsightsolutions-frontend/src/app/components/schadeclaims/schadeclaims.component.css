@@ -1,0 +1,80 @@
+.claims-container {
+    padding: 20px;
+    background-color: #f3f3f3;
+    border-radius: 8px;
+}
+
+/* Header Section */
+.claims-row-header {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    background-color: #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Individual Claim Card */
+.claim-card {
+    background-color: #e6e6e6;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Claim Content Layout */
+.card-content {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    align-items: center;
+    width: 100%;
+}
+
+/* Individual Card Items */
+.card-item {
+    padding: 8px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+/* Edit Button */
+.edit-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.edit-button:hover {
+    background-color: #45a049;
+}
+
+/* "Create Insurance Claim" Button */
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.button-container a {
+    background-color: #f0f0f0;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #333;
+    border: 1px solid #ddd;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.button-container a:hover {
+    background-color: #e0e0e0;
+}

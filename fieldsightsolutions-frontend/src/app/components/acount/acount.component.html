@@ -1,0 +1,34 @@
+<div class="account-container">
+    <h1>Mijn Account</h1>
+
+    <div class="role-container">
+      <p class="role-name">Role: {{ roleName }}</p>
+    </div>
+    <div class="form-container">
+
+      
+      <div class="form-left">
+        <label for="firstName">Voornaam</label>
+        <input id="firstName" type="text" [(ngModel)]="user.firstName" />
+  
+        <label for="adres">Straat</label>
+        <input id="adres" type="text" [(ngModel)]="user.adres" />
+  
+        <label for="gemeente">Gemeente</label>
+        <input id="gemeente" type="text" [(ngModel)]="user.gemeente" />
+  
+        <a href="#" class="forgot-password">Wachtwoord vergeten?</a>
+      </div>
+  
+      <div class="form-right">
+        <label for="lastName">Achternaam</label>
+        <input id="lastName" type="text" [(ngModel)]="user.lastName" />
+  
+        <label for="email">Email</label>
+        <input id="email" type="email" [(ngModel)]="user.email" />
+  
+        <button class="save-btn" (click)="save()">Opslaan</button>
+      </div>
+    </div>
+  </div>
+  
