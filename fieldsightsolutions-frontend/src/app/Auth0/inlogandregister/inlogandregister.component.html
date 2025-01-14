@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="tabs">
+      <button (click)="toggleMode()" [class.active]="isLoginMode">LOGIN</button>
+      <button (click)="toggleMode()" [class.active]="!isLoginMode">REGISTREER</button>
+    </div>
+  
+    <!-- Login Form -->
+    <div *ngIf="isLoginMode" class="form">
+      <form [formGroup]="loginForm" (ngSubmit)="loginSubmit()">
+        <div class="form-group">
+          <input formControlName="email" type="email" placeholder="E-mail" />
+        </div>
+        <div class="form-group">
+          <input formControlName="password" type="password" placeholder="Wachtwoord" />
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <a href="#" class="forgot-password">Wachtwoord vergeten?</a>
+      </form>
+    </div>
+  
+    <!-- Register Form -->
+    <div *ngIf="!isLoginMode" class="form">
+      <form [formGroup]="registerForm" (ngSubmit)="registerSubmit()">
+        <div class="form-group">
+          <input formControlName="firstName" type="text" placeholder="Voornaam" />
+        </div>
+        <div class="form-group">
+          <input formControlName="lastName" type="text" placeholder="Achternaam" />
+        </div>
+        <div class="form-group">
+          <input formControlName="email" type="email" placeholder="E-mail" />
+        </div>
+        <div class="form-group">
+          <input formControlName="adres" type="text" placeholder="Straat + nummer" />
+        </div>
+        <div class="form-group">
+          <input formControlName="gemeente" type="text" placeholder="Gemeente" />
+        </div>
+        <div class="form-group">
+          <input formControlName="password" type="password" placeholder="Wachtwoord" />
+        </div>
+        <button type="submit" class="btn">Registreer</button>
+      </form>
+    </div>
+  </div>
+  
