@@ -9,7 +9,10 @@ module.exports = {
         tertiary: '#2194f3',
         primary_light: '#A5D6A7',
         primary_dark: '#237D31'
-      }
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
     },
   },
   plugins: [],

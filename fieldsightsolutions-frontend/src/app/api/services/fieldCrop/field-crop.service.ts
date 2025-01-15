@@ -12,19 +12,34 @@ export class FieldCropService {
     let fieldCrops: FieldCropResponseDto[] = [
       {
         id: 1,
-        fieldId: 4,
+        fieldId: 1,
         cropId: 1
       },
       {
         id: 2,
-        fieldId: 6,
+        fieldId: 2,
         cropId: 2
       },
       {
         id: 3,
         fieldId: 3,
         cropId: 3
-      }
+      },
+      {
+        id: 4,
+        fieldId: 4,
+        cropId: 2
+      },
+      {
+        id: 5,
+        fieldId: 5,
+        cropId: 2
+      },
+      {
+        id: 6,
+        fieldId: 6,
+        cropId: 2
+      },
     ];
 
     return fieldCrops;

@@ -12,11 +12,14 @@ import { UserFieldService } from '../../api/services/userField/user-field.servic
 import { UserService } from '../../api/services/user/user.service';
 import { FormsModule } from '@angular/forms';
 import { FieldCropService } from '../../api/services/fieldCrop/field-crop.service';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
+import { SearchControl, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [PerceelknopComponent, CommonModule, FormsModule],
+  imports: [PerceelknopComponent, CommonModule, FormsModule, ModalComponent, ConfirmModalComponent],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
 })
@@ -24,12 +27,20 @@ export class MapComponent {
 
   private map: L.Map | undefined;
   public isOpen: boolean = true;
+  public isEdit: boolean = false;
   public messageModal: boolean = false;
+  public confirmMessageModal: boolean = false;
   public nieuwPerceel: boolean = false;
   public geenPercelen: boolean = false;
   public geselecteerdPerceel: FieldResponsetDto | null = null;
   public geselecteerdNewPerceel: FieldResponsetDto | null = null;
   private highlightedPolygon: L.Polygon | null = null;
+  public filterText: string = '';
+
+
+  public modalMessage: string = "";
+  public confirmModalMessage: string = "";
+
 
   // Hier moet dynamic userId ingestoken worden a.d.h.v. wie ingelogd is
   public userId = 1;
@@ -45,6 +56,14 @@ export class MapComponent {
     this.percelen = this.fieldService.getFields()
     this.crops = this.cropService.getCrops()
     this.loadUserFields(this.userId)
+  }
+
+  get filteredUserPercelen() {
+    return this.userPercelen.filter(perceel =>
+      perceel.name.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.municipality.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.postalcode.toLowerCase().includes(this.filterText.toLowerCase())
+    );
   }
 
   // Bij opstart wordt deze functie gerunned. Hier wordt de userId gecheckt en dan wordt er uit UserFields de rows gehaald met die userId
@@ -77,16 +96,33 @@ export class MapComponent {
     }
   }
 
+
   // deze functie maakt de map, zonder percelen. Puur de map
   private initMap(): void {
     this.map = L.map('map', {
       center: [51.1620, 4.9910],
       zoom: 16,
+      zoomControl: false
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg', {
+      attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
+
+    L.control.zoom({
+      position: 'topleft'
+    }).addTo(this.map);
+
+    this.map.attributionControl.setPosition('bottomleft');
+
+    const searchControl = GeoSearchControl({
+      provider: new OpenStreetMapProvider(),
+      style: 'button',
+      showMarker: false,
+      showPopup: false,
+    });
+
+    this.map.addControl(searchControl);
   }
 
   // Deze functie tekent de polygons voor de percelen die bij de user horen
@@ -276,6 +312,7 @@ export class MapComponent {
       }
       console.log(geselecteerdNewPerceel)
     } else {
+      this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren."
       this.openModal()
       console.log("Perceel is al toegewezen (fieldId in UserFields)")
     }
@@ -323,13 +360,38 @@ export class MapComponent {
   }
 
 
-  deleteUserField(fieldId: number): void {
+  deleteUserField(): void {
+    this.confirmMessageModal = true;
+  }
+
+  confirmDeleteUserField(fieldId: number): void {
     const oneUserField = this.userFieldService.getUserFieldByFieldId(fieldId)
     if (oneUserField) {
       this.userFieldService.deleteUserField(oneUserField.id)
     }
+
     this.wisGeselecteerdPerceel()
     this.loadUserFields(this.userId)
     this.drawUserFieldsOnMap()
+    this.closeConfirmModal()
+    console.log("userfield gewist")
+  }
+
+  closeConfirmModal(): void {
+    this.confirmMessageModal = false;
+  }
+
+  editPerceel(): void {
+    this.isEdit = !this.isEdit
+    console.log(this.isEdit)
+    console.log(this.geselecteerdPerceel)
+  }
+
+  confirmEditPerceel(): void {
+    console.log(this.geselecteerdPerceel)
+    if (this.geselecteerdPerceel) {
+      this.fieldService.updateField(this.geselecteerdPerceel.id, this.geselecteerdPerceel)
+    }
+    this.isEdit = false;
   }
 }
