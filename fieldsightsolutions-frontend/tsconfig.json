@@ -21,6 +21,13 @@
     "lib": [
       "ES2022",
       "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "leaflet",
+      "leaflet-geosearch"
     ]
   },
   "angularCompilerOptions": {

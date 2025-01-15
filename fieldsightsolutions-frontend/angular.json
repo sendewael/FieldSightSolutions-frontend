@@ -28,7 +28,10 @@
             ],
             "styles": [
               "src/styles.css",
-              "node_modules/leaflet/dist/leaflet.css"
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet-search/dist/leaflet-search.min.css",
+              "node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css",
+              "node_modules/leaflet-geosearch/dist/geosearch.css"
             ],
             "scripts": []
           },

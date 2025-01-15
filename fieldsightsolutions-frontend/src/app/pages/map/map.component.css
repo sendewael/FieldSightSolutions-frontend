@@ -1,14 +1,8 @@
-/* Ensure that the percelenManager starts off-screen to the right
-.percelenManager {
-    width: 0;
+#map {
+    position: absolute;
+    top: 5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100vh - 5rem);
 }
-
-.percelenManager.open {
-    width: 25%;
-}
-
-.rotate {
-    rotate: -180deg;
-    transition: all;
-    transition-duration: 300ms;
-} */
