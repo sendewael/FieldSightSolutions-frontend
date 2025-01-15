@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Emitters } from '../../Auth0/emitters/emitters';
+import { Emitters } from '../../Auth/emitters/emitters';
 @Component({
   selector: 'app-acount',
   templateUrl: './acount.component.html',
