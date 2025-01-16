@@ -1,74 +1,37 @@
 import { Injectable } from '@angular/core';
 import { UserFieldResponseDto } from '../../dtos/UserField/UserField-response-dto';
+import { environment } from '../../../../environments/environment.development';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable, tap } from 'rxjs';
+import { UserFieldRequestDto } from '../../dtos/UserField/UserField-request-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserFieldService {
+  private apiUrl = `${environment.baseUrl}/userField`
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  private userFields: UserFieldResponseDto[] = [
-    // {
-    //   id: 1,
-    //   userId: 2,
-    //   fieldId: 1
-    // },
-    // {
-    //   id: 2,
-    //   userId: 1,
-    //   fieldId: 2
-    // },
-    // {
-    //   id: 3,
-    //   userId: 1,
-    //   fieldId: 3
-    // },
-    // {
-    //   id: 4,
-    //   userId: 1,
-    //   fieldId: 4
-    // },
-    // {
-    //   id: 6,
-    //   userId: 1,
-    //   fieldId: 6
-    // },
-  ];
-
-  getUserFields(): UserFieldResponseDto[] {
-    return this.userFields;
+  getUserFields(): Observable<UserFieldResponseDto[]> {
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/all`)
   }
 
-  getUserFieldById(id: number): UserFieldResponseDto | null {
-    const userFields = this.getUserFields();
-    const userField = userFields.find(u => u.id === id);
-    return userField ?? null;
+  getUserFieldsByUserId(userId: number): Observable<UserFieldResponseDto[]> {
+    const url = `${this.apiUrl}/userId/${userId}`;
+    return this.http.get<UserFieldResponseDto[]>(url);
   }
 
-  getUserFieldsByUserId(userId: number): UserFieldResponseDto[] {
-    const userFields = this.getUserFields();
-    const userFieldList = userFields.filter(u => u.userId === userId);
-    return userFieldList;
+  addUserField(userFieldRequest: UserFieldRequestDto): Observable<UserFieldResponseDto> {
+    return this.http.post<UserFieldResponseDto>(`${this.apiUrl}/`, userFieldRequest);
   }
 
-  addUserField(userId: number, fieldId: number): void {
-    const newId = this.userFields.length > 0 ? Math.max(...this.userFields.map(u => u.id)) + 1 : 1;
-
-    const newUserField: UserFieldResponseDto = {
-      id: newId,
-      userId,
-      fieldId
-    };
-
-    this.userFields.push(newUserField);
+  getUserFieldByFieldId(fieldId: number): Observable<UserFieldResponseDto[]> {
+    const url = `${this.apiUrl}/fieldId/${fieldId}`;
+    return this.http.get<UserFieldResponseDto[]>(url);
   }
 
-  getUserFieldByFieldId(fieldId: number): UserFieldResponseDto | null {
-    return this.userFields.find(u => u.fieldId === fieldId) ?? null;
-  }
-
-  deleteUserField(id: number): void {
-    console.log(`userField with id ${id} removed`);
+  deleteUserField(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`)
   }
 }
