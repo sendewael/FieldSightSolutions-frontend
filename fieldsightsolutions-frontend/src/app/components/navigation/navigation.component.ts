@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Emitters } from '../../Auth0/emitters/emitters';
+import { Emitters } from '../../Auth/emitters/emitters';
 
 @Component({
   selector: 'app-navigation',
