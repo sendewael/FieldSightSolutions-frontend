@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { FieldCropResponseDto } from '../../dtos/FieldCrop/FieldCrop-response-dto';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
 })
 export class FieldCropService {
 
-  constructor() { }
+
+  constructor(private httpClient: HttpClient) {
+  }
+
 
   getFieldCrops(): FieldCropResponseDto[] {
     let fieldCrops: FieldCropResponseDto[] = [
@@ -51,15 +56,15 @@ export class FieldCropService {
     return fieldCrop ?? null;
   }
 
-  getFieldCropsByFieldId(fieldId: number): FieldCropResponseDto[] {
-    const fieldCrops = this.getFieldCrops();
-    const filteredFieldCrops = fieldCrops.filter(fc => fc.fieldId === fieldId);
-    return filteredFieldCrops;
-  }
+
 
   getFieldCropsByCropId(cropId: number): FieldCropResponseDto[] {
     const fieldCrops = this.getFieldCrops();
     const filteredFieldCrops = fieldCrops.filter(fc => fc.cropId === cropId);
     return filteredFieldCrops;
   }
+
+  getFieldCropsByFieldId(fieldId: number): Observable<FieldCropResponseDto[]> {
+      return this.httpClient.get<FieldCropResponseDto[]>(`http://localhost:8000/api/fieldCrop/${fieldId}`, { withCredentials: true });
+    }
 }

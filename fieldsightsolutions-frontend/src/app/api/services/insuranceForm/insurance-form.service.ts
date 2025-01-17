@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { InsuranceFormResponseDto } from '../../dtos/InsuranceForm/InsuranceForm-response-dto';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
 })
 export class InsuranceFormService {
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) {
+  }
 
   getInsuranceForms(): InsuranceFormResponseDto[] {
     let insuranceForms: InsuranceFormResponseDto[] = [
@@ -39,11 +42,6 @@ export class InsuranceFormService {
     return insuranceForms;
   }
 
-  getInsuranceFormById(id: number): InsuranceFormResponseDto | null {
-    const insuranceForms = this.getInsuranceForms();
-    const insuranceForm = insuranceForms.find(form => form.id === id);
-    return insuranceForm ?? null;
-  }
 
   getInsuranceFormsByDamageId(damageId: number): InsuranceFormResponseDto[] {
     const insuranceForms = this.getInsuranceForms();
@@ -55,5 +53,18 @@ export class InsuranceFormService {
     const insuranceForms = this.getInsuranceForms();
     const activeForms = insuranceForms.filter(form => form.active);
     return activeForms;
+  }
+
+
+  getInsuranceformByClaimId(claimId: number): Observable<InsuranceFormResponseDto[]> {
+    return this.httpClient.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/id/${claimId}/`, { withCredentials: true });
+  }
+
+  getInsuranceformByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
+    return this.httpClient.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, { withCredentials: true });
+  }
+
+  postInsuranceformById(userId: number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
+    return this.httpClient.post<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, formdata, { withCredentials: true });
   }
 }

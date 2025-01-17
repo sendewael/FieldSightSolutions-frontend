@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { FieldResponsetDto } from '../../dtos/Field/Field-response-dto';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs'
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class FieldService {
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) {
+  }
 
   getFields(): FieldResponsetDto[] {
     let fields: FieldResponsetDto[] = [
@@ -57,12 +61,6 @@ export class FieldService {
     return fields;
   }
 
-  getFieldById(id: number): FieldResponsetDto | null {
-    const fields = this.getFields();
-    const field = fields.find(f => f.id === id);
-    return field ?? null;
-  }
-
   getFieldsByMunicipality(municipality: string): FieldResponsetDto[] {
     const fields = this.getFields();
     return fields.filter(f => f.municipality.toLowerCase() === municipality.toLowerCase());
@@ -83,5 +81,15 @@ export class FieldService {
 
     fields[fieldIndex] = { ...fields[fieldIndex], ...updatedField };
     return true;
+  }
+
+  // Fetch fields based on userId
+  getFieldsByUserId(userId: number): Observable<FieldResponsetDto[]> {
+    return this.httpClient.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/user/${userId}`, { withCredentials: true });
+  }
+
+  // Fetch fields based on userId
+  getFieldById(selectedFieldId: number): Observable<FieldResponsetDto[]> {
+    return this.httpClient.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/${selectedFieldId}`, { withCredentials: true });
   }
 }

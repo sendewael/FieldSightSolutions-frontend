@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 // import { Router, RouterModule } from '@angular/router';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
 
 @Component({
   selector: 'app-schadeclaims',
@@ -15,7 +16,7 @@ export class SchadeclaimsComponent implements OnInit {
   claims: any[] = [];  // Store the insurance claims
   userId: number | null = null;  // Store the user ID
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private insuranceformservice: InsuranceFormService) { }
 
   ngOnInit(): void {
     // Get the logged-in user data (you can get this from localStorage or cookies)
@@ -32,7 +33,7 @@ export class SchadeclaimsComponent implements OnInit {
 
   fetchInsuranceClaims(userId: number): void {
     // Make the API call to get insurance claims based on the user ID
-    this.http.get(`http://localhost:8000/api/insurance-claims/${userId}`, { withCredentials: true })
+    this.insuranceformservice.getInsuranceformByUserId(userId)
       .subscribe({
         next: (response: any) => {
           this.claims = response;  // Assign the response data to the claims array

@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ImageResponseDto } from '../../dtos/Image/Image-response-dto';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageService {
 
-  constructor() { }
-
+  constructor(private httpClient: HttpClient) {
+  }
   getImages(): ImageResponseDto[] {
     let images: ImageResponseDto[] = [
       {
@@ -55,5 +57,9 @@ export class ImageService {
     const images = this.getImages();
     const filteredImages = images.filter(img => img.date >= startDate && img.date <= endDate);
     return filteredImages;
+  }
+
+  postImage(formdata: File): Observable<ImageResponseDto[]> {
+    return this.httpClient.post<ImageResponseDto[]>(`http://localhost:8000/api/images/`, formdata, { withCredentials: true });
   }
 }

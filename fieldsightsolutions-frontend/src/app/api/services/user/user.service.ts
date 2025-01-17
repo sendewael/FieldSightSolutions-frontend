@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { UserResponseDto } from '../../dtos/User/User-response-dto';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs'
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) {
+  }
+
 
   getUsers(): UserResponseDto[] {
     let users: UserResponseDto[] = [
@@ -43,5 +46,10 @@ export class UserService {
     const users = this.getUsers();
     const user = users.find(u => u.id === id);
     return user ?? null;
+  }
+
+  // Fetch fields based on userId
+  getUser(): Observable<UserResponseDto[]> {
+    return this.httpClient.get<UserResponseDto[]>(`http://localhost:8000/api/user`, { withCredentials: true });
   }
 }
