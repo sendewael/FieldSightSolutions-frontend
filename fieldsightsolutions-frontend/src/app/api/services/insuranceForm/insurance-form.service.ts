@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { InsuranceFormResponseDto } from '../../dtos/InsuranceForm/InsuranceForm-response-dto';
+import { environment } from '../../../../environments/environment.development';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InsuranceFormService {
 
-  constructor() { }
+  private apiUrl = `${environment.baseUrl}/insurance-claims`
+
+  constructor(private http: HttpClient) { }
 
   getInsuranceForms(): InsuranceFormResponseDto[] {
     let insuranceForms: InsuranceFormResponseDto[] = [
@@ -55,5 +60,9 @@ export class InsuranceFormService {
     const insuranceForms = this.getInsuranceForms();
     const activeForms = insuranceForms.filter(form => form.active);
     return activeForms;
+  }
+
+  getInsuranceclaimsByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
+    return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);
   }
 }
