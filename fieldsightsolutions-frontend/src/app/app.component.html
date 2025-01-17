@@ -1,4 +1,13 @@
-<app-navigation></app-navigation>
-
-<router-outlet></router-outlet>
-
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <app-navigation></app-navigation>
+  
+    <!-- Main content -->
+    <main class="flex-grow">
+      <router-outlet></router-outlet>
+    </main>
+  
+    <!-- Footer -->
+    <app-footer></app-footer>
+  </div>
+  

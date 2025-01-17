@@ -1,0 +1,26 @@
+<h1 class="text-center m-10 font-bold text-2xl">Landbouwers</h1>
+<div class="container">
+  <table class="table-auto w-full border-separate" style="border-spacing: 0">
+    <thead>
+      <tr>
+        <th class="text-left px-4 py-2 border-b border-green-600">Voornaam</th>
+        <th class="text-left px-4 py-2 border-b border-green-600">Achternaam</th>
+        <th class="px-4 py-2 border-b border-green-600"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of userList$ | async; let i = index">
+        <td class="px-4 py-2 border-b border-green-600">{{ user.firstName }}</td>
+        <td class="px-4 py-2 border-b border-green-600">{{ user.lastName }}</td>
+        <td class="px-4 py-2 text-center border-b border-green-600">
+          <button
+            (click)="bekijkSchadeclaim(user.id)"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Bekijk schadeclaims
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
