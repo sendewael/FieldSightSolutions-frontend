@@ -1,4 +1,4 @@
-<div *ngIf="claims.length > 0; else noClaims" class="claims-container margintop">
+<div *ngIf="claims.length > 0; else noClaims" class="claims-container">
 
     <!-- Header Section -->
     <div class="claims-row-header">
@@ -46,7 +46,7 @@
 </div>
 
 <ng-template #noClaims>
-    <p class="margintop2">Nog geen claims gevonden</p>
+    <p>Nog geen claims gevonden</p>
 
     <div class="button-container">
         <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
