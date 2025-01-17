@@ -5,6 +5,8 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UserResponseDto } from '../../dtos/User/User-response-dto';
+import { HttpClient } from '@angular/common/http';
+
 import { environment } from '../../../../environments/environment.development';
 import { Observable } from 'rxjs';
 
@@ -14,7 +16,10 @@ import { Observable } from 'rxjs';
 export class UserService {
   private apiUrl = `${environment.baseUrl}/user`
 
-  constructor(private http: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+  }
+
+
 
   // getUsers(): UserResponseDto[] {
   //   let users: UserResponseDto[] = [
@@ -55,5 +60,10 @@ export class UserService {
 
   getAllUsers(): Observable<UserResponseDto[]> {
     return this.http.get<UserResponseDto[]>(`${this.apiUrl}/all`)
+  }
+
+  // Fetch fields based on userId
+  getUser(): Observable<UserResponseDto[]> {
+    return this.httpClient.get<UserResponseDto[]>(`http://localhost:8000/api/user`, { withCredentials: true });
   }
 }

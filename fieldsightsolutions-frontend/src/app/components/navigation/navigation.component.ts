@@ -78,6 +78,8 @@ export class NavigationComponent implements OnInit {
 
         // Emit unauthenticated state
         Emitters.authEmitter.emit(false);
+        Emitters.userEmitter.emit(null);
+
       });
   }
 }

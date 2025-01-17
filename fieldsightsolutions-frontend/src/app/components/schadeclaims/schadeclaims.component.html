@@ -15,7 +15,7 @@
         <div class="card-content">
             <div class="card-item">{{ claim.field_name }}</div>
             <div class="card-item">
-                {{ claim.startDate | date:'shortDate' }} - {{ claim.endDate | date:'shortDate' }}
+                {{ claim.startDate | date:'dd/MM/yyyy' }} - {{ claim.endDate | date:'dd/MM/yyyy' }}
             </div>
             <div class="card-item">{{ claim.damage_type }}</div>
 
