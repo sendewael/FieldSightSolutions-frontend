@@ -15,6 +15,8 @@ import { FieldCropService } from '../../api/services/fieldCrop/field-crop.servic
 import { ModalComponent } from '../../components/modal/modal.component';
 import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 import { SearchControl, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
+import { UserFieldResponseDto } from '../../api/dtos/UserField/UserField-response-dto';
+import { UserFieldRequestDto } from '../../api/dtos/UserField/UserField-request-dto';
 
 @Component({
   selector: 'app-map',
@@ -26,6 +28,7 @@ import { SearchControl, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-
 export class MapComponent {
 
   private map: L.Map | undefined;
+  private polygons: L.Polygon[] = [];
   public isOpen: boolean = true;
   public isEdit: boolean = false;
   public messageModal: boolean = false;
@@ -43,7 +46,10 @@ export class MapComponent {
 
 
   // Hier moet dynamic userId ingestoken worden a.d.h.v. wie ingelogd is
-  public userId = 1;
+  public userId = 2;
+
+  public isLoading: boolean = true;
+
 
 
   crops: CropResponseDto[] = [];
@@ -53,9 +59,11 @@ export class MapComponent {
   constructor(private fieldService: FieldService, private userFieldService: UserFieldService, private userService: UserService, private cornerService: CornerService, private cropService: CropService, private fieldCropService: FieldCropService) { }
 
   ngOnInit(): void {
-    this.percelen = this.fieldService.getFields()
-    this.crops = this.cropService.getCrops()
-    this.loadUserFields(this.userId)
+    this.fieldService.getFields().subscribe(fields => {
+      this.percelen = fields;
+      console.log("lijn 59 = This percelen = ", this.percelen)
+      this.loadUserFields(this.userId)
+    });
   }
 
   get filteredUserPercelen() {
@@ -69,14 +77,38 @@ export class MapComponent {
   // Bij opstart wordt deze functie gerunned. Hier wordt de userId gecheckt en dan wordt er uit UserFields de rows gehaald met die userId
   // dan worden de fieldIds eruit gehaald, dan wordt via fieldService de fields opgehaald met die Id en in userPercelen gestoken 
   private loadUserFields(userId: number): void {
-    const userFields = this.userFieldService.getUserFieldsByUserId(userId);
-    const fieldIds = userFields.map(uf => uf.fieldId);
-    this.userPercelen = this.fieldService.getFields().filter(field => fieldIds.includes(field.id));
-    if (this.userPercelen.length < 1) {
-      this.geenPercelen = true
-    } else {
-      this.geenPercelen = false
-    }
+    this.isLoading = true;
+
+    this.userFieldService.getUserFieldsByUserId(userId).subscribe(
+      (userFields) => {
+        console.log("lijn 77 userFields", userFields);
+
+        const fieldIds = userFields.map(uf => uf.field);
+
+        this.fieldService.getFields().subscribe(fields => {
+          this.userPercelen = fields.filter(field => fieldIds.includes(field.id));
+
+          if (this.userPercelen.length < 1) {
+            this.geenPercelen = true;
+            this.nieuwPerceel = true;
+            this.drawFieldsOnMap();
+          } else {
+            this.geenPercelen = false;
+            this.drawUserFieldsOnMap();
+          }
+
+          this.isLoading = false;
+
+          console.log("lijn 94 length ", this.userPercelen.length);
+        }, (error) => {
+          console.error('Error loading fields', error);
+        });
+
+      },
+      (error) => {
+        console.error('Error loading user fields', error);
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -87,13 +119,6 @@ export class MapComponent {
 
   ngAfterViewInit(): void {
     this.initMap();
-    if (this.userPercelen.length < 1) {
-      this.nieuwPerceel = true
-      this.geenPercelen = true
-      this.drawFieldsOnMap()
-    } else {
-      this.drawUserFieldsOnMap();
-    }
   }
 
 
@@ -128,34 +153,41 @@ export class MapComponent {
   // Deze functie tekent de polygons voor de percelen die bij de user horen
   private drawUserFieldsOnMap(): void {
     if (!this.map) return;
-    console.log(this.userPercelen)
+
+    this.polygons.forEach(polygon => polygon.remove());
+    this.polygons = [];
+
+    console.log("lijn 182", this.userPercelen);
 
     this.userPercelen.forEach(field => {
-      const corners = this.cornerService.getCornersByFieldId(field.id);
+      this.cornerService.getCornersByFieldId(field.id).subscribe(corners => {
+        console.log("lijn 196 corners ", corners);
 
-      if (corners && corners.length > 0) {
-        const polygonCoords: [number, number][] = corners.map(corner => [
-          parseFloat(corner.xCord),
-          parseFloat(corner.yCord),
-        ]);
+        if (corners && corners.length > 0) {
+          const polygonCoords: [number, number][] = corners.map(corner => [
+            parseFloat(corner.xCord),
+            parseFloat(corner.yCord),
+          ]);
 
-
-        const polygon = L.polygon(polygonCoords, {
-          color: 'blue',
-          fillColor: 'lightblue',
-          fillOpacity: 0.5,
-        });
-
-        if (this.map) {
-          polygon.addTo(this.map);
-        }
-
-        if (this.map) {
-          polygon.on('click', () => {
-            this.focusOnField(field.id);
+          const polygon = L.polygon(polygonCoords, {
+            color: 'blue',
+            fillColor: 'lightblue',
+            fillOpacity: 0.5,
           });
+
+          if (this.map) {
+            polygon.addTo(this.map);
+          }
+
+          this.polygons.push(polygon);
+
+          if (this.map) {
+            polygon.on('click', () => {
+              this.focusOnField(field.id);
+            });
+          }
         }
-      }
+      });
     });
   }
 
@@ -163,39 +195,56 @@ export class MapComponent {
   private drawFieldsOnMap(): void {
     if (!this.map) return;
 
-    const userFields = this.userFieldService.getUserFields();
+    this.polygons.forEach(polygon => polygon.remove());
+    this.polygons = [];
 
-    this.percelen.forEach(field => {
-      const isAssigned = userFields.some(uf => uf.fieldId === field.id);
-      const fieldColor = isAssigned ? 'grey' : 'blue';
-      const fillColor = isAssigned ? 'lightgrey' : 'lightblue';
+    // Subscribe to the userFields Observable to get the data
+    this.userFieldService.getUserFields().subscribe(
+      (userFields) => {
+        console.log("lijn 184 - ", this.percelen);
 
-      const corners = this.cornerService.getCornersByFieldId(field.id);
+        // Now that we have the actual userFields array, we can use 'some'
+        this.percelen.forEach(field => {
+          const isAssigned = userFields.some(uf => uf.field === field.id);
+          const fieldColor = isAssigned ? 'grey' : 'blue';
+          const fillColor = isAssigned ? 'lightgrey' : 'lightblue';
 
-      if (corners && corners.length > 0) {
-        const polygonCoords: [number, number][] = corners.map(corner => [
-          parseFloat(corner.xCord),
-          parseFloat(corner.yCord),
-        ]);
+          // Subscribe to the Observable returned by getCornersByFieldId
+          this.cornerService.getCornersByFieldId(field.id).subscribe(corners => {
+            console.log("ik zoek corner", field.id)
+            if (corners && corners.length > 0) {
+              const polygonCoords: [number, number][] = corners.map(corner => [
+                parseFloat(corner.xCord),
+                parseFloat(corner.yCord),
+              ]);
 
-        const polygon = L.polygon(polygonCoords, {
-          color: fieldColor,
-          fillColor: fillColor,
-          fillOpacity: 0.5,
-        });
+              const polygon = L.polygon(polygonCoords, {
+                color: fieldColor,
+                fillColor: fillColor,
+                fillOpacity: 0.5,
+              });
 
-        if (this.map) {
-          polygon.addTo(this.map);
-        }
+              if (this.map) {
+                polygon.addTo(this.map);
+              }
 
-        if (this.map) {
-          polygon.on('click', () => {
-            this.focusOnNewField(field.id);
+              this.polygons.push(polygon);
+
+              if (this.map) {
+                polygon.on('click', () => {
+                  this.focusOnNewField(field.id);
+                });
+              }
+            }
           });
-        }
+        });
+      },
+      (error) => {
+        console.error('Error loading user fields', error);
       }
-    });
+    );
   }
+
 
   // Deze functie zorgt ervoor als er op terug geklikt wordt vanuit "Nieuw perceel toevoegen" dat terug enkel de user percelen
   // getoond worden
@@ -211,7 +260,6 @@ export class MapComponent {
     this.drawUserFieldsOnMap();
   }
 
-  // Deze functie maakt de geselecteerde polygon (perceel) rood
   highlightField(fieldId: number): void {
     if (!this.map) return;
 
@@ -220,25 +268,28 @@ export class MapComponent {
       this.highlightedPolygon = null;
     }
 
-    const corners = this.cornerService.getCornersByFieldId(fieldId);
+    this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
+      if (corners && corners.length > 0) {
+        const polygonCoords: [number, number][] = corners.map(corner => [
+          parseFloat(corner.xCord),
+          parseFloat(corner.yCord),
+        ]);
 
-    if (corners && corners.length > 0) {
-      const polygonCoords: [number, number][] = corners.map(corner => [
-        parseFloat(corner.xCord),
-        parseFloat(corner.yCord),
-      ]);
+        this.highlightedPolygon = L.polygon(polygonCoords, {
+          color: 'red',
+          fillColor: 'rgba(255, 0, 0, 0.4)',
+          fillOpacity: 0.6,
+          weight: 4,
+        });
 
-      this.highlightedPolygon = L.polygon(polygonCoords, {
-        color: 'red',
-        fillColor: 'rgba(255, 0, 0, 0.4)',
-        fillOpacity: 0.6,
-        weight: 4,
-      });
+        if (this.map) {
+          this.highlightedPolygon.addTo(this.map);
+        }
+      }
 
-      this.highlightedPolygon.addTo(this.map);
-
-    }
+    });
   }
+
 
 
 
@@ -248,28 +299,30 @@ export class MapComponent {
 
   // Deze functie gaat op de map naar het perceel dat geselecteerd is.
   focusOnField(fieldId: number): void {
-    const corners = this.cornerService.getCornersByFieldId(fieldId);
-    // if (corners.length > 0) {
-    //   const firstCorner = corners[0];
-    //   const x = parseFloat(firstCorner.xCord);
-    //   const y = parseFloat(firstCorner.yCord);
+    this.cornerService.getCornersByFieldId(fieldId).subscribe(
+      (corners) => {
+        // Ensure there are corners available
+        if (corners.length > 0) {
+          let sumX = 0;
+          let sumY = 0;
 
-    if (corners.length > 0) {
-      let sumX = 0;
-      let sumY = 0;
+          corners.forEach(corner => {
+            sumX += parseFloat(corner.xCord);
+            sumY += parseFloat(corner.yCord);
+          });
 
-      corners.forEach(corner => {
-        sumX += parseFloat(corner.xCord);
-        sumY += parseFloat(corner.yCord);
-      });
+          const centerX = sumX / corners.length;
+          const centerY = sumY / corners.length;
 
-      const centerX = sumX / corners.length;
-      const centerY = sumY / corners.length;
-
-      if (this.map) {
-        this.map.setView([centerX, centerY], 30);
+          if (this.map) {
+            this.map.setView([centerX, centerY], 30);
+          }
+        }
+      },
+      (error) => {
+        console.error('Error fetching corners', error);
       }
-    }
+    );
 
     const geselecteerdPerceel = this.userPercelen.find(perceel => perceel.id === fieldId);
     if (geselecteerdPerceel) {
@@ -283,39 +336,48 @@ export class MapComponent {
 
   // Deze functie gaat op de map naar het perceel dat geselecteerd is voor nieuwe percelen.
   focusOnNewField(fieldId: number): void {
-    const userFields = this.userFieldService.getUserFields();
-    const isAssigned = userFields.some(uf => uf.fieldId === fieldId);
-    if (!isAssigned) {
-      const corners = this.cornerService.getCornersByFieldId(fieldId);
-      if (corners.length > 0) {
-        let sumX = 0;
-        let sumY = 0;
+    this.userFieldService.getUserFields().subscribe(
+      (userFields) => {
+        const isAssigned = userFields.some(uf => uf.field === fieldId);
+        if (!isAssigned) {
+          this.cornerService.getCornersByFieldId(fieldId).subscribe(
+            (corners) => {
+              if (corners.length > 0) {
+                let sumX = 0;
+                let sumY = 0;
 
-        corners.forEach(corner => {
-          sumX += parseFloat(corner.xCord);
-          sumY += parseFloat(corner.yCord);
-        });
+                corners.forEach(corner => {
+                  sumX += parseFloat(corner.xCord);
+                  sumY += parseFloat(corner.yCord);
+                });
 
-        const centerX = sumX / corners.length;
-        const centerY = sumY / corners.length;
+                const centerX = sumX / corners.length;
+                const centerY = sumY / corners.length;
 
-        if (this.map) {
-          this.map.setView([centerX, centerY], 30);
+                if (this.map) {
+                  this.map.setView([centerX, centerY], 30);
+                }
+              }
+            }
+          )
+
+          const geselecteerdNewPerceel = this.percelen.find(perceel => perceel.id === fieldId);
+
+          if (geselecteerdNewPerceel) {
+            this.geselecteerdNewPerceel = geselecteerdNewPerceel;
+            this.highlightField(fieldId);
+          }
+          console.log(geselecteerdNewPerceel);
+        } else {
+          this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren.";
+          this.openModal();
+          console.log("Perceel is al toegewezen (fieldId in UserFields)");
         }
+      },
+      (error) => {
+        console.error('Error loading user fields', error);
       }
-
-      const geselecteerdNewPerceel = this.percelen.find(perceel => perceel.id === fieldId);
-
-      if (geselecteerdNewPerceel) {
-        this.geselecteerdNewPerceel = geselecteerdNewPerceel;
-        this.highlightField(fieldId);
-      }
-      console.log(geselecteerdNewPerceel)
-    } else {
-      this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren."
-      this.openModal()
-      console.log("Perceel is al toegewezen (fieldId in UserFields)")
-    }
+    );
   }
 
   openModal() {
@@ -346,35 +408,65 @@ export class MapComponent {
 
   perceelLandbouwerToevoeging(userId: number | undefined, fieldId: number | undefined): void {
     if (userId !== undefined && fieldId !== undefined) {
-      this.userFieldService.addUserField(userId, fieldId);
+      const userField: UserFieldRequestDto = {
+        user: userId,
+        field: fieldId,
+        is_active: true
+      };
 
-      if (this.geselecteerdNewPerceel) {
-        this.fieldService.updateField(fieldId, this.geselecteerdNewPerceel)
-      }
-      console.log(this.geselecteerdNewPerceel)
+      this.userFieldService.addUserField(userField).subscribe(
+        (response) => {
+          console.log('User field added:', response);
 
-      this.openPerceelToevoegen()
-      this.loadUserFields(this.userId)
-      this.drawUserFieldsOnMap()
+          if (this.geselecteerdNewPerceel) {
+            this.fieldService.updateField(fieldId, this.geselecteerdNewPerceel);
+          }
+
+          console.log(this.geselecteerdNewPerceel);
+
+          this.openPerceelToevoegen();
+          this.loadUserFields(this.userId);
+          this.drawUserFieldsOnMap();
+        },
+        (error) => {
+          console.error('Error adding user field', error);
+        }
+      );
     }
   }
-
 
   deleteUserField(): void {
     this.confirmMessageModal = true;
   }
 
   confirmDeleteUserField(fieldId: number): void {
-    const oneUserField = this.userFieldService.getUserFieldByFieldId(fieldId)
-    if (oneUserField) {
-      this.userFieldService.deleteUserField(oneUserField.id)
-    }
+    this.userFieldService.getUserFieldByFieldId(fieldId).subscribe(
+      (userFields) => {
 
-    this.wisGeselecteerdPerceel()
-    this.loadUserFields(this.userId)
-    this.drawUserFieldsOnMap()
-    this.closeConfirmModal()
-    console.log("userfield gewist")
+        const oneUserField = userFields[0];
+        if (oneUserField) {
+          console.log("lijn 551 ", oneUserField)
+          this.userFieldService.deleteUserField(oneUserField.id).subscribe(
+            () => {
+              console.log(`User field with id ${oneUserField.id} deleted successfully`);
+              this.wisGeselecteerdPerceel();
+              this.loadUserFields(this.userId);
+              this.closeConfirmModal();
+
+              console.log("User field deleted and map updated");
+            },
+            (error) => {
+              console.error('Error deleting user field', error);
+            }
+          );
+        } else {
+          console.log('No user field found with that fieldId');
+        }
+      },
+      (error) => {
+        console.error('Error fetching user field', error);
+      }
+    );
   }
 
   closeConfirmModal(): void {
@@ -390,7 +482,14 @@ export class MapComponent {
   confirmEditPerceel(): void {
     console.log(this.geselecteerdPerceel)
     if (this.geselecteerdPerceel) {
-      this.fieldService.updateField(this.geselecteerdPerceel.id, this.geselecteerdPerceel)
+      this.fieldService.updateField(this.geselecteerdPerceel.id, this.geselecteerdPerceel).subscribe(
+        (updatedField) => {
+          console.log('Field updated successfully:', updatedField);
+        },
+        (error) => {
+          console.error('Error updating field:', error);
+        }
+      );
     }
     this.isEdit = false;
   }

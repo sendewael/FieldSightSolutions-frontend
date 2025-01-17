@@ -7,13 +7,15 @@
 /* Header Section */
 .claims-row-header {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr; /* Adjusted to 5 columns */
     background-color: #ddd;
     padding: 10px;
     border-radius: 8px;
     font-weight: bold;
     margin-bottom: 10px;
 }
+
+
 
 /* Individual Claim Card */
 .claim-card {
@@ -30,7 +32,7 @@
 /* Claim Content Layout */
 .card-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr; /* Adjusted to 5 columns */
     align-items: center;
     width: 100%;
 }
@@ -77,4 +79,13 @@
 
 .button-container a:hover {
     background-color: #e0e0e0;
+}
+
+
+.margintop{
+    margin-top: 5rem;
+}
+
+.margintop2{
+    margin-top: 6rem;
 }

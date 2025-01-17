@@ -7,6 +7,15 @@
         [class.open]="isOpen">
         <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120"
             src="menubutton.svg" />
+        @if(isLoading) {
+        <div class="loader text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-primary_dark animate-spin" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+        </div>
+        } @else {
         @if(!nieuwPerceel && !geselecteerdPerceel){
         <p class="text-green-800 text-2xl pb-4">Mijn percelen</p>
         <input [(ngModel)]="filterText" type="text" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md"
@@ -108,10 +117,10 @@
             <input [(ngModel)]="geselecteerdNewPerceel.postalcode" name="postalcode" type="text"
                 class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md" placeholder="Postcode" />
             <!-- <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
-            <select name="crop" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md bg-white">
-                <option [value]="null" disabled selected>Selecteer een gewas</option>
-                <option *ngFor="let crop of crops" [value]="crop.id">{{ crop.name }}</option>
-            </select> -->
+                        <select name="crop" class="w-full h-10 mb-4 p-2 border border-gray-300 rounded-md bg-white">
+                            <option [value]="null" disabled selected>Selecteer een gewas</option>
+                            <option *ngFor="let crop of crops" [value]="crop.id">{{ crop.name }}</option>
+                        </select> -->
         </form>
         <p></p>
         } @else {
@@ -119,19 +128,20 @@
         }
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
             <button [disabled]="geenPercelen" [ngClass]="{
-                'bg-green-600': !geenPercelen, 
-                'bg-gray-400': geenPercelen
-              }" (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+                            'bg-green-600': !geenPercelen, 
+                            'bg-gray-400': geenPercelen
+                          }" (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
                 <p>Terug</p>
             </button>
             <button [disabled]="!geselecteerdNewPerceel" [ngClass]="{
-                'bg-green-600': geselecteerdNewPerceel, 
-                'bg-gray-400': !geselecteerdNewPerceel
-              }" class="w-3/5 bg-green-600 h-12 rounded-md"
+                            'bg-green-600': geselecteerdNewPerceel, 
+                            'bg-gray-400': !geselecteerdNewPerceel
+                          }" class="w-3/5 bg-green-600 h-12 rounded-md"
                 (click)="perceelLandbouwerToevoeging(userId, geselecteerdNewPerceel?.id)">
                 <p>Toevoegen</p>
             </button>
         </div>
+        }
         }
     </div>
     <app-modal [showModal]="messageModal" [message]="modalMessage" (close)="openModal()"></app-modal>

@@ -6,3 +6,10 @@
     bottom: 0;
     height: calc(100vh - 5rem);
 }
+
+.loader {
+    position: absolute;
+    top: calc(50% + 2.5rem);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

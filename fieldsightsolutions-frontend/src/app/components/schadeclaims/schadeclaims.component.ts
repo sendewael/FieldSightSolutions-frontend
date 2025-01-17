@@ -20,7 +20,7 @@ export class SchadeclaimsComponent implements OnInit {
   ngOnInit(): void {
     // Get the logged-in user data (you can get this from localStorage or cookies)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+
     if (user && user.id) {
       this.userId = user.id;  // Set the user ID from the logged-in user data
       this.fetchInsuranceClaims(user.id);  // Fetch claims for this user
@@ -44,8 +44,8 @@ export class SchadeclaimsComponent implements OnInit {
   }
 
   editClaim(claimId: number): void {
-    // Navigate to the edit claim page, passing the claim ID in the route
-    this.router.navigate(['/edit-schadeclaim', claimId]);
-}
+    this.router.navigate(['/edit-schadeclaim', claimId]); // Pass claim ID in route
+
+  }
 
 }
