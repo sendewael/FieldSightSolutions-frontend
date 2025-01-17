@@ -7,3 +7,4 @@ export const environment = {
   api_url: "http://localhost:7295/api",
   AUTH0_AUDIENCE: "https://localhost:7295",
   baseUrl: "http://localhost:8000/api",
+}
