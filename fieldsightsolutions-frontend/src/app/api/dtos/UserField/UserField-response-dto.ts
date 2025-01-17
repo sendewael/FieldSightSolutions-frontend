@@ -1,5 +1,6 @@
 export interface UserFieldResponseDto {
     id: number
-    userId: number;
-    fieldId: number;
+    user: number;
+    field: number;
+    is_active: boolean
 }

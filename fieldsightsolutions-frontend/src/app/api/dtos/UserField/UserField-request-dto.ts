@@ -1,4 +1,5 @@
 export interface UserFieldRequestDto {
-    userId: number;
-    fieldId: number;
+    user: number;
+    field: number;
+    is_active: boolean;
 }
