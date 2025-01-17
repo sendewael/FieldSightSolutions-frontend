@@ -62,15 +62,16 @@ export class InsuranceFormService {
 
 
   getInsuranceformByClaimId(claimId: number): Observable<InsuranceFormResponseDto[]> {
-    return this.httpClient.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/id/${claimId}/`, { withCredentials: true });
+    return this.http.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/id/${claimId}/`, { withCredentials: true });
   }
 
-//   getInsuranceformByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
-//     return this.httpClient.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, { withCredentials: true });
-//   }
+  getInsuranceformByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
+    return this.http.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, { withCredentials: true });
+  }
 
   postInsuranceformById(userId: number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
-    return this.httpClient.post<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, formdata, { withCredentials: true });
+    return this.http.post<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, formdata, { withCredentials: true });
+  }
     
   getInsuranceclaimsByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);

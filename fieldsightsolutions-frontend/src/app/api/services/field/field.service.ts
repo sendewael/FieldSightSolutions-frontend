@@ -11,15 +11,8 @@ import { Observable } from 'rxjs';
 export class FieldService {
   private apiUrl = `${environment.baseUrl}/fields`
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private http: HttpClient) {
   }
-
-
-
-  getFieldsByMunicipality(municipality: string): FieldResponsetDto[] {
-    const fields = this.getFields();
-    return fields.filter(f => f.municipality.toLowerCase() === municipality.toLowerCase());
-
 
   getFields(): Observable<FieldResponsetDto[]> {
     return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/all`)
@@ -32,12 +25,11 @@ export class FieldService {
 
   // Fetch fields based on userId
   getFieldsByUserId(userId: number): Observable<FieldResponsetDto[]> {
-    return this.httpClient.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/user/${userId}`, { withCredentials: true });
+    return this.http.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/user/${userId}`, { withCredentials: true });
   }
 
   // Fetch fields based on userId
   getFieldById(selectedFieldId: number): Observable<FieldResponsetDto[]> {
-    return this.httpClient.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/${selectedFieldId}`, { withCredentials: true });
+    return this.http.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/${selectedFieldId}`, { withCredentials: true });
   }
-
 }
