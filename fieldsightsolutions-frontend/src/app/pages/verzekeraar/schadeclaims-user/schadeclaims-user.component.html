@@ -1,0 +1,30 @@
+<h1 class="text-center text-2xl m-4">Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b></h1>
+<div class="bg-gray-100 p-3">
+    <div class="grid grid-cols-4 bg-gray-300 p-3 rounded-md font-bold m-4">
+        <div class="text-left">Veld Naam</div>
+        <div class="text-left">Datum (van - tot)</div>
+        <div class="text-left">Soort Schade</div>
+        <div></div>
+      </div>
+      
+      <!-- Claim Rows Section -->
+      <div *ngFor="let claim of schadeclaims" class="bg-gray-200 rounded-md m-4 shadow-md flex items-center justify-between p-4">
+        <div class="grid grid-cols-4 w-full items-center gap-4">
+          <div class="text-left">{{ claim.field_name }}</div>
+          <div class="text-left">
+            {{ claim.startDate | date:'shortDate' }} - {{ claim.endDate | date:'shortDate' }}
+          </div>
+          <div class="text-left">{{ claim.damage_type }}</div>
+          <div>
+            <button 
+              (click)="editClaim(claim.id)" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+              Bekijk
+            </button>
+          </div>
+        </div>
+      </div>
+</div>
+<!-- Header Section -->
+
+  
