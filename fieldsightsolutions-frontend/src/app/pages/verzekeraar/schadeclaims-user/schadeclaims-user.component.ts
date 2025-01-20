@@ -1,23 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InsuranceFormService } from '../../../api/services/insuranceForm/insurance-form.service';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../api/services/user/user.service';
 import { UserResponseDto } from '../../../api/dtos/User/User-response-dto';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { InsuranceFormResponseDto } from '../../../api/dtos/InsuranceForm/InsuranceForm-response-dto';
+import { tap } from 'rxjs/operators';
+import { ToastComponent } from "../../../components/toast/toast.component";
 
 @Component({
   selector: 'app-schadeclaims-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ToastComponent],
   templateUrl: './schadeclaims-user.component.html',
-  styleUrl: './schadeclaims-user.component.css'
+  styleUrls: ['./schadeclaims-user.component.css'],
 })
-export class SchadeclaimsUserComponent implements OnInit{
-  schadeclaims: any[] = [];
-  userList$!: Observable<UserResponseDto[]>;
-  user: UserResponseDto | undefined;
+export class SchadeclaimsUserComponent implements OnInit {
+  schadeclaims$ = new BehaviorSubject<InsuranceFormResponseDto[]>([]);
+  user!: UserResponseDto | undefined;
+  insuranceForm: InsuranceFormResponseDto = {
+    id: 0,
+    damage: 0,
+    field: 0,
+    startDate: '',
+    endDate: '',
+    estimated_cost: 0,
+    description: '',
+    insurance: false,
+    status: 0
+  };
+  @ViewChild('toast') toast!: ToastComponent;
+  toastMessage = '';
+  toastClass = 'bg-green-500';
+  toastHover = 'bg-green-400';
 
   constructor(
     private route: ActivatedRoute,
@@ -27,42 +43,108 @@ export class SchadeclaimsUserComponent implements OnInit{
   ) {}
 
   ngOnInit(): void {
-    // Haal de userId op via query parameters
-    this.route.queryParams.subscribe((params) => {
-      const userId = params['userId'];
-  
-      if (userId) {
-        // Haal de schadeclaims op
-        this.schadeclaimService.getInsuranceclaimsByUserId(userId).subscribe(
-          (data) => {
-            this.schadeclaims = data;
-          },
-          (error) => {
-            console.error('Error fetching schadeclaims:', error);
+    this.route.queryParams
+      .pipe(
+        tap((params) => {
+          const userId = params['userId'];
+          if (userId) {
+            // Fetch insurance claims for the user
+            this.schadeclaimService
+              .getInsuranceclaimsByUserId(userId)
+              .subscribe((claims) => this.schadeclaims$.next(claims));
+
+            // Fetch user details
+            this.userService.getAllUsers().subscribe((users) => {
+              this.user = users.find((user) => user.id === parseInt(userId, 10));
+            });
           }
-        );
+        })
+      )
+      .subscribe();
+  }
+
+  // Helper method to update claim status
+  private updateClaimStatus(id: number, newStatus: number): void {
+    this.schadeclaimService.getInsuranceformByClaimId(id).subscribe({
+      next: (response: InsuranceFormResponseDto[] | InsuranceFormResponseDto) => {
+        // Controleer of het een array is en haal het eerste object eruit
+        const insuranceForm = Array.isArray(response) ? response[0] : response;
   
-        // Haal alle gebruikers op en filter op userId
-        this.userService.getAllUsers()
-          .pipe(
-            map(users => users.find(user => user.id === parseInt(userId, 10)))
-          )
-          .subscribe(
-            (filteredUser) => {
-              this.user = filteredUser;
-            },
-            (error) => {
-              console.error('Error fetching users:', error);
-            }
-          );
-      }
+        if (!insuranceForm) {
+          console.error('Geen geldig formulier gevonden.');
+          return;
+        }
+  
+        console.log('Opgehaald formulier:', insuranceForm);
+  
+        // Maak een bijgewerkt formulier aan
+        const updatedForm: InsuranceFormResponseDto = {
+          id: insuranceForm.id,
+          damage: insuranceForm.damage,
+          field: insuranceForm.field,
+          startDate: insuranceForm.startDate,
+          endDate: insuranceForm.endDate,
+          estimated_cost: insuranceForm.estimated_cost,
+          description: insuranceForm.description,
+          insurance: insuranceForm.insurance,
+          status: newStatus, // Update alleen de status
+        };
+  
+        console.log('Bijgewerkt formulier:', updatedForm);
+  
+        // Stuur het bijgewerkte formulier naar de backend
+        this.schadeclaimService.putInsuranceformById(id, updatedForm).subscribe({
+          next: (updatedClaim) => {
+  
+            // Werk de lijst bij in de BehaviorSubject
+            const updatedClaims = this.schadeclaims$.getValue().map((claim) =>
+              claim.id === id ? updatedClaim : claim
+            );
+            this.schadeclaims$.next(updatedClaims);
+          },
+          error: (err) => {
+            console.error('Fout bij het bijwerken van de claimstatus:', err);
+          },
+        });
+      },
+      error: (err) => {
+        console.error('Fout bij het ophalen van het formulier:', err);
+      },
     });
   }
-  
-  
-  editClaim(claimId: number): void {
-    // Navigate to the edit claim page, passing the claim ID in the route
-    this.router.navigate(['/edit-schadeclaim', claimId]);
-}
 
+  // Request extra photos for the claim
+  vraagFotos(id: number): void {
+    this.updateClaimStatus(id, 4); // Status 4 for "Extra foto's gevraagd"
+    this.toastMessage = "Extra foto's zijn gevraagd";
+    this.toastClass = 'bg-green-500';
+    this.toastHover = 'bg-green-400';
+    this.toast.showToast();  // Zorg ervoor dat de Toast wordt getoond
+  }
+  
+
+  // Approve the claim
+  approveClaim(id: number): void {
+    this.updateClaimStatus(id, 5); // Status 5 for "Goedkeuren"
+    this.toastMessage = "U heeft deze schadeclaim goedgekeurd.";
+    this.toastClass = 'bg-green-500';
+    this.toastHover = 'bg-green-400';
+    this.toast.showToast();
+  }
+
+  // Reject the claim
+  rejectClaim(id: number): void {
+    this.updateClaimStatus(id, 6); // Status 6 for "Afkeuren"
+    this.toastMessage = "U heeft deze schadeclaim afgekeurd";
+    this.toastClass = 'bg-red-500'; // Rood voor negatieve status
+    this.toastHover = 'bg-red-400';
+    this.toast.showToast();
+  }
+
+  downloadPdf(id: number): void {
+    this.toastMessage = "Uw pdf wordt gedownload.";
+    this.toastClass = 'bg-green-500';
+    this.toastHover = 'bg-green-400';
+    this.toast.showToast();
+  }
 }

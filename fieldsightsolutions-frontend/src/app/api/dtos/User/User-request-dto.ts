@@ -4,4 +4,6 @@ export interface UserRequestDto {
     lastName: string;
     email: string;
     password: string;
+    adres: string;
+    gemeente: string;
 }

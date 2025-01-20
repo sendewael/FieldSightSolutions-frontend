@@ -1,30 +1,75 @@
-<h1 class="text-center text-2xl m-4">Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b></h1>
-<div class="bg-gray-100 p-3">
-    <div class="grid grid-cols-4 bg-gray-300 p-3 rounded-md font-bold m-4">
-        <div class="text-left">Veld Naam</div>
-        <div class="text-left">Datum (van - tot)</div>
-        <div class="text-left">Soort Schade</div>
-        <div></div>
-      </div>
-      
-      <!-- Claim Rows Section -->
-      <div *ngFor="let claim of schadeclaims" class="bg-gray-200 rounded-md m-4 shadow-md flex items-center justify-between p-4">
-        <div class="grid grid-cols-4 w-full items-center gap-4">
-          <div class="text-left">{{ claim.field_name }}</div>
-          <div class="text-left">
-            {{ claim.startDate | date:'shortDate' }} - {{ claim.endDate | date:'shortDate' }}
-          </div>
-          <div class="text-left">{{ claim.damage_type }}</div>
-          <div>
-            <button 
-              (click)="editClaim(claim.id)" 
-              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
-              Bekijk
-            </button>
-          </div>
-        </div>
-      </div>
-</div>
-<!-- Header Section -->
+<app-toast 
+  *ngIf="toastMessage" 
+  [message]="toastMessage"
+  [toastClass]="toastClass"
+  [toastHover]="toastHover"
+  [timeout]="5000" 
+  #toast>
+</app-toast>
 
-  
+
+<h1 class="text-center text-2xl m-4">Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b></h1>
+<div class="bg-gray-100 p-4 rounded-lg shadow-md">
+  <!-- Header Section -->
+  <div class="grid grid-cols-5 bg-gray-300 p-3 rounded-md font-bold mb-4">
+    <div class="text-left">Veld Naam</div>
+    <div class="text-left">Datum (van - tot)</div>
+    <div class="text-left">Soort Schade</div>
+    <div class="text-left">Schade bedrag</div>
+    <div class="text-center"></div>
+  </div>
+
+  <!-- Claim Rows Section -->
+  <div *ngFor="let claim of schadeclaims$ | async" class="bg-gray-200 rounded-md mb-4 shadow-sm p-4">
+    <div class="grid grid-cols-5 items-center">
+      <div class="text-left">{{ claim.field_name }}</div>
+      <div class="text-left">
+        {{ claim.startDate | date: 'shortDate' }} - {{ claim.endDate | date: 'shortDate' }}
+      </div>
+      <div class="text-left">{{ claim.damage_type }}</div>
+      <div class="text-left">€ {{ claim.estimated_cost }}</div>
+      <div class="flex flex-wrap gap-2 justify-center">
+        <!-- Conditie gebaseerd op de status -->
+        <ng-container [ngSwitch]="claim.status">
+          <!-- Status 5: Groen vinkje -->
+          <div *ngSwitchCase="5" class="text-xl">
+            <span class="text-green-500">✅ Goedgekeurd ✅</span>
+          </div>
+
+          <!-- Status 6: Rood kruisje -->
+          <div *ngSwitchCase="6" class="text-xl">
+            <span class="text-red-500">❌ Afgekeurd ❌</span>
+          </div>
+
+          <!-- Andere statussen: Knoppen -->
+          <div *ngSwitchDefault class="flex flex-wrap gap-2">
+            <div class="flex flex-col gap-2">
+              <button 
+                (click)="downloadPdf(claim.id)" 
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                Download
+              </button>
+              <button 
+                (click)="vraagFotos(claim.id)" 
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                Extra foto's
+              </button>
+            </div>
+            <div class="flex flex-col gap-2">
+              <button 
+                (click)="approveClaim(claim.id)" 
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                Goedkeuren
+              </button>
+              <button 
+                (click)="rejectClaim(claim.id)" 
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                Afkeuren
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

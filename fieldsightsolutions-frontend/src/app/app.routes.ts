@@ -16,7 +16,7 @@ export const routes: Routes = [
     { path: 'schadeclaims', component: SchadeclaimsComponent },
     { path: 'verzekeraar/dashboard', component: DashboardVerzekeraarComponent},
     { path: 'verzekeraar/schadeclaims', component: SchadeclaimsUserComponent},
-    { path: 'edit-schadeclaim/:id', component: SchadeclaimComponent },
+    { path: 'edit-schadeclaim/:id', component: SchadeclaimComponent }
 
 
 

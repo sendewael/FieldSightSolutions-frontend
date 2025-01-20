@@ -1,0 +1,18 @@
+@if(isVisible){
+    <div
+      id="toast-default"
+      class="z-50 fixed top-24 right-2 transition-all flex items-center w-full max-w-xs p-4 {{toastClass}} bg-opacity-90 rounded-lg shadow-lg"
+      role="alert">
+
+        <div class="ms-3 text-m font-normal text-white">{{message}}</div>
+
+        <button
+            type="button"
+            (click)="hideToast()"
+            class="ms-auto -mx-1.5 -my-1.5 {{toastClass}} text-white hover:{{toastHover}} rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 inline-flex items-center justify-center h-8 w-8"
+            aria-label="Close">
+            <span class="sr-only">Close</span>
+            <i class="fa-solid fa-x"></i>
+        </button>
+    </div>
+  }
