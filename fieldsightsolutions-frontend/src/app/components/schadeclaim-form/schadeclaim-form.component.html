@@ -1,216 +1,277 @@
 <form (ngSubmit)="onSubmit()" class="bg-white shadow-lg rounded-lg p-8 space-y-8">
-  <!-- Section 1: Field Information -->
-  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
-    <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
-      <span>🌾</span>
-      <span>Gegevens van het veld</span>
-    </h2>
-    <div class="grid grid-cols-2 gap-6">
-      <div>
-        <label for="field-name" class="block text-sm font-semibold text-gray-700">Naam veld</label>
-        <input type="text" id="field-name" [(ngModel)]="schadeclaimForm.fieldName" name="fieldName"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="field-crop" class="block text-sm font-semibold text-gray-700">Teelt</label>
-        <input type="text" id="field-crop" [(ngModel)]="schadeclaimForm.fieldCrop" name="fieldCrop"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="field-municipality" class="block text-sm font-semibold text-gray-700">Hoofdgemeente</label>
-        <input type="text" id="field-municipality" [(ngModel)]="schadeclaimForm.fieldMunicipality"
-          name="fieldMunicipality"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="field-postcode" class="block text-sm font-semibold text-gray-700">Postcode</label>
-        <input type="text" id="field-postcode" [(ngModel)]="schadeclaimForm.fieldPostcode" name="fieldPostcode"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="field-area" class="block text-sm font-semibold text-gray-700">Oppervlakte (ha)</label>
-        <input type="number" id="field-area" [(ngModel)]="schadeclaimForm.fieldArea" name="fieldArea" step="0.01"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="field-selection" class="block text-sm font-semibold text-gray-700">Selecteer veld</label>
-        <select id="field-selection" [(ngModel)]="schadeclaimForm.field" name="fieldSelection"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          [disabled]="!schadeclaimForm.active" required (ngModelChange)="onFieldSelect()">
-          <option value="0" [selected]="schadeclaimForm.field === 0">Nog geen veld geselecteerd</option>
-          <option *ngFor="let field of fields" [value]="field.id">
-            {{ field.name }} - {{ field.municipality }} ({{ field.acreage }} ha)
-          </option>
-        </select>
-      </div>
-    </div>
-    <p class="text-sm text-gray-600 mt-4">
-      Is de informatie niet in orde? <a routerLink="/" class="text-primary font-semibold">Klik hier</a>.
-    </p>
-  </div>
 
-  <!-- Section 2: Farmer Information -->
-  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
-    <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
-      <span>👨‍🌾</span>
-      <span>Gegevens van veld eigenaar</span>
-    </h2>
-    <div class="grid grid-cols-2 gap-6">
-      <div>
-        <label for="farmer-firstname" class="block text-sm font-semibold text-gray-700">Voornaam</label>
-        <input type="text" id="farmer-firstname" [(ngModel)]="user.farmerFirstname" name="farmerFirstname"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="farmer-name" class="block text-sm font-semibold text-gray-700">Naam</label>
-        <input type="text" id="farmer-name" [(ngModel)]="user.farmerName" name="farmerName"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="farmer-street" class="block text-sm font-semibold text-gray-700">Straat</label>
-        <input type="text" id="farmer-street" [(ngModel)]="user.farmerStreet" name="farmerStreet"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="farmer-number" class="block text-sm font-semibold text-gray-700">Nummer</label>
-        <input type="text" id="farmer-number" [(ngModel)]="user.farmerNumber" name="farmerNumber"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="farmer-municipality" class="block text-sm font-semibold text-gray-700">Gemeente</label>
-        <input type="text" id="farmer-municipality" [(ngModel)]="user.farmerMunicipality" name="farmerMunicipality"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-      <div>
-        <label for="farmer-email" class="block text-sm font-semibold text-gray-700">Email</label>
-        <input type="text" id="farmer-email" [(ngModel)]="user.farmerEmail" name="farmerEmail"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          disabled required>
-      </div>
-
-    </div>
-    <p class="text-sm text-gray-600 mt-4">
-      Zijn de persoonsgegevens niet in orde? <a routerLink="/acount" class="text-primary font-semibold">Klik hier</a>.
-    </p>
-  </div>
-
-  <!-- Section 3: Damage Information -->
-  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
-    <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
-      <span>💔</span>
-      <span>Datum, schadeprijs en type schade</span>
-    </h2>
-    <div class="grid grid-cols-2 gap-6">
-      <div>
-        <label for="damage-date-start" class="block text-sm font-semibold text-gray-700">Startdatum schade</label>
-        <input type="date" id="damage-date-start" [(ngModel)]="schadeclaimForm.startDate" name="damageDateStart"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          [disabled]="!schadeclaimForm.active" required>
-      </div>
-      <div>
-        <label for="damage-date-end" class="block text-sm font-semibold text-gray-700">Einddatum schade</label>
-        <input type="date" id="damage-date-end" [(ngModel)]="schadeclaimForm.endDate" name="damageDateEnd"
-          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-          [disabled]="!schadeclaimForm.active" required>
-      </div>
-    </div>
-    <div>
-      <label for="damage-type" class="block text-sm font-semibold text-gray-700">Type schade</label>
-      <select id="damage-type" [(ngModel)]="schadeclaimForm.damage" name="damageType"
-        class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
-        [disabled]="!schadeclaimForm.active" required>
-        <option value="0">Selecteer type schade</option>
-        <option *ngFor="let damage of damages" [value]="damage.id">{{ damage.type }}</option>
-      </select>
-    </div>
-    <div>
-      <label for="damage-amount" class="block text-sm font-medium text-gray-700">Schadebedrag (€)</label>
-      <input type="number" id="damage-amount" [(ngModel)]="schadeclaimForm.estimated_cost" name="damageAmount"
-        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" [disabled]="!schadeclaimForm.active"
-        required>
-    </div>
-
-    <div>
-      <label for="weather-insurance" class="block text-sm font-medium text-gray-700">Brede weersverzekering?</label>
-      <div class="mt-1 flex items-center">
-        <input [disabled]="!schadeclaimForm.active" type="radio" id="weather-insurance-yes" name="weatherInsurance"
-          value="yes" [(ngModel)]="schadeclaimForm.weatherInsurance" class="mr-2">
-        <label for="weather-insurance-yes" class="text-sm text-gray-700 mr-4">Ja</label>
-        <input [disabled]="!schadeclaimForm.active" type="radio" id="weather-insurance-no" name="weatherInsurance"
-          value="no" [(ngModel)]="schadeclaimForm.weatherInsurance" class="mr-2">
-        <label for="weather-insurance-no" class="text-sm text-gray-700">Nee</label>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Foto's van schade -->
-  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
-    <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
-      <span>📷</span>
-      <span>Foto's van schade</span>
-
-    </h2>
-
-    <!-- Upload Input -->
-    <div>
-      <label for="photos" class="block text-sm font-medium text-gray-700">Upload foto's</label>
-      <input type="file" id="photos" (change)="onFileChange($event)" multiple
-        class="mt-2 block w-full text-sm text-gray-500 border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
-        accept="image/*" />
-    </div>
-
-    <!-- Image Preview Section -->
-    <div *ngIf="uploadedImages.length > 0" class="mt-4">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Preview van geüploade foto's</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <div *ngFor="let image of uploadedImages; let i = index" class="relative group">
-          <!-- Image Thumbnail -->
-          <img [src]="image.url" [alt]="'Uploaded image ' + (i + 1)"
-            class="w-full h-32 object-cover rounded-lg shadow-md border border-gray-200" />
-
-          <!-- Delete Button -->
-          <button (click)="removeImage(i)"
-            class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-700 transition-opacity opacity-0 group-hover:opacity-100">
-            ❌
-          </button>
+  <div *ngIf="schadeclaimForm.status === 0 || schadeclaimForm.status === 1 || schadeclaimForm.status === 2">
+    <!-- Section 1: Field Information -->
+    <div *ngIf="schadeclaimForm.status === 0">
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4 mb-8">
+        <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+          <span>💔</span>
+          <span>Datum van schade</span>
+        </h2>
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label for="damage-date-start" class="block text-sm font-semibold text-gray-700">Startdatum schade</label>
+            <input type="date" id="damage-date-start" [(ngModel)]="schadeclaimForm.startDate" name="damageDateStart"
+              class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+              required>
+          </div>
+          <div>
+            <label for="damage-date-end" class="block text-sm font-semibold text-gray-700">Einddatum schade</label>
+            <input type="date" id="damage-date-end" [(ngModel)]="schadeclaimForm.endDate" name="damageDateEnd"
+              class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+              required>
+          </div>
         </div>
       </div>
     </div>
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
+      <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+        <span>🌾</span>
+        <span>Gegevens van het veld</span>
+      </h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="field-name" class="block text-sm font-semibold text-gray-700">Naam veld</label>
+          <input type="text" id="field-name" [(ngModel)]="schadeclaimForm.fieldName" name="fieldName"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="field-crop" class="block text-sm font-semibold text-gray-700">Teelt</label>
+          <input type="text" id="field-crop" [(ngModel)]="schadeclaimForm.fieldCrop" name="fieldCrop"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="field-municipality" class="block text-sm font-semibold text-gray-700">Hoofdgemeente</label>
+          <input type="text" id="field-municipality" [(ngModel)]="schadeclaimForm.fieldMunicipality"
+            name="fieldMunicipality"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="field-postcode" class="block text-sm font-semibold text-gray-700">Postcode</label>
+          <input type="text" id="field-postcode" [(ngModel)]="schadeclaimForm.fieldPostcode" name="fieldPostcode"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="field-area" class="block text-sm font-semibold text-gray-700">Oppervlakte (ha)</label>
+          <input type="number" id="field-area" [(ngModel)]="schadeclaimForm.fieldArea" name="fieldArea" step="0.01"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="field-selection" class="block text-sm font-semibold text-gray-700">Selecteer veld</label>
+          <select id="field-selection" [(ngModel)]="schadeclaimForm.field" name="fieldSelection"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            [disabled]="schadeclaimForm.status === 2 || schadeclaimForm.status === 1" required
+            (ngModelChange)="onFieldSelect()">
+            <option value="0" [selected]="schadeclaimForm.field === 0">Nog geen veld geselecteerd</option>
+            <option *ngFor="let field of fields" [value]="field.id">
+              {{ field.name }} - {{ field.municipality }} ({{ field.acreage }} ha)
+            </option>
+          </select>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 mt-4">
+        Is de informatie niet in orde? <a routerLink="/" class="text-primary font-semibold">Klik hier</a>.
+      </p>
+    </div>
 
-    <!-- No Images Yet -->
-    <div *ngIf="uploadedImages.length === 0" class="mt-4 text-sm text-gray-500">
-      Geen foto's geüpload. Upload foto's om een preview te zien.
+    <div *ngIf="schadeclaimForm.fieldOever == true">
+      Oever is true
+    </div>
+
+    <div *ngIf="schadeclaimForm.fieldRisico == true">
+      PAS OP! DIT VELD LIGT IN EEN OVERSTROMINGSGEBIED!
+    </div>
+
+    <div *ngIf="schadeclaimForm.status === 0">
+
+
+      <!-- Next Button -->
+      <div class="text-right mt-4">
+        <button type="submit"
+          class="px-8 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700 ">
+          Volgende stap
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</form>
+
+<form (ngSubmit)="onUpdate()" class="bg-white shadow-lg rounded-lg p-8 space-y-8">
+
+  <div *ngIf="schadeclaimForm.status === 1 || schadeclaimForm.status === 2">
+    <!-- Section 2: Farmer Information -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4 mb-8">
+      <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+        <span>👨‍🌾</span>
+        <span>Gegevens van veld eigenaar</span>
+      </h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="farmer-firstname" class="block text-sm font-semibold text-gray-700">Voornaam</label>
+          <input type="text" id="farmer-firstname" [(ngModel)]="user.farmerFirstname" name="farmerFirstname"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="farmer-name" class="block text-sm font-semibold text-gray-700">Naam</label>
+          <input type="text" id="farmer-name" [(ngModel)]="user.farmerName" name="farmerName"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="farmer-street" class="block text-sm font-semibold text-gray-700">Straat</label>
+          <input type="text" id="farmer-street" [(ngModel)]="user.farmerStreet" name="farmerStreet"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="farmer-number" class="block text-sm font-semibold text-gray-700">Nummer</label>
+          <input type="text" id="farmer-number" [(ngModel)]="user.farmerNumber" name="farmerNumber"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="farmer-municipality" class="block text-sm font-semibold text-gray-700">Gemeente</label>
+          <input type="text" id="farmer-municipality" [(ngModel)]="user.farmerMunicipality" name="farmerMunicipality"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="farmer-email" class="block text-sm font-semibold text-gray-700">Email</label>
+          <input type="text" id="farmer-email" [(ngModel)]="user.farmerEmail" name="farmerEmail"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+
+      </div>
+      <p class="text-sm text-gray-600 mt-4">
+        Zijn de persoonsgegevens niet in orde? <a routerLink="/acount" class="text-primary font-semibold">Klik hier</a>.
+      </p>
+    </div>
+
+    <!-- Section 3: Damage Information -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4 mb-8">
+      <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+        <span>💔</span>
+        <span>Datum, schadeprijs en type schade</span>
+      </h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label for="damage-date-start" class="block text-sm font-semibold text-gray-700">Startdatum schade</label>
+          <input type="date" id="damage-date-start" [(ngModel)]="schadeclaimForm.startDate" name="damageDateStart"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+        <div>
+          <label for="damage-date-end" class="block text-sm font-semibold text-gray-700">Einddatum schade</label>
+          <input type="date" id="damage-date-end" [(ngModel)]="schadeclaimForm.endDate" name="damageDateEnd"
+            class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+            disabled required>
+        </div>
+      </div>
+      <div>
+        <label for="damage-type" class="block text-sm font-semibold text-gray-700">Type schade</label>
+        <select id="damage-type" [(ngModel)]="schadeclaimForm.damage" name="damageType"
+          class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
+          [disabled]="schadeclaimForm.status === 2" required>
+          <option *ngFor="let damage of damages" [value]="damage.id">{{ damage.type }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="damage-amount" class="block text-sm font-medium text-gray-700">Schadebedrag (€)</label>
+        <input type="number" id="damage-amount" [(ngModel)]="schadeclaimForm.estimated_cost" name="damageAmount"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          [disabled]="schadeclaimForm.status === 2" required>
+      </div>
+
+      <div>
+        <label for="weather-insurance" class="block text-sm font-medium text-gray-700">Brede weersverzekering?</label>
+        <div class="mt-1 flex items-center">
+          <input type="radio" id="weather-insurance-yes" name="weatherInsurance" [value]=true
+            [(ngModel)]="schadeclaimForm.insurance" [disabled]="schadeclaimForm.status === 2" class="mr-2">
+          <label for="weather-insurance-yes" class="text-sm text-gray-700 mr-4">Ja</label>
+
+          <input type="radio" id="weather-insurance-no" name="weatherInsurance" [value]=false
+            [(ngModel)]="schadeclaimForm.insurance" [disabled]="schadeclaimForm.status === 2" class="mr-2">
+          <label for="weather-insurance-no" class="text-sm text-gray-700">Nee</label>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Foto's van schade -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4 mb-8">
+      <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+        <span>📷</span>
+        <span>Foto's van schade</span>
+
+      </h2>
+
+      <!-- Upload Input -->
+      <div>
+        <label for="photos" class="block text-sm font-medium text-gray-700">Upload foto's</label>
+        <input type="file" id="photos" (change)="onFileChange($event)" multiple
+          class="mt-2 block w-full text-sm text-gray-500 border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
+          accept="image/*" [disabled]="schadeclaimForm.status === 2" />
+      </div>
+
+      <!-- Image Preview Section -->
+      <div *ngIf="uploadedImages.length > 0" class="mt-4">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Preview van geüploade foto's</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div *ngFor="let image of uploadedImages; let i = index" class="relative group">
+            <!-- Image Thumbnail -->
+            <img [src]="image.url" [alt]="'Uploaded image ' + (i + 1)"
+              class="w-full h-32 object-cover rounded-lg shadow-md border border-gray-200" />
+
+            <!-- Delete Button -->
+            <button (click)="removeImage(i)"
+              class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-700 transition-opacity opacity-0 group-hover:opacity-100">
+              ❌
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Images Yet -->
+      <div *ngIf="uploadedImages.length === 0" class="mt-4 text-sm text-gray-500">
+        Geen foto's geüpload. Upload foto's om een preview te zien.
+      </div>
+    </div>
+
+
+    <!-- Extra uitleg -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
+      <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
+        <span>📝</span>
+        <span>Korte beschrijving van de schade</span>
+      </h2>
+      <textarea [disabled]="schadeclaimForm.status === 2" id="additional-info" [(ngModel)]="schadeclaimForm.description"
+        name="additionalInfo" rows="4"
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+    </div>
+
+
+
+    <!-- Submit Button -->
+    <div *ngIf="schadeclaimForm.status === 1">
+      <div class="text-right mt-4">
+        <button type="submit"
+          class="px-8 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700">
+          Verstuur Schadeclaim
+        </button>
+      </div>
     </div>
   </div>
 
 
-  <!-- Extra uitleg -->
-  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
-    <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
-      <span>📝</span>
-      <span>Extra uitleg</span>
-    </h2>
-    <textarea [disabled]="!schadeclaimForm.active" id="additional-info" [(ngModel)]="schadeclaimForm.additionalInfo"
-      name="additionalInfo" rows="4"
-      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-  </div>
 
-  <!-- Submit Button -->
-  <div class="text-right">
-    <button type="submit"
-      class="px-8 py-3 bg-green-600 text-white font-semibold rounded-md shadow-md hover:bg-green-700">
-      Verstuur Schadeclaim
-    </button>
-  </div>
 </form>

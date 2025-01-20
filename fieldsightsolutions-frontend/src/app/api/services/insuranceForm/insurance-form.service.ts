@@ -14,7 +14,6 @@ export class InsuranceFormService {
   private apiUrl = `${environment.baseUrl}/insurance-claims`;
 
   constructor(private http: HttpClient) { }
-
   // getInsuranceForms(): InsuranceFormResponseDto[] {
   //   let insuranceForms: InsuranceFormResponseDto[] = [
   //     {
@@ -59,8 +58,6 @@ export class InsuranceFormService {
   //   return activeForms;
   // }
 
-
-
   getInsuranceformByClaimId(claimId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/id/${claimId}/`, { withCredentials: true });
   }
@@ -73,6 +70,10 @@ export class InsuranceFormService {
     return this.http.post<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, formdata, { withCredentials: true });
   }
     
+  putInsuranceform(formId:number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
+    return this.http.put<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/edit/${formId}`, formdata, { withCredentials: true });
+    
+  }
   getInsuranceclaimsByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);
 
