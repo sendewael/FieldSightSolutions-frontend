@@ -46,7 +46,6 @@ export class InsuranceFormService {
     return insuranceForms;
   }
 
-
   getInsuranceFormsByDamageId(damageId: number): InsuranceFormResponseDto[] {
     const insuranceForms = this.getInsuranceForms();
     const forms = insuranceForms.filter(form => form.damageId === damageId);
@@ -73,6 +72,10 @@ export class InsuranceFormService {
     return this.http.post<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/${userId}`, formdata, { withCredentials: true });
   }
     
+  putInsuranceform(formId:number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
+    return this.http.put<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/edit/${formId}`, formdata, { withCredentials: true });
+    
+  }
   getInsuranceclaimsByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);
 
