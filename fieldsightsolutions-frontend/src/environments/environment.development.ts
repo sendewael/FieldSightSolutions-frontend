@@ -6,5 +6,5 @@ export const environment = {
   home_url: "http://localhost:4200",
   api_url: "http://localhost:7295/api",
   AUTH0_AUDIENCE: "https://localhost:7295",
-  baseUrl: window.env.BASE_URL || "http://localhost:8000/api",
+  baseUrl: "http://localhost:8000/api",
 }
