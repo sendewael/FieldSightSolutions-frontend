@@ -1,40 +1,72 @@
 <nav class="w-full h-20 bg-green-600 items-center relative top-0 z-50">
-    <div class="absolute left-5 top-1/2 -translate-y-1/2">
-        <img src="fieldsightsolutions.png" alt="FieldSightSolutions logo" class="h-12 w-auto">
-    </div>
-    <ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-        <li>
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                class="mr-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">Map</a>
-        </li>
-        <li>
-            <a routerLink="/schadeclaims" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">Schadeclaims</a>
-        </li>
-    </ul>
-    <div class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center" *ngIf="!authenticated">
-        <ul class="flex justify-center">
-            <li>
-                <a routerLink="/login" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                    class="mr-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">Login/Registreer</a>
-            </li>
-        </ul>
+	<div class="absolute left-5 top-1/2 -translate-y-1/2">
+		<img src="fieldsightsolutions.png"
+			alt="FieldSightSolutions logo"
+			class="h-12 w-auto">
+	</div>
+	<ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+		<li>
+			<a [routerLinkActiveOptions]="{ exact: true }"
+				routerLink="/"
+				routerLinkActive="active"
+				class="mr-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+				Map
+			</a>
+		</li>
+		<li>
+			<a [routerLinkActiveOptions]="{ exact: true }"
+				routerLink="/schadeclaims"
+				routerLinkActive="active"
+				class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">
+				Schadeclaims
+			</a>
+		</li>
+	</ul>
+	<div *ngIf="!authenticated"
+		class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
+		<ul class="flex justify-center">
+			<li>
+				<a [routerLinkActiveOptions]="{ exact: true }"
+					routerLink="/login"
+					routerLinkActive="active"
+					class="mr-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+					Login/Registreer
+				</a>
+			</li>
+		</ul>
 
-    </div>
 
-    <div class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center" *ngIf="authenticated">
-        <ul class="flex justify-center">
 
-            <li>
-                <a routerLink="/acount" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                    class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">{{name}}</a>
-            </li>
-            <li>
-                <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-                    (click)="logout()"
-                    class="mx-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">Logout</a>
-            </li>
+	</div>
 
-        </ul>
-    </div>
+
+
+	<div *ngIf="authenticated"
+		class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
+		<ul class="flex justify-center">
+
+
+
+			<li>
+				<a [routerLinkActiveOptions]="{ exact: true }"
+					routerLink="/acount"
+					routerLinkActive="active"
+					class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100  border-green-800 transition-all">
+					{{name}}
+				</a>
+			</li>
+			<li>
+				<a [routerLinkActiveOptions]="{ exact: true }"
+					(click)="logout()"
+					routerLink="/"
+					routerLinkActive="active"
+					class="mx-5 bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+					Logout
+				</a>
+			</li>
+
+
+
+		</ul>
+	</div>
 </nav>

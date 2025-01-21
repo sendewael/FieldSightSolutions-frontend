@@ -17,6 +17,7 @@ import { Router, RouterModule } from '@angular/router';
 import { UserFieldResponseDto } from '../../api/dtos/UserField/UserField-response-dto';
 import { UserResponseDto } from '../../api/dtos/User/User-response-dto';
 import { UserService } from '../../api/services/user/user.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -84,8 +85,10 @@ export class MapComponent {
       })
       this.userService.getUsersByRoleIds([2, 3, 4]).subscribe({
         next: (users) => {
-          this.allGrantedUsers = users;
-          console.log(this.allGrantedUsers)
+          this.allGrantedUsers = users.sort((a, b) => a.firstName.localeCompare(b.firstName));
+        },
+        error: (err) => {
+          console.log(err)
         }
       })
     } else {
@@ -146,19 +149,15 @@ export class MapComponent {
     this.userFieldService.getUserFieldsByUserId(userId).subscribe(
       (userFields) => {
         this.userFieldsTable = userFields
-        console.log("UserFields ", this.userFieldsTable)
         const fieldIds = userFields.map(uf => uf.field);
         this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
           next: (fields) => {
-            console.log(fields)
             this.userPercelen = fields;
             if (this.userPercelen.length < 1) {
-              console.log("er zijn geen velden");
               this.noUserFields = true;
               this.newField = true;
               this.drawFieldsOnMap();
             } else {
-              console.log("er zijn velden");
               this.noUserFields = false;
               this.drawUserFieldsOnMap();
             }
@@ -200,8 +199,10 @@ export class MapComponent {
     const [lat, lng] = this.mapCenter;
     this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
       next: (fields) => {
+        if (!fields || fields.length === 0) {
+          this.isLoading = false;
+        }
         this.percelen = fields;
-        console.log(this.percelen)
         this.totalFieldsToDraw = this.percelen.length;
         this.userFieldService.getUserFields().subscribe({
           next: (userFields) => {
@@ -403,14 +404,12 @@ export class MapComponent {
       const userField: UserFieldRequestDto = {
         user: userId,
         field: fieldId,
-        is_active: false
+        grantedEmails: [],
       };
 
       this.userFieldService.addUserField(userField).subscribe({
         next: (response) => {
-          console.log(response);
           if (this.selectedNewField) {
-            console.log(this.selectedNewField);
             this.fieldService.updateField(fieldId, this.selectedNewField).subscribe({
               next: (updatedField) => {
                 console.log("Field updated successfully:", updatedField);
@@ -520,24 +519,51 @@ export class MapComponent {
 
   // -------------------------------------------------------------- //
 
+  public emailList: string[] = []
+
+  loadEmails(): void {
+    if (this.userFieldsTable.length > 0) {
+      this.emailList = [...this.userFieldsTable[0].grantedEmails];
+    }
+  }
+
   toggleToegangBeheren(): void {
+    this.loadUserFields(this.userId)
+    this.loadEmails()
     this.manageAccess = !this.manageAccess
   }
 
-  // giveGlobalPermission(): void {
-  //   this.userPercelen.forEach((userField) => {
-  //     const updatedEmailList = [...userField.email, this.emailPermissionUser];
+  testMethod(): void {
 
-  //     this.userFieldService.updateUserField(userField.id, { ...userField, email: updatedEmailList }).subscribe({
-  //       next: () => {
-  //         console.log(`User field with id ${userField.id} updated successfully.`);
-  //       },
-  //       error: (error) => {
-  //         console.error(`Failed to update user field with id ${userField.id}.`);
-  //       },
-  //     });
-  //   });
-  // }
+  }
+
+  addEmailToList(): void {
+    if (this.emailPermissionUser && !this.emailList.includes(this.emailPermissionUser)) {
+      this.emailList.push(this.emailPermissionUser);
+      this.emailPermissionUser = '';
+    }
+  }
+
+  removeEmail(index: number): void {
+    this.emailList.splice(index, 1);
+  }
+
+  giveGlobalPermission(): void {
+    const updateObservables = this.userFieldsTable.map((userField) =>
+      this.userFieldService.updateUserField(userField.id, { ...userField, grantedEmails: this.emailList })
+    );
+
+    forkJoin(updateObservables).subscribe({
+      next: () => {
+        this.loadUserFields(this.userId);
+        this.loadEmails();
+        this.toggleToegangBeheren()
+      },
+      error: (err) => {
+        console.error("Error updating user field:", err);
+      }
+    });
+  }
 
   // -------------------------------------------------------------- //
 
