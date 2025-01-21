@@ -1,11 +1,29 @@
-# Use Nginx to serve the Angular app
+# Stage 1: Build the Angular app
+FROM node:22 as build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+RUN npm install -g @angular/cli
+
+COPY . .
+
+RUN ng build --configuration=production
+
+# Stage 2: Serve the app with Nginx
 FROM nginx:alpine
 
-# Copy built Angular files from the correct directory to the Nginx HTML directory
-COPY ./dist/fieldsightsolutions-frontend/browser /usr/share/nginx/html
+COPY --from=build /app/dist/fieldsightsolutions-frontend/browser /usr/share/nginx/html
 
-# Expose port 80
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+ENV BASE_URL "http://localhost:8000/api"
+
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]
