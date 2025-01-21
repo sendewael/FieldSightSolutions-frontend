@@ -25,8 +25,6 @@ export class DashboardVerzekeraarComponent implements OnInit{
 
   ngOnInit(): void {
     this.userList$ = this.UserService.getAllUsers();
-
-    console.log(this.userList$)
   }
 
   bekijkSchadeclaim(userId: number) {

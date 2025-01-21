@@ -4,4 +4,5 @@ export interface InsuranceFormRequestDto {
     startDate: Date;
     endDate: Date;
     active: boolean;
+    estemated_cost: number;
 }

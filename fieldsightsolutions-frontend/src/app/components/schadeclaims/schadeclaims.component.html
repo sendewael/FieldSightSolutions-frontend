@@ -20,7 +20,7 @@
             <div class="card-item">{{ claim.damage_type }}</div>
 
             <div class="card-item">
-                <span *ngIf="claim.active; else closedbutton"> <button (click)="editClaim(claim.id)"
+                <span *ngIf="claim.status === 1; else closedbutton"> <button (click)="editClaim(claim.id)"
                         class="edit-button">Bekijk/Bewerk</button>
                 </span>
                 <ng-template #closedbutton> <button (click)="editClaim(claim.id)"
@@ -30,7 +30,7 @@
 
 
             <div class="card-item">
-                <span *ngIf="claim.active; else closed">openstaand</span>
+                <span *ngIf="claim.status === 1; else closed">openstaand</span>
                 <ng-template #closed>gesloten</ng-template>
             </div>
         </div>
