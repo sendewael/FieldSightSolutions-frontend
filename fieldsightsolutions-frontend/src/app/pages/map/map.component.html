@@ -8,11 +8,11 @@
         <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120"
             src="menubutton.svg" />
         @if(isLoading) {
-        <div class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-primary_dark animate-spin" fill="none"
+        <div class="loader">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-800 animate-spin" fill="none"
                 viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
             </svg>
         </div>
         } @else {
@@ -28,38 +28,41 @@
         </div>
         @if(userRole < 2) {
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
-                <button (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+                <button (click)="openPerceelToevoegen()" class="w-3/5 mr-4 action-button">
                     <p>Voeg perceel toe</p>
                 </button>
-                <button (click)="toggleToegangBeheren()" class="w-3/5 bg-green-600 h-12 rounded-md">
+                <button (click)="toggleToegangBeheren()" class="w-3/5 action-button">
                     <p>Toegang beheren</p>
                 </button>
             </div>
         }
         } @else if( manageAccess ) {
-            <p class="text-green-800 text-2xl">Toegang beheren</p>
-            <p class="text-green-800 pb-4">(Voor alle percelen)</p>
-            <select id="userSelection" [(ngModel)]="emailPermissionUser" class="w-full h-10 p-2 border border-gray-300 rounded-md">
+            <p class="text-green-800 text-2xl pb-4">Alg. Toegang beheren</p>
+            <select id="userSelection" [(ngModel)]="emailPermissionUser" (ngModelChange)="addEmailToList()" class="w-full h-10 p-2 mb-4 border border-gray-300 rounded-md">
                 <option disabled selected value="">Selecteer een persoon</option>
                     @for (user of allGrantedUsers; track $index) {
                 <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
                 }
             </select>
-            @for(perceel of userFieldsTable; track $index){
-                @if($index === 0) {
-                    {{ perceel.is_active }}
+            <p class="text-left pb-2">{{ emailList.length > 0 ? 'Toegelaten personen:' : 'U heeft nog geen personen toegelaten' }}</p>
+                @for(email of emailList; track $index) {
+                    <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
+                        <p class="flex-1 text-left">
+                          {{ email }}
+                        </p>
+                        <button (click)="removeEmail($index)" class="ml-2 "><img src="bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all"></button>
+                      </div>
                 }
-            }  
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
             </div>
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
                 <button [disabled]="noUserFields" [ngClass]="{
                     'bg-green-600': !noUserFields, 
                     'bg-gray-400': noUserFields
-                  }" (click)="toggleToegangBeheren()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+                  }" (click)="toggleToegangBeheren()" class="w-3/5 mr-4 action-button">
                     <p>Terug</p>
                 </button>
-                <button class="w-3/5 bg-green-600 h-12 rounded-md">
+                <button (click)="giveGlobalPermission()" class="w-3/5 action-button">
                     <p>Opslaan</p>
                 </button>
             </div>
@@ -70,10 +73,10 @@
             @if(userRole < 2) {
                 <div>
                     <button (click)="editPerceel()" class="absolute right-8 top-24">
-                        <img src="pencil.svg" alt="Bin" width="20" height="20">
+                        <img src="pencil.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
                     </button>
                     <button (click)="deleteUserField()" class="absolute right-2 top-24">
-                        <img src="bin.svg" alt="Bin" width="20" height="20">
+                        <img src="bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
                     </button>
                 </div>
             }
@@ -102,10 +105,10 @@
 
         </div>
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
-            <button (click)="wisGeselecteerdPerceel()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+            <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-4 action-button">
                 <p>Terug</p>
             </button>
-            <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 bg-green-600 h-12 rounded-md">
+            <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 action-button">
                 <p>Schadeclaim maken</p>
             </button>
         </div>
@@ -160,11 +163,11 @@
             </div>
 
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-4 text-white">
-                <button (click)="cancelEditPerceel()" type="button" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+                <button (click)="cancelEditPerceel()" type="button" class="w-3/5 mr-4 action-button">
                     <p>Annuleer</p>
                 </button>
                 <button (click)="confirmEditPerceel()" type="submit" [disabled]="!perceelForm.form.valid"
-                    class="w-3/5 bg-green-600 h-12 rounded-md disabled:opacity-50">
+                    class="w-3/5 action-button disabled:opacity-50">
                     <p>Opslaan</p>
                 </button>
             </div>
@@ -178,7 +181,7 @@
             <div class="mb-3">
                 <label for="name" class="text-sm pb-2 ml-1">Naam</label>
                 <input [(ngModel)]="selectedNewField.name" name="name" type="text" #name="ngModel" required
-                    class="w-full h-10 p-2 border border-gray-300 rounded-md" placeholder="Naam" />
+                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:border-green-600" placeholder="Naam" />
                 <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
                     Naam is verplicht.
                 </div>
@@ -226,11 +229,11 @@
                 <button [disabled]="noUserFields" [ngClass]="{
                                 'bg-green-600': !noUserFields, 
                                 'bg-gray-400': noUserFields
-                              }" (click)="openPerceelToevoegen()" class="w-3/5 bg-green-600 h-12 rounded-md mr-4">
+                              }" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-4">
                     <p>Terug</p>
                 </button>
                 <button [disabled]="!selectedNewField || newPerceelForm.invalid"
-                    class="w-3/5 bg-green-600 h-12 rounded-md disabled:opacity-50"
+                    class="w-3/5 action-button disabled:opacity-50"
                     (click)="perceelLandbouwerToevoeging(userId, selectedNewField.id)">
                     <p>Toevoegen</p>
                 </button>
@@ -242,7 +245,7 @@
             <button [disabled]="noUserFields" [ngClass]="{
                             'bg-green-600': !noUserFields, 
                             'bg-gray-400': noUserFields
-                          }" (click)="openPerceelToevoegen()" class="w-full bg-green-600 h-12 rounded-md">
+                          }" (click)="openPerceelToevoegen()" class="w-full action-button">
                 <p>Terug</p>
             </button>
         </div>
