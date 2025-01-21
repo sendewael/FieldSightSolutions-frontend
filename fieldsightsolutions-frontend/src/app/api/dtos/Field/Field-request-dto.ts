@@ -3,4 +3,5 @@ export interface FieldRequestDto {
     acreage: string;
     municipality: string;
     postalcode: string;
+    crop: string;
 }

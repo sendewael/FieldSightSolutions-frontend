@@ -4,4 +4,7 @@ export interface FieldResponsetDto {
     acreage: string;
     municipality: string;
     postalcode: string;
+    oever: boolean;
+    risico: boolean;
+    crop: string;
 }

@@ -18,8 +18,16 @@ export class FieldService {
     return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/all`)
   }
 
+  getFieldsInRadius(x: number, y: number, radius: number): Observable<FieldResponsetDto[]> {
+    return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/radius/${x}/${y}/${radius}`)
+  }
+
+  getFieldsByFieldIds(fieldIds: number[]): Observable<FieldResponsetDto[]> {
+    return this.http.post<FieldResponsetDto[]>(`${this.apiUrl}/batch/`, fieldIds);
+  }
+
   updateField(id: number, updatedField: Partial<FieldResponsetDto>): Observable<FieldResponsetDto> {
-    return this.http.put<FieldResponsetDto>(`${this.apiUrl}/edit/${id}`, updatedField);
+    return this.http.put<FieldResponsetDto>(`${this.apiUrl}/edit/${id}/`, updatedField);
   }
 
 

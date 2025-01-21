@@ -28,11 +28,15 @@ export class AcountComponent implements OnInit {
   ngOnInit(): void {
     const storedUser = localStorage.getItem('user');
 
+    if (!storedUser) {
+      this.router.navigate(['/login']);
+    }
+
     // Fetch user data on initialization
     this.http.get('http://localhost:8000/api/user', { withCredentials: true })
       .subscribe((data: any) => {
         this.user = data;
-        
+
         // After fetching user data, fetch the role based on the user ID
         this.fetchUserRole(data.id);
       });

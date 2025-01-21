@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 
 @Component({
@@ -15,7 +15,7 @@ export class NavigationComponent implements OnInit {
   name = '';
   authenticated = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   ngOnInit(): void {
     // Check if user is authenticated from localStorage
@@ -79,6 +79,8 @@ export class NavigationComponent implements OnInit {
         // Emit unauthenticated state
         Emitters.authEmitter.emit(false);
         Emitters.userEmitter.emit(null);
+        this.router.navigate(['/login']);
+
 
       });
   }

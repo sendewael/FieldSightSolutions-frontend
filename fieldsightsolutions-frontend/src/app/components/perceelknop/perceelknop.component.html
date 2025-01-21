@@ -1,9 +1,9 @@
 @if(perceel){
 <button class="bg-gray-200 h-20 w-full rounded-md mb-4 relative hover:bg-gray-300 transition-all">
     <div class="text-center">
-        <p>{{ perceel.name }}</p>
+        <p>{{ perceel.name }} ({{ perceel.crop }})</p>
         <p class="text-sm">{{ perceel.postalcode}} - {{ perceel.municipality}}</p>
     </div>
-    <p class="absolute left-1 top-1 text-xs">254879514</p>
+    <p class="absolute left-1 top-1 text-xs">{{ perceel.id }}</p>
 </button>
 }

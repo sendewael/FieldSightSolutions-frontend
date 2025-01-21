@@ -1,6 +1,6 @@
 export interface UserResponseDto {
     id: number;
-    userRoleId: number;
+    userRole_id: number;
     firstName: string;
     lastName: string;
     email: string;
