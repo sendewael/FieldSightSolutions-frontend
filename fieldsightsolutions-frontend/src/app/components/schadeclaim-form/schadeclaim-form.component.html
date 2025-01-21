@@ -1,5 +1,4 @@
 <form (ngSubmit)="onSubmit()" class="bg-white shadow-lg rounded-lg p-8 space-y-8">
-
   <div *ngIf="schadeclaimForm.status === 0 || schadeclaimForm.status === 1 || schadeclaimForm.status === 2">
     <!-- Section 1: Field Information -->
     <div *ngIf="schadeclaimForm.status === 0">
@@ -38,7 +37,7 @@
         </div>
         <div>
           <label for="field-crop" class="block text-sm font-semibold text-gray-700">Teelt</label>
-          <input type="text" id="field-crop" [(ngModel)]="schadeclaimForm.fieldCrop" name="fieldCrop"
+          <input type="text" id="field-crop" [(ngModel)]="schadeclaimForm.crop" name="fieldCrop"
             class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
             disabled required>
         </div>
@@ -78,18 +77,14 @@
         Is de informatie niet in orde? <a routerLink="/" class="text-primary font-semibold">Klik hier</a>.
       </p>
     </div>
-
     <div *ngIf="schadeclaimForm.fieldOever == true">
       Oever is true
     </div>
-
     <div *ngIf="schadeclaimForm.fieldRisico == true">
       PAS OP! DIT VELD LIGT IN EEN OVERSTROMINGSGEBIED!
     </div>
 
     <div *ngIf="schadeclaimForm.status === 0">
-
-
       <!-- Next Button -->
       <div class="text-right mt-4">
         <button type="submit"
@@ -104,7 +99,6 @@
 </form>
 
 <form (ngSubmit)="onUpdate()" class="bg-white shadow-lg rounded-lg p-8 space-y-8">
-
   <div *ngIf="schadeclaimForm.status === 1 || schadeclaimForm.status === 2">
     <!-- Section 2: Farmer Information -->
     <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4 mb-8">
@@ -149,7 +143,6 @@
             class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary focus:border-primary"
             disabled required>
         </div>
-
       </div>
       <p class="text-sm text-gray-600 mt-4">
         Zijn de persoonsgegevens niet in orde? <a routerLink="/acount" class="text-primary font-semibold">Klik hier</a>.
@@ -197,14 +190,11 @@
           <input type="radio" id="weather-insurance-yes" name="weatherInsurance" [value]=true
             [(ngModel)]="schadeclaimForm.insurance" [disabled]="schadeclaimForm.status === 2" class="mr-2">
           <label for="weather-insurance-yes" class="text-sm text-gray-700 mr-4">Ja</label>
-
           <input type="radio" id="weather-insurance-no" name="weatherInsurance" [value]=false
             [(ngModel)]="schadeclaimForm.insurance" [disabled]="schadeclaimForm.status === 2" class="mr-2">
           <label for="weather-insurance-no" class="text-sm text-gray-700">Nee</label>
         </div>
       </div>
-
-
     </div>
 
     <!-- Foto's van schade -->
@@ -212,7 +202,6 @@
       <h2 class="text-2xl font-bold text-primary flex items-center space-x-2">
         <span>📷</span>
         <span>Foto's van schade</span>
-
       </h2>
 
       <!-- Upload Input -->
@@ -231,7 +220,6 @@
             <!-- Image Thumbnail -->
             <img [src]="image.url" [alt]="'Uploaded image ' + (i + 1)"
               class="w-full h-32 object-cover rounded-lg shadow-md border border-gray-200" />
-
             <!-- Delete Button -->
             <button (click)="removeImage(i)"
               class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-700 transition-opacity opacity-0 group-hover:opacity-100">
@@ -240,13 +228,11 @@
           </div>
         </div>
       </div>
-
       <!-- No Images Yet -->
       <div *ngIf="uploadedImages.length === 0" class="mt-4 text-sm text-gray-500">
         Geen foto's geüpload. Upload foto's om een preview te zien.
       </div>
     </div>
-
 
     <!-- Extra uitleg -->
     <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-md space-y-4">
@@ -259,8 +245,6 @@
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
     </div>
 
-
-
     <!-- Submit Button -->
     <div *ngIf="schadeclaimForm.status === 1">
       <div class="text-right mt-4">
@@ -271,7 +255,4 @@
       </div>
     </div>
   </div>
-
-
-
 </form>
