@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { InsuranceFormResponseDto } from '../../dtos/InsuranceForm/InsuranceForm-response-dto';
 import { environment } from '../../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 
 @Injectable({
@@ -11,54 +11,52 @@ import { Observable } from 'rxjs';
 export class InsuranceFormService {
 
 
-  private apiUrl = `${environment.baseUrl}/insurance-claims`
+  private apiUrl = `${environment.baseUrl}/insurance-claims`;
 
   constructor(private http: HttpClient) { }
+  // getInsuranceForms(): InsuranceFormResponseDto[] {
+  //   let insuranceForms: InsuranceFormResponseDto[] = [
+  //     {
+  //       id: 1,
+  //       damageId: 1,
+  //       fieldId: 1,
+  //       startDate: new Date('2023-01-01'),
+  //       endDate: new Date('2023-12-31'),
+  //       active: true
+  //     },
+  //     {
+  //       id: 2,
+  //       damageId: 2,
+  //       fieldId: 2,
+  //       startDate: new Date('2023-02-01'),
+  //       endDate: new Date('2023-11-30'),
+  //       active: false
+  //     },
+  //     {
+  //       id: 3,
+  //       damageId: 3,
+  //       fieldId: 3,
+  //       startDate: new Date('2023-03-01'),
+  //       endDate: new Date('2023-12-31'),
+  //       active: true
+  //     }
+  //   ];
 
-  getInsuranceForms(): InsuranceFormResponseDto[] {
-    let insuranceForms: InsuranceFormResponseDto[] = [
-      {
-        id: 1,
-        damageId: 1,
-        fieldId: 1,
-        startDate: new Date('2023-01-01'),
-        endDate: new Date('2023-12-31'),
-        active: true
-      },
-      {
-        id: 2,
-        damageId: 2,
-        fieldId: 2,
-        startDate: new Date('2023-02-01'),
-        endDate: new Date('2023-11-30'),
-        active: false
-      },
-      {
-        id: 3,
-        damageId: 3,
-        fieldId: 3,
-        startDate: new Date('2023-03-01'),
-        endDate: new Date('2023-12-31'),
-        active: true
-      }
-    ];
-
-    return insuranceForms;
-  }
-
-  getInsuranceFormsByDamageId(damageId: number): InsuranceFormResponseDto[] {
-    const insuranceForms = this.getInsuranceForms();
-    const forms = insuranceForms.filter(form => form.damageId === damageId);
-    return forms;
-  }
-
-  getActiveInsuranceForms(): InsuranceFormResponseDto[] {
-    const insuranceForms = this.getInsuranceForms();
-    const activeForms = insuranceForms.filter(form => form.active);
-    return activeForms;
-  }
+  //   return insuranceForms;
+  // }
 
 
+  // getInsuranceFormsByDamageId(damageId: number): InsuranceFormResponseDto[] {
+  //   const insuranceForms = this.getInsuranceForms();
+  //   const forms = insuranceForms.filter(form => form.damageId === damageId);
+  //   return forms;
+  // }
+
+  // getActiveInsuranceForms(): InsuranceFormResponseDto[] {
+  //   const insuranceForms = this.getInsuranceForms();
+  //   const activeForms = insuranceForms.filter(form => form.active);
+  //   return activeForms;
+  // }
 
   getInsuranceformByClaimId(claimId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`http://localhost:8000/api/insurance-claims/id/${claimId}/`, { withCredentials: true });
@@ -80,4 +78,9 @@ export class InsuranceFormService {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);
 
   }
+
+  putInsuranceformById(insuranceformId: number, formdata: InsuranceFormResponseDto): Observable<InsuranceFormResponseDto> {
+    return this.http.put<InsuranceFormResponseDto>(`${this.apiUrl}/edit/${insuranceformId}`, formdata);
+  }
+  
 }
