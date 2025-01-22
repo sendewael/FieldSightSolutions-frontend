@@ -7,8 +7,13 @@
   <base href="/">
   <script>
     window.env = {
-      BASE_URL: 'BASE_URL_PLACEHOLDER' // This will be replaced by entrypoint.sh
+      BASE_URL: 'BASE_URL_PLACEHOLDER' // This will be replaced by the entrypoint script in the Docker container
     };
+  
+    // Fallback for local development: if window.env.BASE_URL is still 'BASE_URL_PLACEHOLDER', set it to localhost
+    if (window.env.BASE_URL === 'BASE_URL_PLACEHOLDER') {
+      window.env.BASE_URL = 'http://localhost:8000/api';
+    }
   </script>
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
