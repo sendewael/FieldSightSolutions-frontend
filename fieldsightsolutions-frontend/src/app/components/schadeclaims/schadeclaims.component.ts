@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-// import { Router, RouterModule } from '@angular/router';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
-
+import { ImageService } from '../../api/services/image/image.service';
+import { PDFService } from '../../api/services/pdf/pdf.service';
 @Component({
   selector: 'app-schadeclaims',
   templateUrl: './schadeclaims.component.html',
@@ -16,9 +16,17 @@ export class SchadeclaimsComponent implements OnInit {
   claims: any[] = [];  // Store the insurance claims
   userId: number | null = null;  // Store the user ID
 
-  constructor(private http: HttpClient, private router: Router, private insuranceformservice: InsuranceFormService) { }
+  constructor(
+    private http: HttpClient, 
+    private router: Router, 
+    private insuranceformservice: InsuranceFormService,
+    private imageService: ImageService,
+    private pdfService: PDFService
+
+  ) { }
 
   ngOnInit(): void {
+    console.log(this.claims)
     // Get the logged-in user data (you can get this from localStorage or cookies)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -46,7 +54,24 @@ export class SchadeclaimsComponent implements OnInit {
 
   editClaim(claimId: number): void {
     this.router.navigate(['/edit-schadeclaim', claimId]); // Pass claim ID in route
-
   }
 
+  generatePDF(claimId: number): void {
+    this.pdfService.getPDF(claimId)
+      .subscribe({
+        next: (response) => {
+          // Create a downloadable link for the PDF
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `claim_${claimId}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Failed to generate PDF', err);
+        }
+      });
+  }
 }

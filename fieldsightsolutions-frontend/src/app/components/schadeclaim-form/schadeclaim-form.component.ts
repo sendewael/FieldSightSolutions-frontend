@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
@@ -8,8 +8,10 @@ import { FieldService } from '../../api/services/field/field.service';
 import { UserService } from '../../api/services/user/user.service';
 import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
 import { FieldCropService } from '../../api/services/fieldCrop/field-crop.service';
+import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
 import { ImageService } from '../../api/services/image/image.service';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ToastComponent } from '../toast/toast.component';
 import * as piexif from 'piexifjs';
 
 @Component({
@@ -17,15 +19,25 @@ import * as piexif from 'piexifjs';
   templateUrl: './schadeclaim-form.component.html',
   styleUrls: ['./schadeclaim-form.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, ToastComponent],
 })
 export class SchadeclaimFormComponent implements OnInit {
+  @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
+
+
   userId: number | undefined;
   claimId: number | undefined;
   fieldId: number | undefined;
-  fields: any[] = []; // Array to store fields
-  damages: any[] = []; // Array to store fields
+  fields: any[] = [];
+  damages: any[] = [];
   uploadedImages: {
+    file: File | null;
+    url: string;
+    xCord?: string | number;
+    yCord?: string | number;
+  }[] = [];
+
+  requestedImages: {
     file: File | null;
     url: string;
     xCord?: string | number;
@@ -48,7 +60,7 @@ export class SchadeclaimFormComponent implements OnInit {
     fieldMunicipality: "",
     fieldOever: false,
     fieldRisico: false,
-    description: "no description",
+    description: "//",
     insurance: false,
   };
 
@@ -91,7 +103,8 @@ export class SchadeclaimFormComponent implements OnInit {
     private userService: UserService,
     private insuranceformService: InsuranceFormService,
     private fieldcropService: FieldCropService,
-    private imageService: ImageService
+    private imageService: ImageService,
+    private requestedImageService: RequestedImageService
   ) { }
 
   ngOnInit(): void {
@@ -100,14 +113,19 @@ export class SchadeclaimFormComponent implements OnInit {
     this.onFieldSelect();
     // Check for claim ID in route parameters
     this.route.params.subscribe(params => {
+      this.route.queryParams.subscribe(queryParams => {
+        const fieldId = queryParams['fieldId'];
+        if (fieldId) {
+          this.schadeclaimForm.field = fieldId; // Set field ID from query parameter
+          this.onFieldSelect()
+        }
+      });
+
       if (params['id']) {
         this.claimId = +params['id']; // Get claim ID from route
         this.fetchClaimData(this.claimId); // Fetch claim details
-
       }
     });
-
-
   }
 
   //load fields for dropdown
@@ -145,7 +163,6 @@ export class SchadeclaimFormComponent implements OnInit {
   // change field info when selecting field in dropdown
   onFieldSelect(): void {
     const selectedFieldId = this.schadeclaimForm.field;
-
     if (!selectedFieldId || selectedFieldId == 0) {
       return;
     }
@@ -163,9 +180,7 @@ export class SchadeclaimFormComponent implements OnInit {
           this.schadeclaimForm.fieldOever = selectedField.risico || false;
           this.schadeclaimForm.fieldRisico = selectedField.risico || false;
           this.schadeclaimForm.crop = selectedField.crop || '';
-
         }
-
 
       },
       error: (err) => {
@@ -173,8 +188,9 @@ export class SchadeclaimFormComponent implements OnInit {
       },
     });
 
-
   }
+
+
 
 
   //fetch the user
@@ -192,7 +208,6 @@ export class SchadeclaimFormComponent implements OnInit {
           this.user.farmerNumber = number.trim();
           this.user.farmerMunicipality = data.gemeente || '';
           this.user.farmerEmail = data.email || '';
-
           this.loadFields();
 
         },
@@ -202,10 +217,8 @@ export class SchadeclaimFormComponent implements OnInit {
       });
   }
 
-
   //fetch claim data when form is aready created
   fetchClaimData(claimId: number): void {
-
     this.imageService.getImages(claimId).subscribe({
       next: (images: any[]) => {
         images.forEach((image: any) => {
@@ -215,12 +228,34 @@ export class SchadeclaimFormComponent implements OnInit {
             url: `http://localhost:8000/api${image.image}` // Prepending the correct URL to the relative path
           });
         });
-
       },
       error: (err) => {
         console.error('Error fetching images:', err);
       },
     });
+
+
+
+
+    //requested Images
+    this.requestedImageService.getImages(claimId)
+      .subscribe({
+        next: (images: any[]) => {
+          images.forEach((image: any) => {
+            console.log(image)
+            this.requestedImages.push({
+              file: null,
+              url:"no url",
+              xCord: image.xCord,
+              yCord: image.yCord
+            });
+          });
+        },
+        error: (err) => {
+          console.error('Error fetching requested image data:', err);
+        },
+      });
+
 
     this.insuranceformService.getInsuranceformByClaimId(claimId)
       .subscribe({
@@ -232,13 +267,12 @@ export class SchadeclaimFormComponent implements OnInit {
           this.schadeclaimForm.endDate = claim[0].endDate || '';
           this.schadeclaimForm.status = claim[0].status || true;
           this.schadeclaimForm.estimated_cost = claim[0].estimated_cost || 0;
-          this.schadeclaimForm.field = claim[0].field || 0;
-          this.fieldId = claim[0].field || 1; // Ensure fieldId is set
+          this.schadeclaimForm.field = claim[0].field.id || 0;
+          this.fieldId = claim[0].field.id || 1; // Ensure fieldId is set
           this.schadeclaimForm.id = claim[0].id || undefined
           this.schadeclaimForm.description = claim[0].description || "",
-            this.schadeclaimForm.insurance = claim[0].insurance || false,
+            this.schadeclaimForm.insurance = claim[0].insurance || false
 
-            console.log(claim[0])
 
           // Only proceed with fetching field data if fieldId is defined
           if (this.fieldId !== undefined) {
@@ -253,7 +287,6 @@ export class SchadeclaimFormComponent implements OnInit {
                   this.schadeclaimForm.fieldOever = field[0].oever || false;
                   this.schadeclaimForm.fieldRisico = field[0].risico || false;
                   this.schadeclaimForm.crop = field[0].crop || '';
-
 
                 },
                 error: (err) => {
@@ -272,7 +305,6 @@ export class SchadeclaimFormComponent implements OnInit {
       });
   }
 
-
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -282,7 +314,6 @@ export class SchadeclaimFormComponent implements OnInit {
           try {
             const data = reader.result as string;
             const exif = piexif.load(data);
-
             const gps = exif['GPS'];
             if (gps) {
               const latitude = gps[piexif.GPSIFD.GPSLatitude];
@@ -290,11 +321,9 @@ export class SchadeclaimFormComponent implements OnInit {
               const longitude = gps[piexif.GPSIFD.GPSLongitude];
               const longitudeRef = gps[piexif.GPSIFD.GPSLongitudeRef];
 
-
               // Convert to decimal
               const xCord = this.convertDMSToDecimal(latitude, latitudeRef);
               const yCord = this.convertDMSToDecimal(longitude, longitudeRef);
-
 
               // Add the image with the coordinates
               this.uploadedImages.push({
@@ -318,7 +347,6 @@ export class SchadeclaimFormComponent implements OnInit {
   removeImage(index: number): void {
     this.uploadedImages.splice(index, 1);
   }
-
 
   //submit
   onSubmit(): void {
@@ -346,11 +374,12 @@ export class SchadeclaimFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating insurance form:', err);
+          this.toast.message = 'vul datums in en selecteer een veld'; // Set toast message
+          this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
+          this.toast.showToast(); // Show toast
         },
       });
   }
-
-
 
   onUpdate(): void {
     if (this.schadeclaimForm.status === 2) {
@@ -385,26 +414,25 @@ export class SchadeclaimFormComponent implements OnInit {
                 formData.append('image', image.file);
                 formData.append('filename', image.file.name);
                 formData.append('date', new Date(image.file.lastModified).toISOString().split('T')[0]);
-                formData.append('xCord', String(image.xCord) || ''); // Use extracted xCord or default to an empty string
+                formData.append('xCord', String(image.xCord) || '');
                 formData.append('yCord', String(image.yCord) || '');
 
                 return this.http.post('http://localhost:8000/api/images/', formData).toPromise();
               } else {
                 console.warn('Image file is null, skipping upload.');
-                return Promise.resolve(); // Skip the upload if there is no file
+                return Promise.resolve();
               }
             });
 
-            // Wait for all image uploads to finish
             Promise.all(uploadPromises)
               .then((responses) => {
-                this.router.navigate(['/schadeclaims']); // Navigate to another page after uploads
+                this.router.navigate(['/schadeclaims']);
               })
               .catch((err) => {
                 console.error('Error uploading one or more images:', err);
               });
           } else {
-            this.router.navigate(['/schadeclaims']); // Navigate if no images
+            this.router.navigate(['/schadeclaims']);
           }
         },
         error: (err) => {
@@ -419,22 +447,18 @@ export class SchadeclaimFormComponent implements OnInit {
       return NaN;
     }
 
-    // Convert the degrees, minutes, and seconds to a proper format
-    const degrees = dms[0][0]; // The first value in the array represents degrees
-    const minutes = dms[1][0]; // The second value represents minutes
-    const seconds = dms[2][0] / dms[2][1]; // The third array represents seconds (fractional part)
+    const degrees = dms[0][0];
+    const minutes = dms[1][0];
+    const seconds = dms[2][0] / dms[2][1];
 
-    // Convert DMS to decimal degrees
     let decimal = degrees + minutes / 60 + seconds / 3600;
 
-    // Apply direction (S or W would make the value negative)
     if (direction === 'S' || direction === 'W') {
       decimal *= -1;
     }
 
     return decimal;
   }
-
 
 
 }
