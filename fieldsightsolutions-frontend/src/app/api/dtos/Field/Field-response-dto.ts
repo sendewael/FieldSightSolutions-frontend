@@ -7,4 +7,5 @@ export interface FieldResponsetDto {
     oever: boolean;
     risico: boolean;
     crop: string;
+    prediction: string;
 }

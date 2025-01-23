@@ -1,11 +1,11 @@
 @if(showModal) {
 <div class="w-full h-screen backdrop-blur-xs absolute top-0 left-0 z-50">
     <div
-        class="bg-white h-36 w-96 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50 rounded-md flex flex-col justify-center items-center border-4 border-green-600 shadow-lg">
+        class="bg-white h-36 w-96 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50 rounded-md flex flex-col justify-center items-center border-4 border-green-800 shadow-sm">
         <div class="text-center">
             <p>{{ message }}</p>
         </div>
-        <button (click)="closeModal()" class="bg-green-600 h-12 w-28 mr-4 rounded-md text-white mt-4">
+        <button (click)="closeModal()" class="bg-green-800 hover:bg-green-700 h-12 w-28 mr-4 rounded-md text-white mt-4 transition-all">
             Annuleer
         </button>
     </div>

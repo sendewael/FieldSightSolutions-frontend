@@ -36,4 +36,12 @@ export class UserService {
   updateUser(user: object): Observable<UserResponseDto[]> {
     return this.http.put<UserResponseDto[]>(`${this.apiUrl}`, user, { withCredentials: true });
   }
+
+  getUsersByAccessToUserField(pk: number): Observable<UserResponseDto[]> {
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/access-field/`, { params: { userId: pk.toString() } });
+  }
+  
+  
+  
+  
 }

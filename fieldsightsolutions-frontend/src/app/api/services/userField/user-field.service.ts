@@ -18,17 +18,19 @@ export class UserFieldService {
   }
 
   getUserFieldsByUserId(userId: number): Observable<UserFieldResponseDto[]> {
-    const url = `${this.apiUrl}/userId/${userId}`;
-    return this.http.get<UserFieldResponseDto[]>(url);
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/userId/${userId}`);
+  }
+
+  getUserFieldByFieldId(fieldId: number): Observable<UserFieldResponseDto[]> {
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/fieldId/${fieldId}`);
   }
 
   addUserField(userFieldRequest: UserFieldRequestDto): Observable<UserFieldResponseDto> {
     return this.http.post<UserFieldResponseDto>(`${this.apiUrl}/`, userFieldRequest);
   }
 
-  getUserFieldByFieldId(fieldId: number): Observable<UserFieldResponseDto[]> {
-    const url = `${this.apiUrl}/fieldId/${fieldId}`;
-    return this.http.get<UserFieldResponseDto[]>(url);
+  updateUserField(id: number, updatedField: Partial<UserFieldResponseDto>): Observable<UserFieldResponseDto> {
+    return this.http.put<UserFieldResponseDto>(`${this.apiUrl}/edit/${id}`, updatedField);
   }
 
   deleteUserField(id: number): Observable<void> {

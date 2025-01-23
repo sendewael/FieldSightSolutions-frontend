@@ -1,11 +1,11 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 120" width="60" height="120">
-	<title>New Project</title>
+	<title>menubutton</title>
 	<defs>
 		<filter x="-50%" y="-50%" width="200%" height="200%" id="f1" ><feDropShadow dx="-1" dy="0" stdDeviation="5.416666666666667" flood-color="#000000" flood-opacity=".4"/></filter>
 	</defs>
 	<style>
-		.s0 { filter: url(#f1);fill: #f9fafb;stroke: #19a41b;paint-order:stroke fill markers;stroke-linejoin: round;stroke-width: 6 } 
-		.s1 { fill: #19a41b } 
+		.s0 { filter: url(#f1);fill: #f9fafb;stroke: #166534;paint-order:stroke fill markers;stroke-linejoin: round;stroke-width: 6 } 
+		.s1 { fill: #166534 } 
 	</style>
 	<path id="Shape 1" fill-rule="evenodd" class="s0" d="m34 25h27c5.5 0 10 4.5 10 10v50c0 5.5-4.5 10-10 10h-27c-5.5 0-10-4.5-10-10v-50c0-5.5 4.5-10 10-10z"/>
 	<path id="Shape 2" fill-rule="evenodd" class="s1" d="m31.5 37c0.8 0 1.5 0.7 1.5 1.5v43c0 0.8-0.7 1.5-1.5 1.5-0.8 0-1.5-0.7-1.5-1.5v-43c0-0.8 0.7-1.5 1.5-1.5z"/>

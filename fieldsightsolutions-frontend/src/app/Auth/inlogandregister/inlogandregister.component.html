@@ -1,49 +1,100 @@
-<app-toast></app-toast>
-
-
-<div class="container">
-    <div class="tabs">
-      <button (click)="toggleMode()" [class.active]="isLoginMode">LOGIN</button>
-      <button (click)="toggleMode()" [class.active]="!isLoginMode">REGISTREER</button>
-    </div>
-  
-    <!-- Login Form -->
-    <div *ngIf="isLoginMode" class="form">
-      <form [formGroup]="loginForm" (ngSubmit)="loginSubmit()">
-        <div class="form-group">
-          <input formControlName="email" type="email" placeholder="E-mail" />
-        </div>
-        <div class="form-group">
-          <input formControlName="password" type="password" placeholder="Wachtwoord" />
-        </div>
-        <button type="submit" class="btn">Login</button>
-        <a href="#" class="forgot-password">Wachtwoord vergeten?</a>
-      </form>
-    </div>
-  
-    <!-- Register Form -->
-    <div *ngIf="!isLoginMode" class="form">
-      <form [formGroup]="registerForm" (ngSubmit)="registerSubmit()">
-        <div class="form-group">
-          <input formControlName="firstName" type="text" placeholder="Voornaam" />
-        </div>
-        <div class="form-group">
-          <input formControlName="lastName" type="text" placeholder="Achternaam" />
-        </div>
-        <div class="form-group">
-          <input formControlName="email" type="email" placeholder="E-mail" />
-        </div>
-        <div class="form-group">
-          <input formControlName="adres" type="text" placeholder="Straat + nummer" />
-        </div>
-        <div class="form-group">
-          <input formControlName="gemeente" type="text" placeholder="Gemeente" />
-        </div>
-        <div class="form-group">
-          <input formControlName="password" type="password" placeholder="Wachtwoord" />
-        </div>
-        <button type="submit" class="btn">Registreer</button>
-      </form>
-    </div>
-  </div>
-  
+<div class="w-full bg-gray-50">
+<img src="https://images.pexels.com/photos/1094544/pexels-photo-1094544.jpeg" alt="" class="w-full h-screen object-cover opacity-40 absolute top-0 left-0">
+	<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+		<div class="bg-white rounded-md shadow-sm w-96 overflow-hidden">
+			<div class="flex items-center justify-center bg-green-600 py-4">
+				<img src="fieldsightsolutions.png"
+					alt="FieldSightSolutions logo"
+					class="h-12 w-auto">
+			</div>
+			<div class="flex bg-green-200">
+				<button [class.active]="isLoginMode"
+					[class]="isLoginMode ? 'bg-green-800 text-white' : 'bg-green-200 text-green-800'"
+					(click)="toggleMode()"
+					class="flex-1 py-2 text-center transition-colors duration-300">
+					Login
+				</button>
+				<button [class.active]="!isLoginMode"
+					[class]="!isLoginMode ? 'bg-green-800 text-white' : 'bg-green-200 text-green-800'"
+					(click)="toggleMode()"
+					class="flex-1 py-2 text-center transition-colors duration-300">
+					Registreer
+				</button>
+			</div>
+			@if(isLoginMode) {
+				<div class="p-4">
+				<form [formGroup]="loginForm"
+					(ngSubmit)="loginSubmit()">
+					<div class="mb-3">
+						<input formControlName="email"
+							type="email"
+							placeholder="E-mail"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="password"
+							type="password"
+							placeholder="Wachtwoord"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<button type="submit"
+						class="w-full py-2 bg-green-800 text-white rounded-md hover:bg-green-700 transition">
+						Inloggen
+					</button>
+					<a href="#"
+						class="block text-center mt-4 text-green-800 hover:underline">
+						Wachtwoord vergeten?
+					</a>
+				</form>
+			</div>
+			}
+			@if(!isLoginMode) {
+				<div class="p-4">
+				<form [formGroup]="registerForm"
+					(ngSubmit)="registerSubmit()">
+					<div class="mb-3">
+						<input formControlName="firstName"
+							type="text"
+							placeholder="Voornaam"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="lastName"
+							type="text"
+							placeholder="Achternaam"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="email"
+							type="email"
+							placeholder="E-mail"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="adres"
+							type="text"
+							placeholder="Straat + nummer"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="gemeente"
+							type="text"
+							placeholder="Gemeente"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<div class="mb-3">
+						<input formControlName="password"
+							type="password"
+							placeholder="Wachtwoord"
+							class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+					</div>
+					<button type="submit"
+						class="w-full py-2 bg-green-800 text-white rounded-md hover:bg-green-700 transition">
+						Registreren
+					</button>
+				</form>
+			</div>
+			}
+		</div>
+	</div>
+</div>

@@ -1,14 +1,20 @@
 export interface InsuranceFormResponseDto {
-    id: number;
-    damage: number; // ID van het gerelateerde damage-object
-    field: number; // ID van het gerelateerde field-object
-    startDate: string;
-    endDate: string;
-    status: number;
-    field_name?: string; // Alleen voor lezen (backend mapping)
-    damage_type?: string; // Alleen voor lezen (backend mapping)
-    estimated_cost: number;
-    description: string;
-    insurance: boolean;
-  }
-  
+  id: number;
+  damage: number; // ID van het gerelateerde damage-object
+  field: {
+    name: string; // Veldnaam
+    acreage: string; // Oppervlakte
+    crop: string; // Gewas
+    municipality: string; // Gemeente
+    postalcode: string; // Postcode
+    oever?: string | null; // Optioneel
+    risico?: string | null; // Optioneel
+  }; // Veld object met details
+  startDate: string;
+  endDate: string;
+  status: number;
+  damage_type?: string; // Alleen voor lezen (backend mapping)
+  estimated_cost: number;
+  description: string;
+  insurance: boolean;
+}

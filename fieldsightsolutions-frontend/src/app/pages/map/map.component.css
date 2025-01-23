@@ -5,11 +5,45 @@
     right: 0;
     bottom: 0;
     height: calc(100vh - 5rem);
+    width: 100%;
+    z-index: 30;
 }
 
-.loader {
+.action-button {
+    color: white;
+    background-color: #166534;
+    height: 40px;
+    border-radius: 0.375rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.action-button:hover {
+    background-color: #15803d;
+}
+
+h3 {
+    color: #166534;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+}
+
+#percelenManager {
+    width: 400px;
+    height: 100%;
+    padding-top: 96px;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-align: center;
+    background-color: #f9fafb;
     position: absolute;
-    top: calc(50% + 2.5rem);
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0px;
+    right: 0px;
+    z-index: 40;
+}
+
+.full-height-minus-72 {
+    height: calc(100vh - 270px);
 }

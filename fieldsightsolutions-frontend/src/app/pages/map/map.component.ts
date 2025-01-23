@@ -17,11 +17,23 @@ import { Router, RouterModule } from '@angular/router';
 import { UserFieldResponseDto } from '../../api/dtos/UserField/UserField-response-dto';
 import { UserResponseDto } from '../../api/dtos/User/User-response-dto';
 import { UserService } from '../../api/services/user/user.service';
+import { forkJoin } from 'rxjs';
+import { WeatherModalComponent } from '../../components/weather-modal/weather-modal.component';
+import { LoaderComponent } from '../../components/loader/loader.component';
 
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [PerceelknopComponent, CommonModule, FormsModule, ModalComponent, ConfirmModalComponent, RouterModule],
+  imports: [
+    PerceelknopComponent,
+    CommonModule,
+    FormsModule,
+    ModalComponent,
+    ConfirmModalComponent,
+    RouterModule,
+    WeatherModalComponent,
+    LoaderComponent,
+  ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
 })
@@ -29,6 +41,7 @@ export class MapComponent {
 
   public map: L.Map | undefined;
   public polygons: L.Polygon[] = [];
+  public highlightedPolygons: L.Polygon[] = [];
   public isOpen: boolean = true;
   public isEdit: boolean = false;
   public messageModal: boolean = false;
@@ -84,8 +97,10 @@ export class MapComponent {
       })
       this.userService.getUsersByRoleIds([2, 3, 4]).subscribe({
         next: (users) => {
-          this.allGrantedUsers = users;
-          console.log(this.allGrantedUsers)
+          this.allGrantedUsers = users.sort((a, b) => a.firstName.localeCompare(b.firstName));
+        },
+        error: (err) => {
+          console.log(err)
         }
       })
     } else {
@@ -146,21 +161,21 @@ export class MapComponent {
     this.userFieldService.getUserFieldsByUserId(userId).subscribe(
       (userFields) => {
         this.userFieldsTable = userFields
-        console.log("UserFields ", this.userFieldsTable)
         const fieldIds = userFields.map(uf => uf.field);
         this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
           next: (fields) => {
-            console.log(fields)
             this.userPercelen = fields;
             if (this.userPercelen.length < 1) {
-              console.log("er zijn geen velden");
               this.noUserFields = true;
               this.newField = true;
               this.drawFieldsOnMap();
             } else {
-              console.log("er zijn velden");
               this.noUserFields = false;
-              this.drawUserFieldsOnMap();
+              if (!this.selectedField) {
+                this.drawUserFieldsOnMap();
+              } else {
+                this.isLoading = false;
+              }
             }
           },
           error: (error) => {
@@ -200,8 +215,10 @@ export class MapComponent {
     const [lat, lng] = this.mapCenter;
     this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
       next: (fields) => {
+        if (!fields || fields.length === 0) {
+          this.isLoading = false;
+        }
         this.percelen = fields;
-        console.log(this.percelen)
         this.totalFieldsToDraw = this.percelen.length;
         this.userFieldService.getUserFields().subscribe({
           next: (userFields) => {
@@ -274,7 +291,9 @@ export class MapComponent {
   // Deze functie verwijderd alle polygons van de map
   private clearPolygonsOffMap() {
     this.polygons.forEach(polygon => polygon.remove());
+    this.highlightedPolygons.forEach(polygon => polygon.remove());
     this.polygons = [];
+    this.highlightedPolygons = [];
   }
 
   // -------------------------------------------------------------- //
@@ -296,6 +315,7 @@ export class MapComponent {
     const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
     if (selectedField) {
       this.selectedField = selectedField;
+      console.log(this.selectedField)
       this.highlightField(fieldId);
     }
 
@@ -356,6 +376,7 @@ export class MapComponent {
           });
 
           this.highlightedPolygon.addTo(this.map);
+          this.highlightedPolygons.push(this.highlightedPolygon);
         }
       });
     }
@@ -403,14 +424,12 @@ export class MapComponent {
       const userField: UserFieldRequestDto = {
         user: userId,
         field: fieldId,
-        is_active: false
+        grantedEmails: [],
       };
 
       this.userFieldService.addUserField(userField).subscribe({
         next: (response) => {
-          console.log(response);
           if (this.selectedNewField) {
-            console.log(this.selectedNewField);
             this.fieldService.updateField(fieldId, this.selectedNewField).subscribe({
               next: (updatedField) => {
                 console.log("Field updated successfully:", updatedField);
@@ -508,40 +527,195 @@ export class MapComponent {
 
   // -------------------------------------------------------------- //
 
-  // Deze functie wordt gebruikt bij de "Mijn percelen" filter
-  get filteredUserPercelen() {
-    return this.userPercelen.filter(perceel =>
-      perceel.name.toLowerCase().includes(this.filterText.toLowerCase()) ||
-      perceel.municipality.toLowerCase().includes(this.filterText.toLowerCase()) ||
-      perceel.postalcode.toLowerCase().includes(this.filterText.toLowerCase()) ||
-      perceel.crop.toLowerCase().includes(this.filterText.toLowerCase())
-    );
-  }
+
 
   // -------------------------------------------------------------- //
 
+  public removedGlobalEmails: string[] = []
+
   toggleToegangBeheren(): void {
     this.manageAccess = !this.manageAccess
+    this.loadUserFields(this.userId)
+    this.loadEmails()
   }
 
-  // giveGlobalPermission(): void {
-  //   this.userPercelen.forEach((userField) => {
-  //     const updatedEmailList = [...userField.email, this.emailPermissionUser];
+  addEmailToList(): void {
+    if (this.emailPermissionUser && !this.globalEmailList.includes(this.emailPermissionUser)) {
+      this.globalEmailList.push(this.emailPermissionUser);
+      this.emailPermissionUser = '';
+    }
+  }
 
-  //     this.userFieldService.updateUserField(userField.id, { ...userField, email: updatedEmailList }).subscribe({
-  //       next: () => {
-  //         console.log(`User field with id ${userField.id} updated successfully.`);
-  //       },
-  //       error: (error) => {
-  //         console.error(`Failed to update user field with id ${userField.id}.`);
-  //       },
-  //     });
-  //   });
-  // }
+  removeEmail(index: number): void {
+    const removedEmail = this.globalEmailList.splice(index, 1)[0];
+    if (removedEmail && !this.removedGlobalEmails.includes(removedEmail)) {
+      this.removedGlobalEmails.push(removedEmail); // Track the removed email
+    }
+  }
+
+  public globalEmailList: string[] = [];
+
+  loadEmails(): void {
+    if (this.userFieldsTable.length > 0) {
+      // Start with all grantedEmails from all userFields
+      const allEmails = this.userFieldsTable
+        .filter((userField) => userField.grantedEmails) // Ignore fields with no grantedEmails
+        .map((userField) => userField.grantedEmails);
+
+      if (allEmails.length > 0) {
+        // Find the intersection of all grantedEmails arrays
+        this.globalEmailList = allEmails.reduce((commonEmails, currentEmails) =>
+          commonEmails.filter((email) => currentEmails.includes(email))
+        );
+      } else {
+        this.globalEmailList = [];
+      }
+    } else {
+      this.globalEmailList = [];
+    }
+
+    // Filter out any emails that were removed globally
+    this.globalEmailList = this.globalEmailList.filter(
+      (email) => !this.removedGlobalEmails.includes(email)
+    );
+  }
+
+  giveGlobalPermission(): void {
+    const updateObservables = this.userFieldsTable.map((userField) => {
+      // 1. Keep only field-specific emails (emails not in globalEmailList or removedGlobalEmails)
+      const fieldSpecificEmails = userField.grantedEmails?.filter(
+        (email) => !this.globalEmailList.includes(email) && !this.removedGlobalEmails.includes(email)
+      ) || [];
+
+      // 2. Combine field-specific emails with globalEmailList (added or removed)
+      const updatedEmails = Array.from(new Set([...fieldSpecificEmails, ...this.globalEmailList]));
+
+      // 3. Update the user field with the new list of grantedEmails
+      return this.userFieldService.updateUserField(userField.id, {
+        ...userField,
+        grantedEmails: updatedEmails,
+      });
+    });
+
+    forkJoin(updateObservables).subscribe({
+      next: () => {
+        this.loadUserFields(this.userId);
+        this.loadEmails();
+        this.removedGlobalEmails = []; // Clear the removed emails after updating
+        this.toggleToegangBeheren();
+      },
+      error: (err) => {
+        console.error("Error updating user fields:", err);
+      },
+    });
+  }
+
+
+
+
+
+
+  // -------------------------------------------------------------- //
+
+  public showFieldAccess: boolean = false
+  public singleFieldEmailList: any[] = []
+  public selectedUserField: UserFieldResponseDto | null = null;
+
+  addEmailToSingleFieldList(): void {
+    if (this.emailPermissionUser && !this.singleFieldEmailList.includes(this.emailPermissionUser)) {
+      this.singleFieldEmailList.push(this.emailPermissionUser);
+      this.emailPermissionUser = '';
+    }
+  }
+
+  removeEmailSingleFieldList(index: number): void {
+    this.singleFieldEmailList.splice(index, 1);
+  }
+
+  loadSingleFieldEmails(): void {
+    if (this.selectedField) {
+      this.userFieldService.getUserFieldByFieldId(this.selectedField.id).subscribe({
+        next: (response) => {
+          this.selectedUserField = response[0];
+          this.singleFieldEmailList = response.flatMap(item => item.grantedEmails || []);
+        },
+        error: (err) => {
+          console.error('Error fetching data:', err);
+        }
+      });
+    }
+  }
+
+  toggleFieldAccess(): void {
+    this.loadUserFields(this.userId)
+    this.loadSingleFieldEmails()
+    this.showFieldAccess = !this.showFieldAccess
+  }
+
+  giveSingleFieldPermission(): void {
+    if (this.selectedUserField) {
+      const updateObservable = this.userFieldService.updateUserField(
+        this.selectedUserField.id,
+        { ...this.selectedUserField, grantedEmails: this.singleFieldEmailList }
+      );
+
+      updateObservable.subscribe({
+        next: () => {
+          this.loadUserFields(this.userId);
+          this.loadSingleFieldEmails();
+          this.toggleFieldAccess();
+        },
+        error: (err) => {
+          console.error("Error updating user field:", err);
+        }
+      });
+    }
+  }
+
+
+
+
+  // -------------------------------------------------------------- //
+
 
   // -------------------------------------------------------------- //
 
   navigateToSchadeclaim(fieldId: number): void {
     this.router.navigate(['/schadeclaim'], { queryParams: { fieldId: fieldId } });
   }
+
+  // -------------------------------------------------------------- //
+
+  checkWeatherPrediction(): boolean {
+    const weatherPredictions = ["Onweer", "Onweer met hagel", "Sneeuwbuien", "Regenbuien"];
+    return this.userPercelen.some(perceel =>
+      weatherPredictions.includes(perceel.prediction)
+    );
+  }
+
+  toggleWarningFields(): void {
+    this.warningFields = !this.warningFields
+    this.loadUserFields(this.userId)
+  }
+
+  warningFields: boolean = false
+
+  get filteredUserPercelen() {
+    const filteredByText = this.userPercelen.filter(perceel =>
+      perceel.name.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.municipality.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.postalcode.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.crop.toLowerCase().includes(this.filterText.toLowerCase())
+    );
+
+    if (this.warningFields) {
+      return filteredByText.filter(perceel =>
+        ['Onweer', 'Onweer met hagel', 'Sneeuwbuien', 'Regenbuien'].includes(perceel.prediction)
+      );
+    }
+
+    return filteredByText;
+  }
+
+  // -------------------------------------------------------------- //
 }
