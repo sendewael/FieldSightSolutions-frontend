@@ -13,29 +13,36 @@ import { InsuranceFormService } from '../../../../api/services/insuranceForm/ins
   templateUrl: './dashboard-verzekeraar.component.html',
   styleUrl: './dashboard-verzekeraar.component.css'
 })
-export class DashboardVerzekeraarComponent implements OnInit{
-
+export class DashboardVerzekeraarComponent implements OnInit {
   userList$!: Observable<UserResponseDto[]>;
 
   constructor(
-    private UserService: UserService,
+    private userService: UserService,
     private router: Router,
     private schadeclaimService: InsuranceFormService
   ) {}
 
   ngOnInit(): void {
-    this.userList$ = this.UserService.getAllUsers();
+    const user = JSON.parse(localStorage.getItem('user')!);  // Haal de gebruiker op uit localStorage
+    if (user && user.id) {
+      // Voeg de userId toe aan de API-aanroep
+      this.userList$ = this.userService.getUsersByAccessToUserField(user.id);
+    } else {
+      console.error('User not found in localStorage');
+    }
   }
+  
 
   bekijkSchadeclaim(userId: number) {
-    this.schadeclaimService.getInsuranceclaimsByUserId(userId).subscribe(
+    const user = JSON.parse(localStorage.getItem('user')!);
+    this.schadeclaimService.getInsuranceformsByUserIdByAccessToUserField(user.id, userId).subscribe(
       (schadeclaims) => {
-        // Optioneel: Log de schadeclaims of voer extra acties uit
+        // Log de schadeclaims voor debugging
         console.log(schadeclaims);
 
         // Navigeer naar de schadeclaim-pagina
         this.router.navigate(['/verzekeraar/schadeclaims'], {
-          queryParams: { userId: userId }, // Voeg eventueel query parameters toe
+          queryParams: { userId: userId },
         });
       },
       (error) => {
