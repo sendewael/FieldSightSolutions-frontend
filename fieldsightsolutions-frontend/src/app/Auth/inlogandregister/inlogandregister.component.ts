@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Emitters } from '../emitters/emitters';
 import { switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-
+import { ToastComponent } from '../../components/toast/toast.component';
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, ToastComponent],
   templateUrl: './inlogandregister.component.html',
   styleUrls: ['./inlogandregister.component.css']
 })
@@ -17,7 +17,9 @@ export class AuthComponent implements OnInit {
 
   loginForm!: FormGroup;
   registerForm!: FormGroup;
-  isLoginMode: boolean = true; // Toggle between login and register
+  isLoginMode: boolean = true;
+  
+  @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
 
   constructor(private formBuilder: FormBuilder, private http: HttpClient, private router: Router) { }
 
@@ -50,9 +52,13 @@ export class AuthComponent implements OnInit {
       .subscribe({
         next: () => {
           this.fetchUserData();
+
         },
         error: (err) => {
           console.error('Login failed', err);
+          this.toast.message = 'Wachtwoord of email is onjuist'; // Set toast message
+          this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
+          this.toast.showToast(); // Show toast
         }
       });
   }
@@ -66,9 +72,13 @@ export class AuthComponent implements OnInit {
       .subscribe({
         next: () => {
           this.fetchUserData();
+
         },
         error: (err) => {
           console.error('Registration or Login failed', err);
+          this.toast.message = 'Registratie mislukt'; // Set toast message
+          this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
+          this.toast.showToast(); // Show toast
         }
       });
   }
