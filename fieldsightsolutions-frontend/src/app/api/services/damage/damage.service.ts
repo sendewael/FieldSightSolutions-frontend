@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { DamageResponseDto } from '../../dtos/Damage/Damage-response-dto';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class DamageService {
+  private apiUrl = `${environment.baseUrl}/damages`
 
   constructor(private httpClient: HttpClient) {
   }
@@ -46,6 +48,6 @@ export class DamageService {
 
   // Fetch all damages
   getAllDamages(): Observable<DamageResponseDto[]> {
-    return this.httpClient.get<DamageResponseDto[]>(`http://localhost:8000/api/damages/all`, { withCredentials: true });
+    return this.httpClient.get<DamageResponseDto[]>(`${this.apiUrl}/all`, { withCredentials: true });
   }
 }

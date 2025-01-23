@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
-
+import { UserService } from '../../api/services/user/user.service';
 @Component({
   selector: 'app-navigation',
   standalone: true,
@@ -16,7 +16,7 @@ export class NavigationComponent implements OnInit {
   authenticated = false;
   isDropdownOpen = false;  // Track dropdown visibility
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private userService: UserService) { }
 
   ngOnInit(): void {
     // Check if user is authenticated from localStorage
@@ -63,9 +63,11 @@ export class NavigationComponent implements OnInit {
   }
 
   fetchUserData(): void {
-    this.http.get('http://localhost:8000/api/user', { withCredentials: true })
+    this.userService.getUser()
       .subscribe(
+        
         (res: any) => {
+          this.name = 'Hallo ' + res.firstName;
           this.name = 'Hallo ' + res.firstName + '!';
 
           // Save authentication status and user data in localStorage

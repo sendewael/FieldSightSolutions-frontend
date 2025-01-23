@@ -33,11 +33,11 @@ export class FieldService {
 
   // Fetch fields based on userId
   getFieldsByUserId(userId: number): Observable<FieldResponsetDto[]> {
-    return this.http.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/user/${userId}`, { withCredentials: true });
+    return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/user/${userId}`, { withCredentials: true });
   }
 
   // Fetch fields based on userId
   getFieldById(selectedFieldId: number): Observable<FieldResponsetDto[]> {
-    return this.http.get<FieldResponsetDto[]>(`http://localhost:8000/api/fields/${selectedFieldId}`, { withCredentials: true });
+    return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/${selectedFieldId}`, { withCredentials: true });
   }
 }

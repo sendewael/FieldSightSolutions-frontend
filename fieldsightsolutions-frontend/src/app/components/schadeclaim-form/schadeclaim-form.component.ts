@@ -13,6 +13,7 @@ import { ImageService } from '../../api/services/image/image.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastComponent } from '../toast/toast.component';
 import * as piexif from 'piexifjs';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-schadeclaim-form',
@@ -24,6 +25,7 @@ import * as piexif from 'piexifjs';
 export class SchadeclaimFormComponent implements OnInit {
   @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
 
+  private apiUrl = `${environment.baseUrl}`;
 
   userId: number | undefined;
   claimId: number | undefined;
@@ -225,7 +227,7 @@ export class SchadeclaimFormComponent implements OnInit {
           // If the API returns a URL, push it to uploadedImages
           this.uploadedImages.push({
             file: null,
-            url: `http://localhost:8000/api${image.image}` // Prepending the correct URL to the relative path
+            url: `${this.apiUrl}${image.image}` // Prepending the correct URL to the relative path
           });
         });
       },
@@ -417,7 +419,7 @@ export class SchadeclaimFormComponent implements OnInit {
                 formData.append('xCord', String(image.xCord) || '');
                 formData.append('yCord', String(image.yCord) || '');
 
-                return this.http.post('http://localhost:8000/api/images/', formData).toPromise();
+                return this.http.post(`${this.apiUrl}/images/`, formData).toPromise();
               } else {
                 console.warn('Image file is null, skipping upload.');
                 return Promise.resolve();
