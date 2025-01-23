@@ -1,13 +1,16 @@
-<app-toast 
-  *ngIf="toastMessage" 
+<app-toast
+  *ngIf="toastMessage"
   [message]="toastMessage"
   [toastClass]="toastClass"
   [toastHover]="toastHover"
-  [timeout]="3000" 
-  #toast>
+  [timeout]="3000"
+  #toast
+>
 </app-toast>
 
-<h1 class="text-center text-2xl m-4">Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b></h1>
+<h1 class="text-center text-2xl m-4">
+  Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b>
+</h1>
 <div class="bg-gray-100 p-4 rounded-lg shadow-md">
   <!-- Header Section -->
   <div class="grid grid-cols-5 bg-gray-300 p-3 rounded-md font-bold mb-4">
@@ -19,14 +22,18 @@
   </div>
 
   <!-- Claim Rows Section -->
-  <div *ngFor="let claim of schadeclaims$ | async" class="bg-gray-200 rounded-md mb-4 shadow-sm p-4">
+  <div
+    *ngFor="let claim of schadeclaims$ | async"
+    class="bg-gray-200 rounded-md mb-4 shadow-sm p-4"
+  >
     <div class="grid grid-cols-5 items-center">
       <!-- Veld Naam -->
       <div class="text-left font-medium">{{ claim.field.name }}</div>
 
       <!-- Datum van - tot -->
       <div class="text-left">
-        {{ claim.startDate | date: 'shortDate' }} - {{ claim.endDate | date: 'shortDate' }}
+        {{ claim.startDate | date : "shortDate" }} -
+        {{ claim.endDate | date : "shortDate" }}
       </div>
 
       <!-- Soort Schade -->
@@ -51,26 +58,31 @@
           <!-- Andere statussen: Actie knoppen -->
           <div *ngSwitchDefault class="flex flex-wrap gap-2">
             <div class="flex flex-col gap-2">
-              <button 
-                (click)="downloadPdf(claim.id)" 
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+              <!-- TODO: toevoegen dat pdf wordt gedownload-->
+              <button
+                (click)="downloadPdf(claim.id)"
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+              >
                 Download
               </button>
-              <button 
-                (click)="vraagFotos(claim.id)" 
-                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+              <button
+                (click)="vraagFotos(claim.id)"
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              >
                 Extra foto's
               </button>
             </div>
             <div class="flex flex-col gap-2">
-              <button 
-                (click)="approveClaim(claim.id)" 
-                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+              <button
+                (click)="approveClaim(claim.id)"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
                 Goedkeuren
               </button>
-              <button 
-                (click)="rejectClaim(claim.id)" 
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+              <button
+                (click)="rejectClaim(claim.id)"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              >
                 Afkeuren
               </button>
             </div>
