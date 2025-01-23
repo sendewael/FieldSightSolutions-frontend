@@ -29,8 +29,11 @@ export class UserService {
     return this.http.post<UserResponseDto[]>(`${this.apiUrl}/roles/`, roleIds);
   }
 
-  // Fetch fields based on userId
   getUser(): Observable<UserResponseDto[]> {
-    return this.http.get<UserResponseDto[]>(`http://localhost:8000/api/user`, { withCredentials: true });
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}`, { withCredentials: true });
+  }
+
+  updateUser(user: object): Observable<UserResponseDto[]> {
+    return this.http.put<UserResponseDto[]>(`${this.apiUrl}`, user, { withCredentials: true });
   }
 }

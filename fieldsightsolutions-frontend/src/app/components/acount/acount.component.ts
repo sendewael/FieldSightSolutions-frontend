@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
+import { UserService } from '../../api/services/user/user.service';
+import { UserRoleService } from '../../api/services/userRole/user-role.service';
 @Component({
   selector: 'app-acount',
   templateUrl: './acount.component.html',
@@ -23,7 +25,7 @@ export class AcountComponent implements OnInit {
   };
   roleName = ''; // Variable to hold the role name
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private userService: UserService, private userroleService : UserRoleService) { }
 
   ngOnInit(): void {
     const storedUser = localStorage.getItem('user');
@@ -33,7 +35,7 @@ export class AcountComponent implements OnInit {
     }
 
     // Fetch user data on initialization
-    this.http.get('http://localhost:8000/api/user', { withCredentials: true })
+    this.userService.getUser()
       .subscribe((data: any) => {
         this.user = data;
 
@@ -44,7 +46,7 @@ export class AcountComponent implements OnInit {
 
   fetchUserRole(userId: number): void {
     // Make the API call to get the user role using the user's ID
-    this.http.get(`http://localhost:8000/api/userrole/${userId}`, { withCredentials: true })
+    this.userroleService.getRolesByUserId(userId)
       .subscribe((response: any) => {
         this.roleName = response.role_name; // Store the role name
       });
@@ -52,7 +54,7 @@ export class AcountComponent implements OnInit {
 
   save(): void {
     // Save updated user data
-    this.http.put('http://localhost:8000/api/user', this.user, { withCredentials: true })
+    this.userService.updateUser(this.user)
       .subscribe({
         next: (user) => {
           alert('Account updated successfully!');

@@ -1,35 +1,30 @@
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
+
 import { Injectable } from '@angular/core';
 import { UserRoleResponseDto } from '../../dtos/UserRole/UserRole-response-dto';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserRoleService {
 
-  constructor() { }
+  private apiUrl = `${environment.baseUrl}/userrole`
 
-  getUserRoles(): UserRoleResponseDto[] {
-    let userRoles: UserRoleResponseDto[] = [
-      {
-        id: 1,
-        name: "landbouwer"
-      },
-      {
-        id: 2,
-        name: "consultant"
-      },
-      {
-        id: 3,
-        name: "overheid"
-      }
-    ];
+  constructor(private http: HttpClient) { }
 
-    return userRoles;
+
+
+
+  getRolesByUserId(userId: number): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}/${userId}`, { withCredentials: true })
   }
 
-  getUserRoleById(name: string): UserRoleResponseDto | null {
-    const roles = this.getUserRoles();
-    const role = roles.find(r => r.name.toLowerCase() === name.toLowerCase());
-    return role ?? null;
-  }
+
+
 }

@@ -6,6 +6,7 @@ import { Emitters } from '../emitters/emitters';
 import { switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ToastComponent } from '../../components/toast/toast.component';
+import { environment } from '../../../environments/environment.development';
 @Component({
   selector: 'app-auth',
   standalone: true,
@@ -14,6 +15,8 @@ import { ToastComponent } from '../../components/toast/toast.component';
   styleUrls: ['./inlogandregister.component.css']
 })
 export class AuthComponent implements OnInit {
+    private apiUrl = `${environment.baseUrl}`;
+  
 
   loginForm!: FormGroup;
   registerForm!: FormGroup;
@@ -48,7 +51,7 @@ export class AuthComponent implements OnInit {
 
   // Submit the login form
   loginSubmit(): void {
-    this.http.post('http://localhost:8000/api/login', this.loginForm.getRawValue(), { withCredentials: true })
+    this.http.post(`${this.apiUrl}/login`, this.loginForm.getRawValue(), { withCredentials: true })
       .subscribe({
         next: () => {
           this.fetchUserData();
@@ -65,9 +68,9 @@ export class AuthComponent implements OnInit {
 
   // Submit the register form
   registerSubmit(): void {
-    this.http.post('http://localhost:8000/api/register', this.registerForm.getRawValue())
+    this.http.post(`${this.apiUrl}/register`, this.registerForm.getRawValue())
       .pipe(
-        switchMap(() => this.http.post('http://localhost:8000/api/login', this.registerForm.getRawValue(), { withCredentials: true }))
+        switchMap(() => this.http.post(`${this.apiUrl}/login`, this.registerForm.getRawValue(), { withCredentials: true }))
       )
       .subscribe({
         next: () => {
@@ -85,7 +88,7 @@ export class AuthComponent implements OnInit {
 
   // Fetch user data and handle authentication
   private fetchUserData(): void {
-    this.http.get('http://localhost:8000/api/user', { withCredentials: true })
+    this.http.get(`${this.apiUrl}/user`, { withCredentials: true })
       .subscribe((user: any) => {
         Emitters.authEmitter.emit(true);
         Emitters.userEmitter.emit(user);
