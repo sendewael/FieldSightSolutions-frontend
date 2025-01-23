@@ -7,7 +7,8 @@
       <router-outlet></router-outlet>
     </main>
   
-    <!-- Footer -->
-    <app-footer></app-footer>
+    @if(!router.url.includes('login')) {
+      <app-footer></app-footer>
+    }
   </div>
   

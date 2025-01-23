@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 
@@ -14,6 +14,7 @@ import { Emitters } from '../../Auth/emitters/emitters';
 export class NavigationComponent implements OnInit {
   name = '';
   authenticated = false;
+  isDropdownOpen = false;  // Track dropdown visibility
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -44,11 +45,28 @@ export class NavigationComponent implements OnInit {
     });
   }
 
+  // Toggle dropdown visibility
+  toggleDropdown(event: MouseEvent): void {
+    event.stopPropagation();  // Prevent clicks from closing the dropdown
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  // Close the dropdown if user clicks outside of it
+  @HostListener('document:click', ['$event'])
+  closeDropdown(event: MouseEvent): void {
+    const dropdown = document.getElementById('dropdown');
+    const button = event.target as HTMLElement;
+
+    if (dropdown && !dropdown.contains(button)) {
+      this.isDropdownOpen = false;
+    }
+  }
+
   fetchUserData(): void {
     this.http.get('http://localhost:8000/api/user', { withCredentials: true })
       .subscribe(
         (res: any) => {
-          this.name = 'Hallo ' + res.firstName;
+          this.name = 'Hallo ' + res.firstName + '!';
 
           // Save authentication status and user data in localStorage
           localStorage.setItem('authenticated', 'true');
@@ -80,8 +98,6 @@ export class NavigationComponent implements OnInit {
         Emitters.authEmitter.emit(false);
         Emitters.userEmitter.emit(null);
         this.router.navigate(['/login']);
-
-
       });
   }
 }

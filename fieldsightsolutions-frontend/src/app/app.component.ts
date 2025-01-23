@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { FooterComponent } from "./components/footer/footer.component";
@@ -13,4 +13,6 @@ import { FooterComponent } from "./components/footer/footer.component";
 })
 export class AppComponent {
   title = 'FieldSightSolutions';
+
+  constructor(public router: Router) { }
 }
