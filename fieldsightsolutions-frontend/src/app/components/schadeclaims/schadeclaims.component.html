@@ -7,13 +7,14 @@
         <div class="header-item">Soort Schade</div>
         <div class="header-item"></div>
         <div class="header-item">Status</div>
+        
 
     </div>
 
     <!-- Claim Rows Section -->
     <div *ngFor="let claim of claims" class="claim-card">
         <div class="card-content">
-            <div class="card-item">{{ claim.field_name }}</div>
+            <div class="card-item">{{ claim.field.name }}</div>
             <div class="card-item">
                 {{ claim.startDate | date:'dd/MM/yyyy' }} - {{ claim.endDate | date:'dd/MM/yyyy' }}
             </div>
@@ -23,16 +24,25 @@
                 <span *ngIf="claim.status === 1; else closedbutton"> <button (click)="editClaim(claim.id)"
                         class="edit-button">Bekijk/Bewerk</button>
                 </span>
-                <ng-template #closedbutton> <button (click)="editClaim(claim.id)"
-                        class="edit-button">Bekijk</button>
+                <ng-template #closedbutton> <button (click)="editClaim(claim.id)" class="edit-button">Bekijk</button>
                 </ng-template>
             </div>
 
-
             <div class="card-item">
                 <span *ngIf="claim.status === 1; else closed">openstaand</span>
-                <ng-template #closed>gesloten</ng-template>
+                <ng-template #closed>bezig</ng-template>
             </div>
+
+            <div *ngIf="claim.status === 2 || claim.status === 3 || claim.status === 4" class="mt-4 text-sm text-gray-500">
+            <!-- PDF Generation Button -->
+            <div class="card-item">
+                <button (click)="generatePDF(claim.id)" class="pdf-button">
+                    Download PDF
+                </button>
+            </div>
+
+        </div>
+
         </div>
     </div>
 
