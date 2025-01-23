@@ -83,4 +83,19 @@ export class InsuranceFormService {
     return this.http.put<InsuranceFormResponseDto>(`${this.apiUrl}/edit/${insuranceformId}`, formdata);
   }
   
+  getInsuranceformsByUserIdByAccessToUserField(
+    loggedInUserId: number,
+    targetUserId: number
+  ): Observable<InsuranceFormResponseDto[]> {
+    return this.http.get<InsuranceFormResponseDto[]>(
+      `${this.apiUrl}/access-field/userId/${targetUserId}`,
+      {
+        params: {
+          loggedInUserId: loggedInUserId.toString(),
+        },
+      }
+    );
+  }
+  
+  
 }

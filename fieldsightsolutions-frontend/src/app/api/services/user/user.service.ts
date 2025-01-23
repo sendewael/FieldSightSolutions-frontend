@@ -33,4 +33,12 @@ export class UserService {
   getUser(): Observable<UserResponseDto[]> {
     return this.http.get<UserResponseDto[]>(`http://localhost:8000/api/user`, { withCredentials: true });
   }
+
+  getUsersByAccessToUserField(pk: number): Observable<UserResponseDto[]> {
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/access-field/`, { params: { userId: pk.toString() } });
+  }
+  
+  
+  
+  
 }

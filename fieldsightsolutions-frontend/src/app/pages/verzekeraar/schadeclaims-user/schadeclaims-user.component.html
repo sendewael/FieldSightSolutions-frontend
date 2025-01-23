@@ -3,10 +3,9 @@
   [message]="toastMessage"
   [toastClass]="toastClass"
   [toastHover]="toastHover"
-  [timeout]="5000" 
+  [timeout]="3000" 
   #toast>
 </app-toast>
-
 
 <h1 class="text-center text-2xl m-4">Schadeclaims voor <b>{{ user?.firstName }} {{ user?.lastName }}</b></h1>
 <div class="bg-gray-100 p-4 rounded-lg shadow-md">
@@ -15,33 +14,41 @@
     <div class="text-left">Veld Naam</div>
     <div class="text-left">Datum (van - tot)</div>
     <div class="text-left">Soort Schade</div>
-    <div class="text-left">Schade bedrag</div>
-    <div class="text-center"></div>
+    <div class="text-left">Schade Bedrag</div>
+    <div class="text-center">Acties / Status</div>
   </div>
 
   <!-- Claim Rows Section -->
   <div *ngFor="let claim of schadeclaims$ | async" class="bg-gray-200 rounded-md mb-4 shadow-sm p-4">
     <div class="grid grid-cols-5 items-center">
-      <div class="text-left">{{ claim.field_name }}</div>
+      <!-- Veld Naam -->
+      <div class="text-left font-medium">{{ claim.field.name }}</div>
+
+      <!-- Datum van - tot -->
       <div class="text-left">
         {{ claim.startDate | date: 'shortDate' }} - {{ claim.endDate | date: 'shortDate' }}
       </div>
+
+      <!-- Soort Schade -->
       <div class="text-left">{{ claim.damage_type }}</div>
+
+      <!-- Schade Bedrag -->
       <div class="text-left">€ {{ claim.estimated_cost }}</div>
+
+      <!-- Acties of Status -->
       <div class="flex flex-wrap gap-2 justify-center">
-        <!-- Conditie gebaseerd op de status -->
         <ng-container [ngSwitch]="claim.status">
-          <!-- Status 5: Groen vinkje -->
+          <!-- Status 5: Groen vinkje (Goedgekeurd) -->
           <div *ngSwitchCase="5" class="text-xl">
-            <span class="text-green-500">✅ Goedgekeurd ✅</span>
+            <span class="text-green-500">✅ Goedgekeurd</span>
           </div>
 
-          <!-- Status 6: Rood kruisje -->
+          <!-- Status 6: Rood kruisje (Afgekeurd) -->
           <div *ngSwitchCase="6" class="text-xl">
-            <span class="text-red-500">❌ Afgekeurd ❌</span>
+            <span class="text-red-500">❌ Afgekeurd</span>
           </div>
 
-          <!-- Andere statussen: Knoppen -->
+          <!-- Andere statussen: Actie knoppen -->
           <div *ngSwitchDefault class="flex flex-wrap gap-2">
             <div class="flex flex-col gap-2">
               <button 
