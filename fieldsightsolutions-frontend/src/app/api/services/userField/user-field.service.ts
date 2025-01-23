@@ -18,13 +18,11 @@ export class UserFieldService {
   }
 
   getUserFieldsByUserId(userId: number): Observable<UserFieldResponseDto[]> {
-    const url = `${this.apiUrl}/userId/${userId}`;
-    return this.http.get<UserFieldResponseDto[]>(url);
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/userId/${userId}`);
   }
 
   getUserFieldByFieldId(fieldId: number): Observable<UserFieldResponseDto[]> {
-    const url = `${this.apiUrl}/fieldId/${fieldId}`;
-    return this.http.get<UserFieldResponseDto[]>(url);
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/fieldId/${fieldId}`);
   }
 
   addUserField(userFieldRequest: UserFieldRequestDto): Observable<UserFieldResponseDto> {

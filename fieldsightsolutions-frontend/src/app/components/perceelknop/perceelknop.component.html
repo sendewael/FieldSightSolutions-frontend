@@ -1,9 +1,11 @@
 @if(perceel){
-<button class="bg-gray-200 h-20 w-full rounded-md mb-4 relative hover:bg-gray-300 transition-all">
+<button  class="h-20 w-full rounded-md mb-3 relative bg-gray-200 hover:bg-gray-300 transition-all">
     <div class="text-center">
-        <p>{{ perceel.name }} ({{ perceel.crop }})</p>
+        <p>{{ perceel.name }}</p>
+        <p class="text-sm">{{ perceel.crop }}</p>
         <p class="text-sm">{{ perceel.postalcode}} - {{ perceel.municipality}}</p>
     </div>
-    <p class="absolute left-1 top-1 text-xs">{{ perceel.id }}</p>
+    <p class="absolute left-2 top-2 text-xs">{{ perceel.id }}</p>
+    <app-weather-icon [prediction]="perceel.prediction"></app-weather-icon>
 </button>
 }
