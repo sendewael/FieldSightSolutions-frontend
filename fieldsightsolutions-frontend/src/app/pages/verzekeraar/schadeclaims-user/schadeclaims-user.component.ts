@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InsuranceFormService } from '../../../api/services/insuranceForm/insurance-form.service';
 import { CommonModule } from '@angular/common';
@@ -18,22 +18,21 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './schadeclaims-user.component.html',
   styleUrls: ['./schadeclaims-user.component.css'],
 })
-export class SchadeclaimsUserComponent implements OnInit {
+export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
   schadeclaims$ = new BehaviorSubject<InsuranceFormResponseDto[]>([]);
   user!: UserResponseDto | undefined;
 
   @ViewChild('toast') toast!: ToastComponent;
-  toastMessage = '';
-  toastClass = 'bg-green-500';
-  toastHover = 'bg-green-400';
+  toastMessage: string = '';
+  toastClass: string = 'bg-green-500';
+  toastHover: string = 'bg-green-400';
 
-  private apiUrl = `${environment.baseUrl}/generatepdf}`;
+  private apiUrl = `${environment.baseUrl}/generatepdf`;
 
   constructor(
     private route: ActivatedRoute,
     private schadeclaimService: InsuranceFormService,
     private userService: UserService,
-    private router: Router,
     private http: HttpClient
   ) {}
 
@@ -78,8 +77,14 @@ export class SchadeclaimsUserComponent implements OnInit {
       )
       .subscribe();
   }
-
-  // Helper method to update claim status
+  ngAfterViewInit(): void {
+    // Remove the error throwing and just log a warning if the toast is not found
+    if (!this.toast) {
+      console.warn('Toast component is not defined');
+    } else {
+      console.log('Toast component initialized:', this.toast);
+    }
+  }
   // Helper method to update claim status
   private updateClaimStatus(id: number, newStatus: number): void {
     this.schadeclaimService.getInsuranceformByClaimId(id).subscribe({
@@ -161,16 +166,39 @@ export class SchadeclaimsUserComponent implements OnInit {
   }
 
   downloadPdf(id: number): void {
-    console.log('Generating PDF for claim ID:', id);
-    this.http.get(`${this.apiUrl}/${id}/`);
+    if (!this.user) {
+      console.error('User data is not available');
+      return;
+    }
+
+    const fileName = `schadeclaim_${this.user.lastName}_${this.user.firstName}.pdf`;
+    const url = `${this.apiUrl}/${id}/`;
+
     this.toastMessage = 'Uw pdf wordt gedownload. Even geduld aub';
     this.toastClass = 'bg-green-500';
     this.toastHover = 'bg-green-400';
+    this.toast.showToast();
 
-    if (this.toast) {
-      this.toast.showToast();
-    } else {
-      console.error('ToastComponent is niet geïnitialiseerd.');
-    }
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (response) => {
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (err) => {
+        console.error('Error generating PDF:', err);
+        if (this.toast) {
+          this.toastMessage =
+            'Er is een fout opgetreden bij het genereren van de PDF.';
+          this.toastClass = 'bg-red-500';
+          this.toastHover = 'bg-red-400';
+          this.toast.showToast();
+        }
+      },
+    });
   }
 }
