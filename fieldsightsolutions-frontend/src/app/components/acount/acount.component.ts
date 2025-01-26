@@ -23,9 +23,17 @@ export class AcountComponent implements OnInit {
     gemeente: '',
     email: ''
   };
-  roleName = ''; // Variable to hold the role name
 
-  constructor(private http: HttpClient, private router: Router, private userService: UserService, private userroleService : UserRoleService) { }
+  editUser = { ...this.user };
+  roleName = '';
+  public isEdit: boolean = false;
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private userService: UserService,
+    private userroleService: UserRoleService
+  ) { }
 
   ngOnInit(): void {
     const storedUser = localStorage.getItem('user');
@@ -34,38 +42,39 @@ export class AcountComponent implements OnInit {
       this.router.navigate(['/login']);
     }
 
-    // Fetch user data on initialization
-    this.userService.getUser()
-      .subscribe((data: any) => {
-        this.user = data;
-
-        // After fetching user data, fetch the role based on the user ID
-        this.fetchUserRole(data.id);
-      });
+    this.userService.getUser().subscribe((data: any) => {
+      this.user = data;
+      this.editUser = { ...data };
+      this.fetchUserRole(data.id);
+    });
   }
 
   fetchUserRole(userId: number): void {
-    // Make the API call to get the user role using the user's ID
-    this.userroleService.getRolesByUserId(userId)
-      .subscribe((response: any) => {
-        this.roleName = response.role_name; // Store the role name
-      });
+    this.userroleService.getRolesByUserId(userId).subscribe((response: any) => {
+      this.roleName = response.role_name;
+    });
+  }
+
+  toggleEdit(): void {
+    if (this.isEdit) {
+      this.editUser = { ...this.user };
+    }
+    this.isEdit = !this.isEdit;
   }
 
   save(): void {
-    // Save updated user data
-    this.userService.updateUser(this.user)
-      .subscribe({
-        next: (user) => {
-          alert('Account updated successfully!');
-          Emitters.userEmitter.emit(user);
-          localStorage.setItem('user', JSON.stringify(user));
-          this.router.navigate(['/acount']);
-        },
-        error: (err) => {
-          console.error('Failed to update account', err);
-        }
-      });
+    this.userService.updateUser(this.editUser).subscribe({
+      next: (user) => {
+        Emitters.userEmitter.emit(user);
+        localStorage.setItem('user', JSON.stringify(user));
+        this.user = { ...this.editUser };
+        this.isEdit = false;
+        this.router.navigate(['/acount']);
+      },
+      error: (err) => {
+        console.error('Failed to update account', err);
+      }
+    });
   }
-
 }
+
