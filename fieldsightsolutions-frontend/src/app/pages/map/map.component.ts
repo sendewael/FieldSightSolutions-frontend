@@ -57,6 +57,7 @@ export class MapComponent {
   private totalFieldsToDraw: number = 0;
   private fieldsDrawn: number = 0;
   public mapIsClickable = false;
+  public blockMap: boolean = false;
 
   // Perceel variablen
   public newField: boolean = false;
@@ -466,6 +467,7 @@ export class MapComponent {
             this.highlightField(fieldId);
           }
         } else {
+          this.blockMap = true;
           this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren.";
           this.openModal();
         }
@@ -542,7 +544,12 @@ export class MapComponent {
   // Deze functie opent de modal indien de gebruiker bij het toevoegen van een nieuw perceel
   // een perceel selecteerd dat al toegewezen is aan een landbouwer
   openModal() {
-    this.messageModal = !this.messageModal
+    this.messageModal = true;
+  }
+
+  closeModal() {
+    this.messageModal = false;
+    this.blockMap = false;
   }
 
   // ------------------------ Perceel toevoegen ------------------------ //
@@ -599,10 +606,12 @@ export class MapComponent {
   editPerceel(): void {
     this.tempField = { ...this.selectedField };
     this.isEdit = true;
+    this.blockMap = true;
   }
 
   cancelEditPerceel() {
     this.isEdit = false;
+    this.blockMap = false;
   }
 
   // Als de user zijn perceel bewerkt heeft en hij slaat dit op, wordt deze methode gebruikt
@@ -616,6 +625,9 @@ export class MapComponent {
       this.fieldService.updateField(this.selectedField.id, this.selectedField).subscribe({
         next: (updatedField) => {
           console.log('Field updated successfully:', updatedField);
+          this.toastMessage = "Uw perceel is bijgewerkt."
+          this.toastClass = 'bg-green-500'
+          this.toast.showToast()
         },
         error: (error) => {
           console.error('Error updating field:', error);
@@ -624,6 +636,7 @@ export class MapComponent {
     }
     this.loadUserFields(this.userId)
     this.isEdit = false;
+    this.blockMap = false;
   }
 
   // ----------------------- Perceel verwijderen ----------------------- //
@@ -631,6 +644,7 @@ export class MapComponent {
   // Deze functie laat de bevestigings modal zien vooraleer een perceel verwijderd wordt
   deleteUserField(): void {
     this.confirmMessageModal = true;
+    this.blockMap = true;
   }
 
   // Bij het bevestigen van verwijderen wordt deze functie uitgevoerd
@@ -664,15 +678,22 @@ export class MapComponent {
 
   closeConfirmModal(): void {
     this.confirmMessageModal = false;
+    this.blockMap = false;
   }
 
   // ----------------------- Algemene toegang ------------------------- //
 
   // Deze functie maakt het mogelijk om algemene toegang tot percelen te beheren
   toggleToegangBeheren(): void {
-    this.manageAccess = !this.manageAccess
+    this.manageAccess = true;
+    this.blockMap = true;
     this.loadUserFields(this.userId)
     this.loadEmails()
+  }
+
+  cancelGlobalFieldAccess(): void {
+    this.manageAccess = false;
+    this.blockMap = false;
   }
 
   // Deze functie haalt alle emails van gebruikers op die voorkomen in elke UserField
@@ -741,11 +762,17 @@ export class MapComponent {
         this.loadEmails();
         this.removedGlobalEmails = [];
         this.toggleToegangBeheren();
+        this.cancelGlobalFieldAccess()
+        this.toastMessage = "Algemene toegang is aangepast."
+        this.toastClass = 'bg-green-500'
+        this.toast.showToast()
       },
       error: (err) => {
         console.error("Error updating user fields:", err);
       },
     });
+
+
   }
 
   // ----------------------- Specifieke toegang ------------------------ //
@@ -754,7 +781,13 @@ export class MapComponent {
   toggleFieldAccess(): void {
     this.loadUserFields(this.userId)
     this.loadSingleFieldEmails()
-    this.showFieldAccess = !this.showFieldAccess
+    this.showFieldAccess = true;
+    this.blockMap = true;
+  }
+
+  cancelSingleFieldAccess(): void {
+    this.showFieldAccess = false;
+    this.blockMap = false;
   }
 
   // Voor het geselecteerde perceel worden de emails van gebruikers die toegang hebben opgehaald
@@ -803,6 +836,10 @@ export class MapComponent {
           this.loadUserFields(this.userId);
           this.loadSingleFieldEmails();
           this.toggleFieldAccess();
+          this.cancelSingleFieldAccess();
+          this.toastMessage = "Specifieke toegang is aangepast."
+          this.toastClass = 'bg-green-500'
+          this.toast.showToast()
         },
         error: (err) => {
           console.error("Error updating user field:", err);
@@ -847,6 +884,11 @@ export class MapComponent {
     }
 
     return filteredByText;
+  }
+
+  // Deze functie maakt de filter leeg
+  clearFilterText(): void {
+    this.filterText = ''
   }
 
   // -------------------------- Foto's aanvragen ------------------------ //
