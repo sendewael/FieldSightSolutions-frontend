@@ -1,5 +1,13 @@
 <app-toast [message]="toastMessage" [toastClass]="toastClass" [toastHover]="toastHover" [timeout]="3000" #toast></app-toast>
 
+@if(blockMap) {
+    <div class="w-full h-screen absolute top-0 left-0 z-40">
+        <div class="bg-gray-50 h-12 rounded-md shadow-sm absolute left-1/2 -translate-x-1/2 top-24 px-3 flex justify-center items-center">
+            <p>Kaart geblokkeerd. Voltooi uw actie in het beheerscherm.</p>
+        </div>
+    </div>
+}
+
 <!-- Deze div bevat het hele menu -->
 <div class="overflow-hidden">
     <div id="percelenManager" [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen}" class="percelenManager transform transition-all duration-300 ease-in-out" [class.open]="isOpen">
@@ -19,7 +27,12 @@
                     }
                 </div>
                 @if(!noUserFields) {
-                    <input [(ngModel)]="filterText" type="text" class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" [placeholder]="userRole === 1 ? 'Zoek op perceelnaam, gewas of gemeente' : 'Zoek op perceelnaam, eigenaar of gemeente'" />
+                    <div class="relative w-full h-10 mb-3">
+                        <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" [placeholder]="userRole === 1 ? 'Zoek op perceelnaam, gewas of gemeente' : 'Zoek op perceelnaam, eigenaar of gemeente'" />
+                        <button *ngIf="filterText" (click)="clearFilterText()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-800 hover:text-green-700 focus:outline-none">
+                            <p class="font-bold">✕</p>
+                        </button>
+                    </div>
                     <div class="full-height-minus-72 overflow-y-auto">
                     @for (perceel of filteredUserPercelen; track $index) {
                         <app-perceelknop [perceel]="perceel" [userRole]="userRole" (click)="focusOnField(perceel.id)"></app-perceelknop>
@@ -55,7 +68,7 @@
                         <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
                     }
                 </select>
-                <p class="text-left pb-3">{{ globalEmailList.length > 0 ? 'Deze personen hebben toegang tot al uw percelen' : 'U heeft nog geen personen toegelaten tot al uw percelen' }}</p>
+                <p class="text-left pb-3">{{ globalEmailList.length > 0 ? 'Deze personen hebben toegang tot al uw percelen.' : 'U heeft nog geen personen toegelaten tot al uw percelen.' }}</p>
                 @for(email of globalEmailList; track $index) {
                     <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
                         <p class="flex-1 text-left">
@@ -65,7 +78,7 @@
                     </div>
                 }
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                    <button (click)="toggleToegangBeheren()" class="w-3/5 mr-3 action-button">
+                    <button (click)="cancelGlobalFieldAccess()" class="w-3/5 mr-3 action-button">
                         <p>Terug</p>
                     </button>
                     <button (click)="giveGlobalPermission()" class="w-3/5 action-button">
@@ -94,7 +107,7 @@
                             <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
                         }
                         <div class="text-left full-height-minus-72 overflow-y-auto">
-                            <label class="text-sm pb-2 ml-1">Naam</label>
+                            <label class="text-sm pb-2 ml-1">Perceelnaam</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
                                 {{ selectedField.name }}
                             </p>
@@ -153,7 +166,7 @@
                         }
                     </select>
                     <p class="text-left pb-3">
-                        {{ singleFieldEmailList.length > 0 ? 'Deze personen hebben toegang tot ' + selectedField.name + ':' : 'U heeft nog geen personen toegelaten' }}
+                        {{ singleFieldEmailList.length > 0 ? 'Deze personen hebben toegang tot ' + selectedField.name + '.' : 'U heeft nog geen personen toegelaten.' }}
                     </p>
                     @for(email of singleFieldEmailList; track $index) {
                         <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
@@ -164,7 +177,7 @@
                         </div>
                     }
                     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                        <button (click)="toggleFieldAccess()" class="w-3/5 mr-3 action-button">
+                        <button (click)="cancelSingleFieldAccess()" class="w-3/5 mr-3 action-button">
                             <p>Terug</p>
                         </button>
                         <button (click)="giveSingleFieldPermission()" class="w-3/5 action-button">
@@ -216,10 +229,10 @@
                     <h3>Bewerk perceel</h3>
                     <form #perceelForm="ngForm" class="text-left">
                         <div class="mb-3">
-                            <label for="name" class="text-sm pb-2 ml-1">Naam</label>
-                            <input [(ngModel)]="tempField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Naam" />
+                            <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                            <input [(ngModel)]="tempField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
                             <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
-                                Naam is verplicht.
+                                Perceelnaam is verplicht.
                             </div>
                         </div>
                         <div class="mb-3">
@@ -272,10 +285,10 @@
                 @if(selectedNewField){
                 <form #newPerceelForm="ngForm" class="text-left">
                     <div class="mb-3">
-                        <label for="name" class="text-sm pb-2 ml-1">Naam</label>
-                        <input [(ngModel)]="selectedNewField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Naam" />
+                        <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                        <input [(ngModel)]="selectedNewField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
                         <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
-                            Naam is verplicht.
+                            Perceelnaam is verplicht.
                         </div>
                     </div>
 
@@ -336,11 +349,11 @@
                 }
             }
         }
+        <app-modal [showModal]="messageModal" [message]="modalMessage" (close)="closeModal()"></app-modal>
+        @if(selectedField) {
+            <app-confirm-modal [showModal]="confirmMessageModal" (confirm)="confirmDeleteUserField(selectedField.id)" (close)="closeConfirmModal()"></app-confirm-modal>
+        }
     </div>
-    <app-modal [showModal]="messageModal" [message]="modalMessage" (close)="openModal()"></app-modal>
-    @if(selectedField) {
-        <app-confirm-modal [showModal]="confirmMessageModal" (confirm)="confirmDeleteUserField(selectedField.id)" (close)="closeConfirmModal()"></app-confirm-modal>
-    }
 </div>
 <!-- Deze div is de map -->
 <div id="map"></div>
