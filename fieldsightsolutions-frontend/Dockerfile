@@ -1,29 +1,32 @@
-# Stage 1: Build the Angular app
-FROM node:22 as build
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-RUN npm install -g @angular/cli
-
-COPY . .
-
-RUN ng build --configuration=production
-
-# Stage 2: Serve the app with Nginx
 FROM nginx:alpine
 
-COPY --from=build /app/dist/fieldsightsolutions-frontend/browser /usr/share/nginx/html
+# Install Node.js in the runtime image
+RUN apk add --no-cache nodejs npm
 
-COPY entrypoint.sh /entrypoint.sh
+# Set environment variable
+ENV BASE_URL "http://ikbensupercool:8000"
 
-RUN chmod +x /entrypoint.sh
-
-ENV BASE_URL "http://localhost:8000/api"
-
+# Expose port 80
 EXPOSE 80
 
+# Copy project files
+COPY . /app
+
+# Install dependencies and Angular CLI
+WORKDIR /app
+RUN npm install --legacy-peer-deps && npm install -g @angular/cli
+
+# Remove lines from leaflet.css that reference .png files
+RUN sed -i '/background-image: url(images\/layers.png);/d' node_modules/leaflet/dist/leaflet.css && \
+    sed -i '/background-image: url(images\/layers-2x.png);/d' node_modules/leaflet/dist/leaflet.css && \
+    sed -i '/background-image: url(images\/marker-icon.png);/d' node_modules/leaflet/dist/leaflet.css
+
+# Copy entrypoint.sh and make it executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Copy custom NGINX configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Use the entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
