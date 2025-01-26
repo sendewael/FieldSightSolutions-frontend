@@ -23,7 +23,10 @@ export class AcountComponent implements OnInit {
     gemeente: '',
     email: ''
   };
-  roleName = ''; // Variable to hold the role name
+
+  editUser = { ...this.user };
+  roleName = '';
+  public isEdit: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -40,34 +43,38 @@ export class AcountComponent implements OnInit {
       return; // Stop further execution if no user is found
     }
 
-    // Fetch user data on initialization
-    this.userService.getUser()
-      .subscribe((data: any) => {
-        this.user = data;
-
-        // After fetching user data, fetch the role based on the user ID
-        this.fetchUserRole(data.id);
-      });
+    this.userService.getUser().subscribe((data: any) => {
+      this.user = data;
+      this.editUser = { ...data };
+      this.fetchUserRole(data.id);
+    });
   }
 
   fetchUserRole(userId: number): void {
-    // Make the API call to get the user role using the user's ID
-    this.userroleService.getRolesByUserId(userId)
-      .subscribe((response: any) => {
-        this.roleName = response.role_name; // Store the role name
-      });
+    this.userroleService.getRolesByUserId(userId).subscribe((response: any) => {
+      this.roleName = response.role_name;
+    });
+  }
+
+  toggleEdit(): void {
+    if (this.isEdit) {
+      this.editUser = { ...this.user };
+    }
+    this.isEdit = !this.isEdit;
   }
 
   save(): void {
     const saveUrl = `${environment.baseUrl}/users/update`; // Use dynamic baseUrl if needed
 
     // Save updated user data
-    this.userService.updateUser(this.user)
+    this.userService.updateUser(this.editUser)
       .subscribe({
         next: (user) => {
           alert('Account updated successfully!');
           Emitters.userEmitter.emit(user);
           localStorage.setItem('user', JSON.stringify(user));
+          this.user = { ...this.editUser };
+          this.isEdit = false;
           this.router.navigate(['/acount']);
         },
         error: (err) => {
@@ -76,3 +83,4 @@ export class AcountComponent implements OnInit {
       });
   }
 }
+

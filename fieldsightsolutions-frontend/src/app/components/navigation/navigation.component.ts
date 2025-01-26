@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Router, NavigationStart, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 import { UserService } from '../../api/services/user/user.service';
 import { environment } from '../../../environments/environment.development';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navigation',
@@ -13,10 +13,12 @@ import { environment } from '../../../environments/environment.development';
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.css'
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent implements OnInit, OnDestroy {
   name = '';
   authenticated = false;
   isDropdownOpen = false;  // Track dropdown visibility
+  private apiUrl = `${environment.baseUrl}`;
+  private routerSubscription: any;
 
   constructor(private http: HttpClient, private router: Router, private userService: UserService) { }
 
@@ -45,6 +47,20 @@ export class NavigationComponent implements OnInit {
         this.name = ''; // Clear name if user is logged out
       }
     });
+
+    // Listen to router events to close the dropdown on navigation
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.isDropdownOpen = false;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Unsubscribe from the router events
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   // Toggle dropdown visibility
@@ -68,7 +84,7 @@ export class NavigationComponent implements OnInit {
     this.userService.getUser()
       .subscribe(
         (res: any) => {
-          this.name = 'Hallo ' + res.firstName;
+          this.name = 'Hallo ' + res.firstName + '!';
 
           // Save authentication status and user data in localStorage
           localStorage.setItem('authenticated', 'true');
@@ -101,6 +117,10 @@ export class NavigationComponent implements OnInit {
         // Emit unauthenticated state
         Emitters.authEmitter.emit(false);
         Emitters.userEmitter.emit(null);
+
+        // Reset dropdown state
+        this.isDropdownOpen = false;
+
         this.router.navigate(['/login']);
       });
   }

@@ -1,0 +1,9 @@
+@if(claim){
+    <button  class="h-20 w-full rounded-md mb-3 relative bg-gray-200 hover:bg-gray-300 transition-all">
+        <div class="text-center">
+            <p class="text-sm"><span class="">Van: </span>{{ claim.startDate }} <span class="ml-3">Tot: </span>{{ claim.endDate }}</p>
+            <p class="text-sm">Schade type: {{ claim.damage_type }}</p>
+            <p class="text-sm">Gesch. kost: €{{ claim.estimated_cost }}</p>
+        </div>
+    </button>
+}
