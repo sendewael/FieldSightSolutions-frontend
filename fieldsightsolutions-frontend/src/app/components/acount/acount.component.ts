@@ -6,14 +6,14 @@ import { Router } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 import { UserService } from '../../api/services/user/user.service';
 import { UserRoleService } from '../../api/services/userRole/user-role.service';
+import { environment } from '../../../environments/environment.development'; // Import environment configuration
+
 @Component({
   selector: 'app-acount',
   templateUrl: './acount.component.html',
   styleUrls: ['./acount.component.css'],
   imports: [CommonModule, FormsModule],
   standalone: true,
-
-
 })
 export class AcountComponent implements OnInit {
   user = {
@@ -25,13 +25,19 @@ export class AcountComponent implements OnInit {
   };
   roleName = ''; // Variable to hold the role name
 
-  constructor(private http: HttpClient, private router: Router, private userService: UserService, private userroleService : UserRoleService) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private userService: UserService,
+    private userroleService: UserRoleService
+  ) { }
 
   ngOnInit(): void {
     const storedUser = localStorage.getItem('user');
 
     if (!storedUser) {
       this.router.navigate(['/login']);
+      return; // Stop further execution if no user is found
     }
 
     // Fetch user data on initialization
@@ -53,6 +59,8 @@ export class AcountComponent implements OnInit {
   }
 
   save(): void {
+    const saveUrl = `${environment.baseUrl}/users/update`; // Use dynamic baseUrl if needed
+
     // Save updated user data
     this.userService.updateUser(this.user)
       .subscribe({
@@ -67,5 +75,4 @@ export class AcountComponent implements OnInit {
         }
       });
   }
-
 }

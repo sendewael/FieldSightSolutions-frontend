@@ -4,6 +4,8 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 import { UserService } from '../../api/services/user/user.service';
+import { environment } from '../../../environments/environment.development';
+
 @Component({
   selector: 'app-navigation',
   standalone: true,
@@ -65,10 +67,8 @@ export class NavigationComponent implements OnInit {
   fetchUserData(): void {
     this.userService.getUser()
       .subscribe(
-        
         (res: any) => {
           this.name = 'Hallo ' + res.firstName;
-          this.name = 'Hallo ' + res.firstName + '!';
 
           // Save authentication status and user data in localStorage
           localStorage.setItem('authenticated', 'true');
@@ -87,7 +87,9 @@ export class NavigationComponent implements OnInit {
   }
 
   logout(): void {
-    this.http.post('http://localhost:8000/api/logout', {}, { withCredentials: true })
+    const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+
+    this.http.post(logoutUrl, {}, { withCredentials: true })
       .subscribe(() => {
         this.authenticated = false;
         this.name = '';
