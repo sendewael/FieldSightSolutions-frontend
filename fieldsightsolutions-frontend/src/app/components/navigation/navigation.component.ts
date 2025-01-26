@@ -103,7 +103,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+    const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+
+    this.http.post(logoutUrl, {}, { withCredentials: true })
       .subscribe(() => {
         this.authenticated = false;
         this.name = '';
