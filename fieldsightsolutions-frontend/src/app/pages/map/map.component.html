@@ -342,7 +342,7 @@
                 @else {
                 <p>Selecteer een perceel door er op te klikken.</p>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                    <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 transition-all">
+                    <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 disabled:opacity-50 transition-all">
                         <p>Terug</p>
                     </button>
                 </div>
