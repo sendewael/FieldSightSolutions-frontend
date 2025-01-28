@@ -16,8 +16,12 @@ export class ChatWidgetComponent {
   userMessage = '';
   messages: { text: string; user: boolean }[] = [];
   predefinedMessages = [
-    'Wat is een variabiliteitskaart?',
-    'Hoe dien ik een schadeclaim in?',
+    'Wat is je doel?',
+    'Wie is VITO?',
+    'Wat is Moisture Stress Index?',
+    'Wat is de Yield Potential Map?',
+    'Wat is CropSAR_2D?',
+    'Wat is Anomaly Detection?'
   ];
 
   constructor(

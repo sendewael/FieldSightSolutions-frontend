@@ -3,7 +3,7 @@
 		<img src="icons/chat.png" alt="" height="30" width="30">
 	</div>
     @if(isChatOpen) {
-        <div class="fixed bottom-24 left-3 w-80 h-96 bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
+        <div class="fixed bottom-24 left-3 w-96 h-[500px] bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
             <div class="px-2 py-3 bg-green-600 text-white flex justify-between items-center">
                 <span>Harm de Chatbot</span>
                 <button (click)="toggleChat()" class="bg-none border-none text-white cursor-pointer text-lg hover:brightness-90 transition-all">
@@ -25,7 +25,7 @@
                 }
             </div>
             <div class="flex py-2 px-2 border-t border-gray-300">
-                <input [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" type="text" placeholder="Stuur een bericht..." class="flex-1 p-2 h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+                <input [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" type="text" placeholder="Stel me een vraag..." class="flex-1 p-2 h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
                 <button [disabled]="!userMessage.length" (click)="sendMessage()" class="ml-2 bg-green-800 h-10 text-white border-none p-2 rounded-md disabled:opacity-50 hover:bg-green-700 transition-all">
                     <img src="icons/send.png" alt width="20" height="20">
                 </button>
