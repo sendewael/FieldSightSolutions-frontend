@@ -28,7 +28,7 @@
                 </div>
                 @if(!noUserFields) {
                     <div class="relative w-full h-10 mb-3">
-                        <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" [placeholder]="userRole === 1 ? 'Zoek op perceelnaam, gewas of gemeente' : 'Zoek op perceelnaam, eigenaar of gemeente'" />
+                        <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" [placeholder]="userRole === 1 ? 'Zoek op nr, perceelnaam, gewas of gemeente' : 'Zoek op nr, perceelnaam, eigenaar of gemeente'" />
                         <button *ngIf="filterText" (click)="clearFilterText()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-800 hover:text-green-700 focus:outline-none">
                             <p class="font-bold">✕</p>
                         </button>
@@ -151,7 +151,7 @@
                             </button>
                         }
                         @else {
-                            <button (click)="requestPhoto()" [disabled]="!insuranceClaimsForSingleField.length" class="w-3/5 action-button disabled:opacity-50" title="Vraag foto's aan van schade aan dit perceel">
+                            <button (click)="requestPhoto()" [disabled]="!insuranceClaimsForSingleField.length" class="w-3/5 action-button disabled:opacity-50" [title]="insuranceClaimsForSingleField.length ? 'Vraag foto\'s aan van schade aan dit perceel' : 'Er zijn geen schadeclaims die het toelaten om foto\'s aan te vragen'">
                                 <p>Foto's aanvragen</p>
                             </button>
                         }
@@ -330,7 +330,7 @@
                     </div>
                     
                     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                        <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3">
+                        <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3 disabled:opacity-50">
                             <p>Terug</p>
                         </button>
                         <button [disabled]="!selectedNewField || newPerceelForm.invalid" class="w-3/5 action-button disabled:opacity-50" (click)="perceelLandbouwerToevoeging(userId, selectedNewField.id)">
@@ -338,9 +338,65 @@
                         </button>
                     </div>
                 </form>
-                } 
+                } @else if (newDrawnField) {
+                    <form #newDrawnPerceelForm="ngForm" class="text-left">
+                        <div class="mb-3">
+                            <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                            <input [(ngModel)]="newDrawnField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
+                            <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
+                                Perceelnaam is verplicht.
+                            </div>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
+                            <input [(ngModel)]="newDrawnField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
+                            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
+                            <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
+                                Gewas is verplicht en moet een woord zijn (bijv. Maïs).
+                            </div>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                            <input [(ngModel)]="newDrawnField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
+                            <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
+                                Oppervlakte is verplicht en moet een geldig getal zijn.
+                            </div>
+                        </div>
+    
+                        <div class="flex space-x-3 mb-3">
+                            <div class="flex flex-col w-1/2">
+                            <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
+                            <input [(ngModel)]="newDrawnField.municipality" name="municipality" type="text" #municipality="ngModel" required
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
+                            <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
+                                Gemeente is verplicht.
+                            </div>
+                            </div>
+                        
+                            <div class="flex flex-col w-1/2">
+                            <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
+                            <input [(ngModel)]="newDrawnField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
+                            <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
+                                Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3">
+                                <p>Terug</p>
+                            </button>
+                            <button (click)="addNewDrawnField()" [disabled]="!newDrawnField || newDrawnPerceelForm.invalid" class="w-3/5 action-button disabled:opacity-50">
+                                <p>Toevoegen</p>
+                            </button>
+                        </div>
+                    </form>
+                }
                 @else {
-                <p>Selecteer een perceel door er op te klikken.</p>
+                <p>Selecteer een perceel door er op te klikken, of teken zelf uw perceel door op de '⬟' knop te klikken.</p>
                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
                     <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 disabled:opacity-50 transition-all">
                         <p>Terug</p>
