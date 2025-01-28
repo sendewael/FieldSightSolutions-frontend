@@ -25,6 +25,10 @@ import { InsuranceFormResponseDto } from '../../api/dtos/InsuranceForm/Insurance
 import { ClaimKnopComponent } from '../../components/claim-knop/claim-knop.component';
 import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
 import { ToastComponent } from '../../components/toast/toast.component';
+import { LeafletModule } from '@bluehalo/ngx-leaflet';
+import { LeafletDrawModule } from '@bluehalo/ngx-leaflet-draw';
+import { FieldRequestDto } from '../../api/dtos/Field/Field-request-dto';
+import { CornerRequestDto } from '../../api/dtos/Corner/Corner-request-dto';
 
 @Component({
   selector: 'app-map',
@@ -40,6 +44,8 @@ import { ToastComponent } from '../../components/toast/toast.component';
     LoaderComponent,
     ClaimKnopComponent,
     ToastComponent,
+    LeafletDrawModule,
+    LeafletModule
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
@@ -105,6 +111,12 @@ export class MapComponent {
   toastMessage: string = '';
   toastClass: string = 'bg-green-500';
   toastHover: string = 'bg-green-400';
+
+  // Zelf perceel tekenen
+  public controlsDrawn: boolean = false
+  private drawControl: L.Control.Draw | null = null;
+  private drawnItems: L.FeatureGroup = new L.FeatureGroup();
+  private allowDrawing = false;
 
   constructor(
     private fieldService: FieldService,
@@ -232,6 +244,7 @@ export class MapComponent {
                 this.noUserFields = true;
                 this.newField = true;
                 this.drawFieldsOnMap();
+                this.drawControls(true);
               } else {
                 this.noUserFields = false;
                 if (!this.selectedField) {
@@ -280,6 +293,175 @@ export class MapComponent {
     }
   }
 
+  // ------------------------- Perceel tekenen ------------------------- //
+
+  public newDrawnField: FieldRequestDto | null = null;
+  public newDrawnCorners: CornerRequestDto[] = [];
+
+  drawControls(add: boolean): void {
+    if (this.map) {
+      if (!this.map.hasLayer(this.drawnItems)) {
+        this.map.addLayer(this.drawnItems);
+      }
+
+      if (add) {
+        this.addDrawControl(true); // Initial control setup with polygon allowed
+        this.allowDrawing = true;
+      } else {
+        if (this.drawControl) {
+          this.map.removeControl(this.drawControl);
+        }
+        this.allowDrawing = false;
+        this.drawnItems.clearLayers();
+      }
+
+      if (!this.map.hasEventListeners(L.Draw.Event.CREATED)) {
+        this.map.on(L.Draw.Event.CREATED, (event: any) => {
+          if (this.allowDrawing) {
+            const layer = event.layer;
+            this.drawnItems.addLayer(layer);
+            this.handleDrawnPolygon(layer);
+
+            layer.on('click', () => {
+              this.wisGeselecteerdPerceel();
+              const bounds = layer.getBounds();
+              if (this.map) {
+                this.map.fitBounds(bounds, {
+                  padding: [50, 50],
+                  maxZoom: 16,
+                });
+              }
+              console.log('Polygon clicked and centered.');
+            });
+
+            // Remove the current draw control and re-add with polygon disabled
+            if (this.drawControl && this.map) {
+              this.map.removeControl(this.drawControl);
+            }
+            this.addDrawControl(false);
+          }
+        });
+
+        // Handle polygon edits and update corners
+        this.map.on(L.Draw.Event.EDITED, (event: any) => {
+          event.layers.eachLayer((layer: any) => {
+            this.handleDrawnPolygon(layer);
+            console.log('Polygon edited and corners updated.');
+          });
+        });
+
+        // Handle polygon deletions and allow drawing a new one
+        this.map.on(L.Draw.Event.DELETED, () => {
+          console.log('Polygon deleted. Drawing re-enabled.');
+          this.addDrawControl(true); // Re-enable polygon drawing
+          this.allowDrawing = true;
+        });
+      }
+    }
+  }
+
+  private addDrawControl(enablePolygon: boolean): void {
+    if (this.drawControl && this.map) {
+      this.map.removeControl(this.drawControl);
+    }
+
+    this.drawControl = new L.Control.Draw({
+      position: 'topleft',
+      draw: {
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        polygon: enablePolygon ? {} : false,
+      },
+      edit: {
+        featureGroup: this.drawnItems,
+        remove: true, // Enable delete option
+      },
+    });
+
+    if (this.map)
+      this.map.addControl(this.drawControl);
+  }
+
+  private handleDrawnPolygon(layer: any): void {
+    const latLngs = layer.getLatLngs();
+
+    // Reset corners
+    this.newDrawnCorners = latLngs[0].map((latLng: any, index: number) => ({
+      field: 0,
+      index: index,
+      xCord: latLng.lat.toString(),
+      yCord: latLng.lng.toString(),
+    }));
+
+    this.newDrawnField = {
+      name: '',
+      acreage: '',
+      municipality: '',
+      postalcode: '',
+      crop: '',
+    };
+
+    console.log('Updated polygon corners:', this.newDrawnCorners);
+  }
+
+
+  addNewDrawnField(): void {
+    if (this.newDrawnField) {
+      this.fieldService.createField(this.newDrawnField).subscribe({
+        next: (response) => {
+          console.log("field created ", response)
+          console.log(response.id)
+
+          if (this.newDrawnCorners && this.newDrawnCorners.length > 0) {
+            // Set the fieldId to the response.id (field ID from the newly created field)
+            this.newDrawnCorners.forEach((corner) => {
+              corner.field = response.id; // Assign the fieldId from the response
+            });
+            console.log(this.newDrawnCorners)
+
+            // Send all corners in one request
+            this.cornerService.createCorner(this.newDrawnCorners).subscribe({
+              next: (cornerResponse) => {
+                console.log("Corners created:", cornerResponse);
+                const userField: UserFieldRequestDto = {
+                  user: this.userId,
+                  field: response.id,
+                  grantedEmails: [],
+                };
+
+                this.userFieldService.addUserField(userField).subscribe({
+                  next: (response) => {
+                    console.log(response)
+                    this.newDrawnField = null
+                    this.newDrawnCorners = []
+                    this.newField = false
+                    this.loadUserFields(this.userId)
+                    this.drawnItems.clearLayers();
+                    this.drawControls(false);
+                  },
+                  error: (error) => {
+                    console.error(error)
+                  }
+                })
+              },
+              error: (error) => {
+                console.error("Error creating corners:", error);
+              }
+            });
+          }
+
+
+        },
+        error: (error) => {
+          console.error(error)
+        }
+      })
+    }
+  }
+
   // ------------------------- Polygons tekenen ------------------------- //
 
   // Deze functie zet de polygons op de map voor de userFields
@@ -290,8 +472,8 @@ export class MapComponent {
     this.userPercelen.forEach(field => {
       this.drawPolygonForField(
         field.id,
-        'blue',
-        'lightblue',
+        'green',
+        'lightgreen',
         id => this.focusOnField(id)
       );
     });
@@ -321,8 +503,8 @@ export class MapComponent {
           next: (userFields) => {
             this.percelen.forEach(field => {
               const isAssigned = userFields.some(uf => uf.field === field.id);
-              const fieldColor = isAssigned ? 'grey' : 'blue';
-              const fillColor = isAssigned ? 'lightgrey' : 'lightblue';
+              const fieldColor = isAssigned ? 'grey' : 'green';
+              const fillColor = isAssigned ? 'lightgrey' : 'lightgreen';
 
               this.drawPolygonForField(
                 field.id,
@@ -560,9 +742,16 @@ export class MapComponent {
     if (!this.newField) {
       this.drawUserFieldsOnMap();
       this.wisGeselecteerdPerceel();
+      // Zelf perceel tekenen
+      this.drawControls(false);
+      this.newDrawnField = null
+      this.newDrawnCorners = []
     } else {
       this.drawFieldsOnMap();
+      // Zelf perceel tekenen
+      this.drawControls(true);
     }
+
   }
 
   // Als de user een nieuw perceel gekozen heeft en dit toevoegd, wordt deze functie gebruikt
@@ -872,6 +1061,7 @@ export class MapComponent {
       perceel.name.toLowerCase().includes(this.filterText.toLowerCase()) ||
       perceel.municipality.toLowerCase().includes(this.filterText.toLowerCase()) ||
       perceel.postalcode.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.id.toString().toLowerCase().includes(this.filterText.toLowerCase()) ||
       (this.userRole < 2
         ? perceel.crop.toLowerCase().includes(this.filterText.toLowerCase())
         : perceel.user_name?.toLowerCase().includes(this.filterText.toLowerCase()))

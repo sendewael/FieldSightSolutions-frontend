@@ -9,7 +9,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class WeatherIconComponent implements OnInit {
   @Input() prediction: string = '';
-  iconPath: string = 'nietGevonden.svg';
+  iconPath: string = 'nietGevonden.png';
   iconAlt: string = 'Onbekend';
 
   constructor() { }
