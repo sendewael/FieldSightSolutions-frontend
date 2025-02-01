@@ -31,10 +31,11 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private schadeclaimService: InsuranceFormService,
     private userService: UserService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams
@@ -53,6 +54,7 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
               .subscribe({
                 next: (claims) => {
                   this.schadeclaims$.next(claims); // Update de BehaviorSubject
+                  console.log(claims)
                 },
                 error: (err) => {
                   console.error('Fout bij het ophalen van schadeclaims:', err);
@@ -139,12 +141,15 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
   }
 
   // Request extra photos for the claim
-  vraagFotos(id: number): void {
-    this.updateClaimStatus(id, 4);
+  vraagFotos(claimId: number, fieldId: number): void {
+    this.updateClaimStatus(claimId, 4);
     this.toastMessage = "Extra foto's zijn gevraagd";
     this.toastClass = 'bg-green-500';
     this.toastHover = 'bg-green-400';
     this.toast.showToast();
+
+    this.router.navigate(['/'], { state: { fieldId, claimId, requestPhotos: true } });
+
   }
 
   // Approve the claim

@@ -29,6 +29,7 @@ import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { LeafletDrawModule } from '@bluehalo/ngx-leaflet-draw';
 import { FieldRequestDto } from '../../api/dtos/Field/Field-request-dto';
 import { CornerRequestDto } from '../../api/dtos/Corner/Corner-request-dto';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-map',
@@ -118,6 +119,8 @@ export class MapComponent {
   private drawnItems: L.FeatureGroup = new L.FeatureGroup();
   private allowDrawing = false;
 
+  public navigationState: any = {};
+
   constructor(
     private fieldService: FieldService,
     private userFieldService: UserFieldService,
@@ -125,7 +128,8 @@ export class MapComponent {
     private userService: UserService,
     private insuranceFormService: InsuranceFormService,
     private requestImageService: RequestedImageService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   // --------------------------- ng Methodes ---------------------------- //
@@ -159,6 +163,9 @@ export class MapComponent {
     } else {
       this.router.navigate(['/login']);
     }
+
+    this.navigationState = history.state;
+    console.log(this.navigationState)
   }
 
   // Wordt 1x gerunned na component render en initialiseert de kaart
@@ -282,6 +289,34 @@ export class MapComponent {
                     this.isLoading = false;
                   }
                 }
+
+
+                if (this.navigationState) {
+                  const { fieldId, claimId, requestPhotos } = this.navigationState;
+                  if (fieldId) {
+                    this.isLoading = true;
+                    this.focusOnField(fieldId).then(() => {
+                      if (claimId) {
+                        // Wait for selectClaim to finish before continuing
+                        this.selectClaim(claimId).then(() => {
+                          // After selectClaim is done
+                          if (requestPhotos) {
+                            this.requestPhoto();
+                          }
+                          this.isLoading = false; // Hide loading spinner after everything is completed
+                        }).catch(error => {
+                          console.error(error);
+                          this.isLoading = false; // Hide loading spinner in case of error
+                        });
+                      } else {
+                        this.isLoading = false; // Hide loading spinner if no claimId
+                      }
+                    }).catch(error => {
+                      console.error("Error in focusOnField", error);
+                      this.isLoading = false; // Hide loading spinner in case of error
+                    });
+                  }
+                };
               },
               error: (error) => {
                 console.error('getFields() returned niks', error);
@@ -587,43 +622,49 @@ export class MapComponent {
 
   // Deze functie gaat op de kaart naar het perceel dat geselecteerd is
   // Haal de hoeken van het perceel op, en gebruik deze coordinaten om de kaart hier naartoe te brengen
-  focusOnField(fieldId: number): void {
-    this.cornerService.getCornersByFieldId(fieldId).subscribe({
-      next: (corners) => {
-        if (corners.length > 0) {
-          this.setMapCenterFromCorners(corners);
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching corners', error);
-      }
-    });
-
-    // Deze functie gaat voor een verzekeraar ook kijken of het geselecteerde perceel gekoppelde schadeclaims heeft
-    // Dit om de functionaliteit voor foto's aan te vragen aan en uit te zetten
-    if (this.userRole > 1) {
-      this.isLoading = true
-      this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
-        next: (insuranceClaims) => {
-          this.insuranceClaimsForSingleField = insuranceClaims
-          console.log(this.insuranceClaimsForSingleField)
-          this.isLoading = false;
+  focusOnField(fieldId: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // Fetch corners for the map
+      this.cornerService.getCornersByFieldId(fieldId).subscribe({
+        next: (corners) => {
+          if (corners.length > 0) {
+            this.setMapCenterFromCorners(corners);
+          }
         },
         error: (error) => {
-          console.error(error)
+          console.error('Error fetching corners', error);
         }
-      })
-    }
+      });
 
-    const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
-    if (selectedField) {
-      this.selectedField = selectedField;
-      console.log(this.selectedField)
-      this.highlightField(fieldId);
-    }
+      // Fetch insurance claims for user roles > 1
+      if (this.userRole > 1) {
+        this.isLoading = true;
+        this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
+          next: (insuranceClaims) => {
+            this.insuranceClaimsForSingleField = insuranceClaims;
+            console.log(this.insuranceClaimsForSingleField);
+            this.isLoading = false;
+            resolve(); // Resolve when data is ready
+          },
+          error: (error) => {
+            console.error(error);
+            resolve(); // Resolve even on error
+          }
+        });
+      } else {
+        resolve(); // Resolve immediately for other roles
+      }
 
-    this.isOpen = true;
+      const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
+      if (selectedField) {
+        this.selectedField = selectedField;
+        this.highlightField(fieldId);
+      }
+
+      this.isOpen = true;
+    });
   }
+
 
   // Deze functie gaat op de map naar het perceel dat geselecteerd is voor nieuwe percelen
   // Hetzelfde principe als bovenstaande functie
@@ -1087,19 +1128,25 @@ export class MapComponent {
   // Deze functie zoomt de map ook in
   requestPhoto(): void {
     this.requestPhotoForClaim = !this.requestPhotoForClaim
-    if (this.map) {
-      this.map.setZoom(17)
-    }
+    // if (this.map) {
+    //   this.map.setZoom(17)
+    // }
   }
 
   // Deze functie zorgt voor het bijhouden van de geselecteerde schadeclaim, en maakt de kaart clickable
-  selectClaim(claimId: number): void {
-    const selectedClaim = this.insuranceClaimsForSingleField.find(claim => claim.id === claimId)
-    if (selectedClaim) {
-      this.selectedClaim = selectedClaim
-      console.log(this.selectedClaim)
-    }
-    this.mapIsClickable = true;
+  selectClaim(claimId: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const selectedClaim = this.insuranceClaimsForSingleField.find(claim => claim.id === claimId);
+
+      if (selectedClaim) {
+        this.selectedClaim = selectedClaim;
+        console.log(this.selectedClaim);
+        this.mapIsClickable = true;
+        resolve(); // Resolve the promise when the claim is selected successfully
+      } else {
+        reject(new Error("Claim not found"));
+      }
+    });
   }
 
   // Indien er vanuit het "Foto's aanvragen" scherm terug of opslaan geklikt wordt
