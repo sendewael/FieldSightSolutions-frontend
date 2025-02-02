@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment.development'; // Assuming you have this environment file
+import { environment } from '../../../../environments/environment.development';
 import { WeatherResponseDTO } from '../../dtos/Weather/weather-response.dto';
 
 
