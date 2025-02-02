@@ -25,6 +25,7 @@ import { InsuranceFormResponseDto } from '../../api/dtos/InsuranceForm/Insurance
 import { ClaimKnopComponent } from '../../components/claim-knop/claim-knop.component';
 import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
 import { ToastComponent } from '../../components/toast/toast.component';
+import { WeatherComponent } from '../../components/weather-vis/weather-vis.component';
 
 @Component({
   selector: 'app-map',
@@ -40,6 +41,7 @@ import { ToastComponent } from '../../components/toast/toast.component';
     LoaderComponent,
     ClaimKnopComponent,
     ToastComponent,
+    WeatherComponent
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
