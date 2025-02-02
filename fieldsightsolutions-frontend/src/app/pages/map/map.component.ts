@@ -182,6 +182,7 @@ export class MapComponent {
 
   // -------------------------- Initialisatie --------------------------- //
 
+  private mapMoveTimeout: any;
   // Deze functie maakt de kaart (zonder polygons)
   private initMap(): void {
     this.map = L.map('map', {
@@ -208,6 +209,14 @@ export class MapComponent {
       const center = this.map?.getCenter();
       if (center) {
         this.mapCenter = [center.lat, center.lng];
+        console.log(this.mapCenter)
+      }
+
+      if (this.newField && !this.selectedNewField) {
+        clearTimeout(this.mapMoveTimeout);
+        this.mapMoveTimeout = setTimeout(() => {
+          this.drawFieldsOnMap();
+        }, 1000);
       }
     });
 
@@ -326,6 +335,287 @@ export class MapComponent {
         })
       }
     }
+  }
+
+  // ------------------------- Polygons tekenen ------------------------- //
+  private drawnPolygons: Map<number, L.Polygon> = new Map();
+  private userFieldPolygons: Map<number, L.Polygon> = new Map();
+  private allFieldPolygons: Map<number, L.Polygon> = new Map();
+
+  private drawPolygonForField(
+    fieldId: number,
+    color: string,
+    fillColor: string,
+    onClickHandler: (id: number) => void,
+    isUserField: boolean
+  ): void {
+    const targetMap = isUserField ? this.userFieldPolygons : this.allFieldPolygons;
+
+    if (targetMap.has(fieldId)) {
+      console.log(`Polygon for field ${fieldId} already drawn.`);
+      this.fieldsDrawn++;
+      return;
+    }
+
+    this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
+      if (this.map && corners && corners.length > 0) {
+        const polygonCoords: [number, number][] = corners.map(corner => [
+          parseFloat(corner.xCord),
+          parseFloat(corner.yCord),
+        ]);
+
+        const polygon = L.polygon(polygonCoords, {
+          color: color,
+          fillColor: fillColor,
+          fillOpacity: 0.5,
+        });
+
+        polygon.addTo(this.map);
+        targetMap.set(fieldId, polygon);
+
+        const fieldName = this.userPercelen.find(field => field.id === fieldId)?.name || `Field ${fieldId}`;
+        polygon.bindTooltip(fieldName, {
+          permanent: false,
+          direction: 'center',
+        });
+
+        polygon.on('click', () => onClickHandler(fieldId));
+
+        this.fieldsDrawn++;
+
+        if (this.fieldsDrawn === this.totalFieldsToDraw) {
+          this.isLoading = false;
+        }
+      } else {
+        console.error('Error loading map or corners:', corners, this.map);
+      }
+    });
+  }
+
+  private clearUserFieldPolygons(): void {
+    this.userFieldPolygons.forEach(polygon => polygon.remove());
+    this.userFieldPolygons.clear();
+  }
+
+  private clearAllFieldPolygons(): void {
+    this.allFieldPolygons.forEach(polygon => polygon.remove());
+    this.allFieldPolygons.clear();
+  }
+
+  private drawUserFieldsOnMap(): void {
+    this.clearAllFieldPolygons();
+    this.clearUserFieldPolygons() // Clear only user fields
+    this.userPercelen.forEach(field => {
+      this.drawPolygonForField(
+        field.id,
+        'green',
+        'lightgreen',
+        id => this.focusOnField(id),
+        true // true indicates user field
+      );
+    });
+    this.isLoading = false;
+  }
+
+  private drawFieldsOnMap(): void {
+    console.log("!!! Draw fields on map called !!!");
+    this.clearUserFieldPolygons(); // Clear only non-user fields
+    this.isLoading = true;
+    this.fieldsDrawn = 0;
+    this.totalFieldsToDraw = 0;
+    const [lat, lng] = this.mapCenter;
+
+    this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
+      next: (fields) => {
+        if (!fields || fields.length === 0) {
+          this.isLoading = false;
+        }
+        this.percelen = fields;
+        this.totalFieldsToDraw = this.percelen.length;
+
+        this.userFieldService.getUserFields().subscribe({
+          next: (userFields) => {
+            this.percelen.forEach(field => {
+              const isAssigned = userFields.some(uf => uf.field === field.id);
+              const fieldColor = isAssigned ? 'grey' : 'green';
+              const fillColor = isAssigned ? 'lightgrey' : 'lightgreen';
+
+              this.drawPolygonForField(
+                field.id,
+                fieldColor,
+                fillColor,
+                id => this.focusOnNewField(id),
+                false // false indicates general field
+              );
+            });
+          },
+          error: (err) => {
+            console.error('Error loading user fields', err);
+          },
+        });
+      },
+      error: (err) => {
+        console.error('Error loading fields in radius', err);
+      },
+    });
+  }
+
+
+  // ------------------------- Perceel Focus --------------------------- //
+
+  // Deze functie gaat op de kaart naar het perceel dat geselecteerd is
+  // Haal de hoeken van het perceel op, en gebruik deze coordinaten om de kaart hier naartoe te brengen
+  focusOnField(fieldId: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // Fetch corners for the map
+      this.cornerService.getCornersByFieldId(fieldId).subscribe({
+        next: (corners) => {
+          if (corners.length > 0) {
+            this.setMapCenterFromCorners(corners);
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching corners', error);
+        }
+      });
+
+      // Fetch insurance claims for user roles > 1
+      if (this.userRole > 1) {
+        this.isLoading = true;
+        this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
+          next: (insuranceClaims) => {
+            this.insuranceClaimsForSingleField = insuranceClaims;
+            console.log(this.insuranceClaimsForSingleField);
+            this.isLoading = false;
+            resolve(); // Resolve when data is ready
+          },
+          error: (error) => {
+            console.error(error);
+            resolve(); // Resolve even on error
+          }
+        });
+      } else {
+        resolve(); // Resolve immediately for other roles
+      }
+
+      const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
+      if (selectedField) {
+        this.selectedField = selectedField;
+        this.highlightField(fieldId);
+      }
+
+      this.isOpen = true;
+    });
+  }
+
+
+  // Deze functie gaat op de map naar het perceel dat geselecteerd is voor nieuwe percelen
+  // Hetzelfde principe als bovenstaande functie
+  focusOnNewField(fieldId: number): void {
+    this.userFieldService.getUserFields().subscribe({
+      next: (userFields) => {
+        const isAssigned = userFields.some(uf => uf.field === fieldId);
+        if (!isAssigned) {
+          this.cornerService.getCornersByFieldId(fieldId).subscribe({
+            next: (corners) => {
+              if (corners.length > 0) {
+                this.setMapCenterFromCorners(corners);
+              }
+            },
+            error: (error) => {
+              console.error('Error fetching corners', error);
+            }
+          });
+
+          const selectedNewField = this.percelen.find(perceel => perceel.id === fieldId);
+          if (selectedNewField) {
+            this.selectedNewField = selectedNewField;
+            this.highlightField(fieldId);
+          }
+        } else {
+          this.blockMap = true;
+          this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren.";
+          this.openModal();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading user fields', error);
+      }
+    });
+  }
+
+  // Deze functie zorgt ervoor dat de polygon van het geselecteerde perceel rood wordt
+  highlightField(fieldId: number): void {
+    if (this.map) {
+      if (this.highlightedPolygon) {
+        this.map.removeLayer(this.highlightedPolygon);
+        this.highlightedPolygon = null;
+      }
+      this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
+        if (this.map && corners && corners.length > 0) {
+          const polygonCoords: [number, number][] = corners.map(corner => [
+            parseFloat(corner.xCord),
+            parseFloat(corner.yCord),
+          ]);
+
+          this.highlightedPolygon = L.polygon(polygonCoords, {
+            color: 'red',
+            fillColor: 'rgba(255, 0, 0, 0.4)',
+            fillOpacity: 0.6,
+            weight: 4,
+          });
+
+          this.highlightedPolygon.addTo(this.map);
+          this.highlightedPolygons.push(this.highlightedPolygon);
+        }
+      });
+    }
+  }
+
+  // Deze functie zorgt voor de logica om de kaart naar het perceel te brengen
+  // Het berekent het middelpunt van het geselecteerd perceel door een formule, en centreert de map hierop
+  private setMapCenterFromCorners(corners: { xCord: string, yCord: string }[]): void {
+    let sumX = 0;
+    let sumY = 0;
+
+    corners.forEach(corner => {
+      sumX += parseFloat(corner.xCord);
+      sumY += parseFloat(corner.yCord);
+    });
+
+    const centerX = sumX / corners.length;
+    const centerY = sumY / corners.length;
+
+    if (this.map) {
+      this.map.setView([centerX, centerY], 16);
+    }
+  }
+
+  // Deze functie deselecteerd een perceel (bijv. als er op terug geklikt wordt)
+  // De variables worden dan gereset
+  wisGeselecteerdPerceel(): void {
+    this.selectedField = null
+    this.selectedNewField = null
+    if (this.highlightedPolygon) {
+      if (this.map) {
+        this.map.removeLayer(this.highlightedPolygon);
+      }
+      this.highlightedPolygon = null;
+    }
+    if (this.userRole > 1) {
+      this.insuranceClaimsForSingleField = [];
+    }
+  }
+
+  // Deze functie opent de modal indien de gebruiker bij het toevoegen van een nieuw perceel
+  // een perceel selecteerd dat al toegewezen is aan een landbouwer
+  openModal() {
+    this.messageModal = true;
+  }
+
+  closeModal() {
+    this.messageModal = false;
+    this.blockMap = false;
   }
 
   // ------------------------- Perceel tekenen ------------------------- //
@@ -497,284 +787,6 @@ export class MapComponent {
     }
   }
 
-  // ------------------------- Polygons tekenen ------------------------- //
-
-  // Deze functie zet de polygons op de map voor de userFields
-  // Om dubbel getekende polygons te voorkomen worden deze eerst verwijderd met clearPolygonsOffMap
-  // Voor elk perceel dat tot de user behoord wordt de drawPolygonForField functie uitgevoerd
-  private drawUserFieldsOnMap(): void {
-    this.clearPolygonsOffMap()
-    this.userPercelen.forEach(field => {
-      this.drawPolygonForField(
-        field.id,
-        'green',
-        'lightgreen',
-        id => this.focusOnField(id)
-      );
-    });
-    this.isLoading = false;
-  }
-
-  // Deze functie zet de polygons voor alle fields op de map
-  // Indien de user geen percelen heeft, of een nieuw perceel wil toevoegen
-  // Hier wordt de getFieldsInRadius API call voor gebruikt, die het middelpunt van de kaart gebruikt
-  // om vervolgens 1km rond dit middelpunt percelen in te laden (Voorkomen van laden alle percelen)
-  // Er wordt ook gecheckt of een perceel al tot een user behoord, indien ja: verander de kleur van de polygon
-  private drawFieldsOnMap(): void {
-    this.clearPolygonsOffMap()
-    this.isLoading = true;
-    this.fieldsDrawn = 0;
-    this.totalFieldsToDraw = 0;
-    // Deze code moet veranderd worden met de getFieldsInRadius()
-    const [lat, lng] = this.mapCenter;
-    this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
-      next: (fields) => {
-        if (!fields || fields.length === 0) {
-          this.isLoading = false;
-        }
-        this.percelen = fields;
-        this.totalFieldsToDraw = this.percelen.length;
-        this.userFieldService.getUserFields().subscribe({
-          next: (userFields) => {
-            this.percelen.forEach(field => {
-              const isAssigned = userFields.some(uf => uf.field === field.id);
-              const fieldColor = isAssigned ? 'grey' : 'green';
-              const fillColor = isAssigned ? 'lightgrey' : 'lightgreen';
-
-              this.drawPolygonForField(
-                field.id,
-                fieldColor,
-                fillColor,
-                id => this.focusOnNewField(id)
-              );
-
-            });
-          },
-          error: (err) => {
-            console.error('Error loading user fields', err);
-          },
-        });
-      },
-      error: (err) => {
-        console.error('Error loading fields in radius', err);
-      },
-    });
-  }
-
-  // Deze functie tekent de polygons voor de map
-  // Voor elk perceel wordt via een API call de coordinaten van zijn hoeken opgehaald
-  // Deze hoeken zorgen uiteindelijk voor de vorm van de polygon
-  private drawPolygonForField(fieldId: number, color: string, fillColor: string, onClickHandler: (id: number) => void): void {
-    this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
-      if (this.map && corners && corners.length > 0) {
-
-        if (this.firstCorner == null && this.userPercelen.length > 0) {
-          this.firstCorner = [
-            parseFloat(corners[0].xCord),
-            parseFloat(corners[0].yCord)
-          ];
-          this.map.setView(this.firstCorner, 13);
-        }
-
-        const polygonCoords: [number, number][] = corners.map(corner => [
-          parseFloat(corner.xCord),
-          parseFloat(corner.yCord),
-        ]);
-
-        const polygon = L.polygon(polygonCoords, {
-          color: color,
-          fillColor: fillColor,
-          fillOpacity: 0.5,
-        });
-
-        polygon.addTo(this.map);
-        this.polygons.push(polygon);
-
-        const fieldName = this.userPercelen.find(field => field.id === fieldId)?.name || `Field ${fieldId}`;
-        polygon.bindTooltip(fieldName, {
-          permanent: false,
-          direction: 'center',
-        });
-
-        polygon.on('click', () => onClickHandler(fieldId));
-
-        this.fieldsDrawn++;
-
-        if (this.fieldsDrawn === this.totalFieldsToDraw) {
-          this.isLoading = false;
-        }
-
-      } else {
-        console.error('Error bij het laden van de map, of corners:\ncorners:\n', corners, '\nmap:\n', this.map);
-      }
-    });
-  }
-
-  // Deze functie verwijderd alle polygons van de map om dubbel getekende polygons te voorkomen
-  private clearPolygonsOffMap() {
-    this.polygons.forEach(polygon => polygon.remove());
-    this.highlightedPolygons.forEach(polygon => polygon.remove());
-    this.polygons = [];
-    this.highlightedPolygons = [];
-  }
-
-  // ------------------------- Perceel Focus --------------------------- //
-
-  // Deze functie gaat op de kaart naar het perceel dat geselecteerd is
-  // Haal de hoeken van het perceel op, en gebruik deze coordinaten om de kaart hier naartoe te brengen
-  focusOnField(fieldId: number): Promise<void> {
-    return new Promise<void>((resolve) => {
-      // Fetch corners for the map
-      this.cornerService.getCornersByFieldId(fieldId).subscribe({
-        next: (corners) => {
-          if (corners.length > 0) {
-            this.setMapCenterFromCorners(corners);
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching corners', error);
-        }
-      });
-
-      // Fetch insurance claims for user roles > 1
-      if (this.userRole > 1) {
-        this.isLoading = true;
-        this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
-          next: (insuranceClaims) => {
-            this.insuranceClaimsForSingleField = insuranceClaims;
-            console.log(this.insuranceClaimsForSingleField);
-            this.isLoading = false;
-            resolve(); // Resolve when data is ready
-          },
-          error: (error) => {
-            console.error(error);
-            resolve(); // Resolve even on error
-          }
-        });
-      } else {
-        resolve(); // Resolve immediately for other roles
-      }
-
-      const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
-      if (selectedField) {
-        this.selectedField = selectedField;
-        this.highlightField(fieldId);
-      }
-
-      this.isOpen = true;
-    });
-  }
-
-
-  // Deze functie gaat op de map naar het perceel dat geselecteerd is voor nieuwe percelen
-  // Hetzelfde principe als bovenstaande functie
-  focusOnNewField(fieldId: number): void {
-    this.userFieldService.getUserFields().subscribe({
-      next: (userFields) => {
-        const isAssigned = userFields.some(uf => uf.field === fieldId);
-        if (!isAssigned) {
-          this.cornerService.getCornersByFieldId(fieldId).subscribe({
-            next: (corners) => {
-              if (corners.length > 0) {
-                this.setMapCenterFromCorners(corners);
-              }
-            },
-            error: (error) => {
-              console.error('Error fetching corners', error);
-            }
-          });
-
-          const selectedNewField = this.percelen.find(perceel => perceel.id === fieldId);
-          if (selectedNewField) {
-            this.selectedNewField = selectedNewField;
-            this.highlightField(fieldId);
-          }
-        } else {
-          this.blockMap = true;
-          this.modalMessage = "Dit perceel is al toegewezen! Gelieve een ander perceel te selecteren.";
-          this.openModal();
-        }
-      },
-      error: (error) => {
-        console.error('Error loading user fields', error);
-      }
-    });
-  }
-
-  // Deze functie zorgt ervoor dat de polygon van het geselecteerde perceel rood wordt
-  highlightField(fieldId: number): void {
-    if (this.map) {
-      if (this.highlightedPolygon) {
-        this.map.removeLayer(this.highlightedPolygon);
-        this.highlightedPolygon = null;
-      }
-      this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
-        if (this.map && corners && corners.length > 0) {
-          const polygonCoords: [number, number][] = corners.map(corner => [
-            parseFloat(corner.xCord),
-            parseFloat(corner.yCord),
-          ]);
-
-          this.highlightedPolygon = L.polygon(polygonCoords, {
-            color: 'red',
-            fillColor: 'rgba(255, 0, 0, 0.4)',
-            fillOpacity: 0.6,
-            weight: 4,
-          });
-
-          this.highlightedPolygon.addTo(this.map);
-          this.highlightedPolygons.push(this.highlightedPolygon);
-        }
-      });
-    }
-  }
-
-  // Deze functie zorgt voor de logica om de kaart naar het perceel te brengen
-  // Het berekent het middelpunt van het geselecteerd perceel door een formule, en centreert de map hierop
-  private setMapCenterFromCorners(corners: { xCord: string, yCord: string }[]): void {
-    let sumX = 0;
-    let sumY = 0;
-
-    corners.forEach(corner => {
-      sumX += parseFloat(corner.xCord);
-      sumY += parseFloat(corner.yCord);
-    });
-
-    const centerX = sumX / corners.length;
-    const centerY = sumY / corners.length;
-
-    if (this.map) {
-      this.map.setView([centerX, centerY], 16);
-    }
-  }
-
-  // Deze functie deselecteerd een perceel (bijv. als er op terug geklikt wordt)
-  // De variables worden dan gereset
-  wisGeselecteerdPerceel(): void {
-    this.selectedField = null
-    this.selectedNewField = null
-    if (this.highlightedPolygon) {
-      if (this.map) {
-        this.map.removeLayer(this.highlightedPolygon);
-      }
-      this.highlightedPolygon = null;
-    }
-    if (this.userRole > 1) {
-      this.insuranceClaimsForSingleField = [];
-    }
-  }
-
-  // Deze functie opent de modal indien de gebruiker bij het toevoegen van een nieuw perceel
-  // een perceel selecteerd dat al toegewezen is aan een landbouwer
-  openModal() {
-    this.messageModal = true;
-  }
-
-  closeModal() {
-    this.messageModal = false;
-    this.blockMap = false;
-  }
-
   // ------------------------ Perceel toevoegen ------------------------ //
 
   // Deze functie zorgt voor het kunnen toevoegen van een nieuw perceel
@@ -821,7 +833,7 @@ export class MapComponent {
 
           this.openPerceelToevoegen();
           this.loadUserFields(this.userId);
-          this.drawUserFieldsOnMap();
+          // this.drawUserFieldsOnMap();
         },
         error: (error) => {
           console.error('Error adding user field', error);
