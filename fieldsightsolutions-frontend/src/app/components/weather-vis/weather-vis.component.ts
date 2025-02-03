@@ -79,7 +79,7 @@ export class WeatherComponent implements OnInit {
             pointBackgroundColor: 'blue'
           },
           {
-            label: 'Precipitation (mm)',
+            label: 'Verwachte Neerslag',
             data: precipitation,
             borderColor: 'green',
             backgroundColor: 'rgba(0, 128, 0, 0.2)',
