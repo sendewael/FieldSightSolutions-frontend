@@ -88,7 +88,7 @@
             } 
             @else if ( selectedField ) {
                 @if(!isEdit && !showFieldAccess && !requestPhotoForClaim) {
-                    <div class="bg-red-400">
+                    <div class="overflow-auto">
                         <h3>{{ selectedField.name }}</h3>
                         @if(userRole < 2) {
                             <div class="flex items-center justify-center absolute right-3 top-32">
@@ -139,9 +139,8 @@
                                 </p>
                                 </div>
                             </div>
-                            <div class="bg-green-400 h-72 mt-4">visualisatie</div>
-                            <app-weather></app-weather>
-
+                            <!-- weervisualisatie -->
+                            <app-weather [fieldId]="selectedField.id" class="h-72 mt-4"></app-weather>
                         </div>
 
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
