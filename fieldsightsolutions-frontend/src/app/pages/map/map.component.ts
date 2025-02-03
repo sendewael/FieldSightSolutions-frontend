@@ -13,7 +13,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 import { UserFieldRequestDto } from '../../api/dtos/UserField/UserField-request-dto';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserFieldResponseDto } from '../../api/dtos/UserField/UserField-response-dto';
 import { UserResponseDto } from '../../api/dtos/User/User-response-dto';
 import { UserService } from '../../api/services/user/user.service';
@@ -25,11 +25,10 @@ import { InsuranceFormResponseDto } from '../../api/dtos/InsuranceForm/Insurance
 import { ClaimKnopComponent } from '../../components/claim-knop/claim-knop.component';
 import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
 import { ToastComponent } from '../../components/toast/toast.component';
-import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { LeafletDrawModule } from '@bluehalo/ngx-leaflet-draw';
+import { WeatherComponent } from '../../components/weather-vis/weather-vis.component';
 import { FieldRequestDto } from '../../api/dtos/Field/Field-request-dto';
 import { CornerRequestDto } from '../../api/dtos/Corner/Corner-request-dto';
-import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
   selector: 'app-map',
@@ -45,8 +44,7 @@ import { ActivatedRoute } from '@angular/router';
     LoaderComponent,
     ClaimKnopComponent,
     ToastComponent,
-    LeafletDrawModule,
-    LeafletModule
+    WeatherComponent
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'

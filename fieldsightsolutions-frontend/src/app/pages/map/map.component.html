@@ -88,7 +88,7 @@
             } 
             @else if ( selectedField ) {
                 @if(!isEdit && !showFieldAccess && !requestPhotoForClaim) {
-                    <div>
+                    <div class="overflow-auto">
                         <h3>{{ selectedField.name }}</h3>
                         @if(userRole < 2) {
                             <div class="flex items-center justify-center absolute right-3 top-32">
@@ -106,7 +106,7 @@
                         @if(userRole < 2) {
                             <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
                         }
-                        <div class="text-left full-height-minus-72 overflow-y-auto">
+                        <div class="text-left full-height-minus-72">
                             <label class="text-sm pb-2 ml-1">Perceelnaam</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
                                 {{ selectedField.name }}
@@ -139,23 +139,26 @@
                                 </p>
                                 </div>
                             </div>
+                            <!-- weervisualisatie -->
+                            <app-weather [fieldId]="selectedField.id" class="h-72 mt-4"></app-weather>
+                        </div>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
+                                <p>Terug</p>
+                            </button>
+                            @if(userRole < 2) {
+                                <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 action-button" title="Maak een schadeclaim aan voor dit perceel">
+                                    <p>Schadeclaim maken</p>
+                                </button>
+                            }
+                            @else {
+                                <button (click)="requestPhoto()" [disabled]="!insuranceClaimsForSingleField.length" class="w-3/5 action-button disabled:opacity-50" title="Vraag foto's aan van schade aan dit perceel">
+                                    <p>Foto's aanvragen</p>
+                                </button>
+                            }
                         </div>
                     </div>
-                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                        <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
-                            <p>Terug</p>
-                        </button>
-                        @if(userRole < 2) {
-                            <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 action-button" title="Maak een schadeclaim aan voor dit perceel">
-                                <p>Schadeclaim maken</p>
-                            </button>
-                        }
-                        @else {
-                            <button (click)="requestPhoto()" [disabled]="!insuranceClaimsForSingleField.length" class="w-3/5 action-button disabled:opacity-50" [title]="insuranceClaimsForSingleField.length ? 'Vraag foto\'s aan van schade aan dit perceel' : 'Er zijn geen schadeclaims die het toelaten om foto\'s aan te vragen'">
-                                <p>Foto's aanvragen</p>
-                            </button>
-                        }
-                    </div>
+
                 } 
                 @else if (!isEdit && !requestPhotoForClaim && showFieldAccess ) {
                     <h3>Toegang beheren</h3>

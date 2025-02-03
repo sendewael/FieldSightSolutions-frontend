@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^18.1.0",
     "@angular/platform-browser-dynamic": "^18.1.0",
     "@angular/router": "^18.1.0",
+    "chart.js": "^4.4.7",
     "@bluehalo/ngx-leaflet": "^19.0.0",
     "@bluehalo/ngx-leaflet-draw": "^19.0.0",
     "exif-js": "^2.3.0",

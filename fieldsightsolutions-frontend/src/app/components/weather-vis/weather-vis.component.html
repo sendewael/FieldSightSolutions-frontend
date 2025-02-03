@@ -1,0 +1,27 @@
+<div *ngIf="loading">Loading weather data...</div>
+<div *ngIf="errorMessage">{{ errorMessage }}</div>
+
+<!-- visualiseren van de weerdata in een tabel zonder chartjs -->
+
+<!-- <table *ngIf="weatherData" class="weather-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Max Temp (°C)</th>
+      <th>Min Temp (°C)</th>
+      <th>Precipitation (mm)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let day of weatherData.response">
+      <td>{{ day.date }}</td>
+      <td>{{ day.temperature_2m_max }}°C</td>
+      <td>{{ day.temperature_2m_min }}°C</td>
+      <td>{{ day.precipitation_sum }} mm</td>
+    </tr>
+  </tbody>
+</table> -->
+
+
+<!-- Chart.js Canvas for the weather chart -->
+<canvas id="weatherChart" height="240px"></canvas>
