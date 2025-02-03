@@ -27,6 +27,7 @@ import { RequestedImageService } from '../../api/services/requestedImage/request
 import { ToastComponent } from '../../components/toast/toast.component';
 import { WeatherComponent } from '../../components/weather-vis/weather-vis.component';
 
+
 @Component({
   selector: 'app-map',
   standalone: true,
@@ -108,6 +109,14 @@ export class MapComponent {
   toastClass: string = 'bg-green-500';
   toastHover: string = 'bg-green-400';
 
+  // Zelf perceel tekenen
+  public controlsDrawn: boolean = false
+  private drawControl: L.Control.Draw | null = null;
+  private drawnItems: L.FeatureGroup = new L.FeatureGroup();
+  private allowDrawing = false;
+
+  public navigationState: any = {};
+
   constructor(
     private fieldService: FieldService,
     private userFieldService: UserFieldService,
@@ -115,7 +124,8 @@ export class MapComponent {
     private userService: UserService,
     private insuranceFormService: InsuranceFormService,
     private requestImageService: RequestedImageService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   // --------------------------- ng Methodes ---------------------------- //
@@ -149,6 +159,9 @@ export class MapComponent {
     } else {
       this.router.navigate(['/login']);
     }
+
+    this.navigationState = history.state;
+    console.log(this.navigationState)
   }
 
   // Wordt 1x gerunned na component render en initialiseert de kaart
@@ -165,6 +178,7 @@ export class MapComponent {
 
   // -------------------------- Initialisatie --------------------------- //
 
+  private mapMoveTimeout: any;
   // Deze functie maakt de kaart (zonder polygons)
   private initMap(): void {
     this.map = L.map('map', {
@@ -191,6 +205,14 @@ export class MapComponent {
       const center = this.map?.getCenter();
       if (center) {
         this.mapCenter = [center.lat, center.lng];
+        console.log(this.mapCenter)
+      }
+
+      if (this.newField && !this.selectedNewField) {
+        clearTimeout(this.mapMoveTimeout);
+        this.mapMoveTimeout = setTimeout(() => {
+          this.drawFieldsOnMap();
+        }, 1000);
       }
     });
 
@@ -234,6 +256,7 @@ export class MapComponent {
                 this.noUserFields = true;
                 this.newField = true;
                 this.drawFieldsOnMap();
+                this.drawControls(true);
               } else {
                 this.noUserFields = false;
                 if (!this.selectedField) {
@@ -271,6 +294,34 @@ export class MapComponent {
                     this.isLoading = false;
                   }
                 }
+
+
+                if (this.navigationState) {
+                  const { fieldId, claimId, requestPhotos } = this.navigationState;
+                  if (fieldId) {
+                    this.isLoading = true;
+                    this.focusOnField(fieldId).then(() => {
+                      if (claimId) {
+                        // Wait for selectClaim to finish before continuing
+                        this.selectClaim(claimId).then(() => {
+                          // After selectClaim is done
+                          if (requestPhotos) {
+                            this.requestPhoto();
+                          }
+                          this.isLoading = false; // Hide loading spinner after everything is completed
+                        }).catch(error => {
+                          console.error(error);
+                          this.isLoading = false; // Hide loading spinner in case of error
+                        });
+                      } else {
+                        this.isLoading = false; // Hide loading spinner if no claimId
+                      }
+                    }).catch(error => {
+                      console.error("Error in focusOnField", error);
+                      this.isLoading = false; // Hide loading spinner in case of error
+                    });
+                  }
+                };
               },
               error: (error) => {
                 console.error('getFields() returned niks', error);
@@ -283,84 +334,27 @@ export class MapComponent {
   }
 
   // ------------------------- Polygons tekenen ------------------------- //
+  private drawnPolygons: Map<number, L.Polygon> = new Map();
+  private userFieldPolygons: Map<number, L.Polygon> = new Map();
+  private allFieldPolygons: Map<number, L.Polygon> = new Map();
 
-  // Deze functie zet de polygons op de map voor de userFields
-  // Om dubbel getekende polygons te voorkomen worden deze eerst verwijderd met clearPolygonsOffMap
-  // Voor elk perceel dat tot de user behoord wordt de drawPolygonForField functie uitgevoerd
-  private drawUserFieldsOnMap(): void {
-    this.clearPolygonsOffMap()
-    this.userPercelen.forEach(field => {
-      this.drawPolygonForField(
-        field.id,
-        'blue',
-        'lightblue',
-        id => this.focusOnField(id)
-      );
-    });
-    this.isLoading = false;
-  }
+  private drawPolygonForField(
+    fieldId: number,
+    color: string,
+    fillColor: string,
+    onClickHandler: (id: number) => void,
+    isUserField: boolean
+  ): void {
+    const targetMap = isUserField ? this.userFieldPolygons : this.allFieldPolygons;
 
-  // Deze functie zet de polygons voor alle fields op de map
-  // Indien de user geen percelen heeft, of een nieuw perceel wil toevoegen
-  // Hier wordt de getFieldsInRadius API call voor gebruikt, die het middelpunt van de kaart gebruikt
-  // om vervolgens 1km rond dit middelpunt percelen in te laden (Voorkomen van laden alle percelen)
-  // Er wordt ook gecheckt of een perceel al tot een user behoord, indien ja: verander de kleur van de polygon
-  private drawFieldsOnMap(): void {
-    this.clearPolygonsOffMap()
-    this.isLoading = true;
-    this.fieldsDrawn = 0;
-    this.totalFieldsToDraw = 0;
-    // Deze code moet veranderd worden met de getFieldsInRadius()
-    const [lat, lng] = this.mapCenter;
-    this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
-      next: (fields) => {
-        if (!fields || fields.length === 0) {
-          this.isLoading = false;
-        }
-        this.percelen = fields;
-        this.totalFieldsToDraw = this.percelen.length;
-        this.userFieldService.getUserFields().subscribe({
-          next: (userFields) => {
-            this.percelen.forEach(field => {
-              const isAssigned = userFields.some(uf => uf.field === field.id);
-              const fieldColor = isAssigned ? 'grey' : 'blue';
-              const fillColor = isAssigned ? 'lightgrey' : 'lightblue';
+    if (targetMap.has(fieldId)) {
+      console.log(`Polygon for field ${fieldId} already drawn.`);
+      this.fieldsDrawn++;
+      return;
+    }
 
-              this.drawPolygonForField(
-                field.id,
-                fieldColor,
-                fillColor,
-                id => this.focusOnNewField(id)
-              );
-
-            });
-          },
-          error: (err) => {
-            console.error('Error loading user fields', err);
-          },
-        });
-      },
-      error: (err) => {
-        console.error('Error loading fields in radius', err);
-      },
-    });
-  }
-
-  // Deze functie tekent de polygons voor de map
-  // Voor elk perceel wordt via een API call de coordinaten van zijn hoeken opgehaald
-  // Deze hoeken zorgen uiteindelijk voor de vorm van de polygon
-  private drawPolygonForField(fieldId: number, color: string, fillColor: string, onClickHandler: (id: number) => void): void {
     this.cornerService.getCornersByFieldId(fieldId).subscribe(corners => {
       if (this.map && corners && corners.length > 0) {
-
-        if (this.firstCorner == null && this.userPercelen.length > 0) {
-          this.firstCorner = [
-            parseFloat(corners[0].xCord),
-            parseFloat(corners[0].yCord)
-          ];
-          this.map.setView(this.firstCorner, 13);
-        }
-
         const polygonCoords: [number, number][] = corners.map(corner => [
           parseFloat(corner.xCord),
           parseFloat(corner.yCord),
@@ -373,7 +367,7 @@ export class MapComponent {
         });
 
         polygon.addTo(this.map);
-        this.polygons.push(polygon);
+        targetMap.set(fieldId, polygon);
 
         const fieldName = this.userPercelen.find(field => field.id === fieldId)?.name || `Field ${fieldId}`;
         polygon.bindTooltip(fieldName, {
@@ -388,62 +382,128 @@ export class MapComponent {
         if (this.fieldsDrawn === this.totalFieldsToDraw) {
           this.isLoading = false;
         }
-
       } else {
-        console.error('Error bij het laden van de map, of corners:\ncorners:\n', corners, '\nmap:\n', this.map);
+        console.error('Error loading map or corners:', corners, this.map);
       }
     });
   }
 
-  // Deze functie verwijderd alle polygons van de map om dubbel getekende polygons te voorkomen
-  private clearPolygonsOffMap() {
-    this.polygons.forEach(polygon => polygon.remove());
-    this.highlightedPolygons.forEach(polygon => polygon.remove());
-    this.polygons = [];
-    this.highlightedPolygons = [];
+  private clearUserFieldPolygons(): void {
+    this.userFieldPolygons.forEach(polygon => polygon.remove());
+    this.userFieldPolygons.clear();
   }
+
+  private clearAllFieldPolygons(): void {
+    this.allFieldPolygons.forEach(polygon => polygon.remove());
+    this.allFieldPolygons.clear();
+  }
+
+  private drawUserFieldsOnMap(): void {
+    this.clearAllFieldPolygons();
+    this.clearUserFieldPolygons() // Clear only user fields
+    this.userPercelen.forEach(field => {
+      this.drawPolygonForField(
+        field.id,
+        'green',
+        'lightgreen',
+        id => this.focusOnField(id),
+        true // true indicates user field
+      );
+    });
+    this.isLoading = false;
+  }
+
+  private drawFieldsOnMap(): void {
+    console.log("!!! Draw fields on map called !!!");
+    this.clearUserFieldPolygons(); // Clear only non-user fields
+    this.isLoading = true;
+    this.fieldsDrawn = 0;
+    this.totalFieldsToDraw = 0;
+    const [lat, lng] = this.mapCenter;
+
+    this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
+      next: (fields) => {
+        if (!fields || fields.length === 0) {
+          this.isLoading = false;
+        }
+        this.percelen = fields;
+        this.totalFieldsToDraw = this.percelen.length;
+
+        this.userFieldService.getUserFields().subscribe({
+          next: (userFields) => {
+            this.percelen.forEach(field => {
+              const isAssigned = userFields.some(uf => uf.field === field.id);
+              const fieldColor = isAssigned ? 'grey' : 'green';
+              const fillColor = isAssigned ? 'lightgrey' : 'lightgreen';
+
+              this.drawPolygonForField(
+                field.id,
+                fieldColor,
+                fillColor,
+                id => this.focusOnNewField(id),
+                false // false indicates general field
+              );
+            });
+          },
+          error: (err) => {
+            console.error('Error loading user fields', err);
+          },
+        });
+      },
+      error: (err) => {
+        console.error('Error loading fields in radius', err);
+      },
+    });
+  }
+
 
   // ------------------------- Perceel Focus --------------------------- //
 
   // Deze functie gaat op de kaart naar het perceel dat geselecteerd is
   // Haal de hoeken van het perceel op, en gebruik deze coordinaten om de kaart hier naartoe te brengen
-  focusOnField(fieldId: number): void {
-    this.cornerService.getCornersByFieldId(fieldId).subscribe({
-      next: (corners) => {
-        if (corners.length > 0) {
-          this.setMapCenterFromCorners(corners);
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching corners', error);
-      }
-    });
-
-    // Deze functie gaat voor een verzekeraar ook kijken of het geselecteerde perceel gekoppelde schadeclaims heeft
-    // Dit om de functionaliteit voor foto's aan te vragen aan en uit te zetten
-    if (this.userRole > 1) {
-      this.isLoading = true
-      this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
-        next: (insuranceClaims) => {
-          this.insuranceClaimsForSingleField = insuranceClaims
-          console.log(this.insuranceClaimsForSingleField)
-          this.isLoading = false;
+  focusOnField(fieldId: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // Fetch corners for the map
+      this.cornerService.getCornersByFieldId(fieldId).subscribe({
+        next: (corners) => {
+          if (corners.length > 0) {
+            this.setMapCenterFromCorners(corners);
+          }
         },
         error: (error) => {
-          console.error(error)
+          console.error('Error fetching corners', error);
         }
-      })
-    }
+      });
 
-    const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
-    if (selectedField) {
-      this.selectedField = selectedField;
-      console.log(this.selectedField)
-      this.highlightField(fieldId);
-    }
+      // Fetch insurance claims for user roles > 1
+      if (this.userRole > 1) {
+        this.isLoading = true;
+        this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
+          next: (insuranceClaims) => {
+            this.insuranceClaimsForSingleField = insuranceClaims;
+            console.log(this.insuranceClaimsForSingleField);
+            this.isLoading = false;
+            resolve(); // Resolve when data is ready
+          },
+          error: (error) => {
+            console.error(error);
+            resolve(); // Resolve even on error
+          }
+        });
+      } else {
+        resolve(); // Resolve immediately for other roles
+      }
 
-    this.isOpen = true;
+      const selectedField = this.userPercelen.find(perceel => perceel.id === fieldId);
+      if (selectedField) {
+        this.selectedField = selectedField;
+        this.highlightField(fieldId);
+      }
+
+      this.isOpen = true;
+    });
   }
+
 
   // Deze functie gaat op de map naar het perceel dat geselecteerd is voor nieuwe percelen
   // Hetzelfde principe als bovenstaande functie
@@ -554,6 +614,175 @@ export class MapComponent {
     this.blockMap = false;
   }
 
+  // ------------------------- Perceel tekenen ------------------------- //
+
+  public newDrawnField: FieldRequestDto | null = null;
+  public newDrawnCorners: CornerRequestDto[] = [];
+
+  drawControls(add: boolean): void {
+    if (this.map) {
+      if (!this.map.hasLayer(this.drawnItems)) {
+        this.map.addLayer(this.drawnItems);
+      }
+
+      if (add) {
+        this.addDrawControl(true); // Initial control setup with polygon allowed
+        this.allowDrawing = true;
+      } else {
+        if (this.drawControl) {
+          this.map.removeControl(this.drawControl);
+        }
+        this.allowDrawing = false;
+        this.drawnItems.clearLayers();
+      }
+
+      if (!this.map.hasEventListeners(L.Draw.Event.CREATED)) {
+        this.map.on(L.Draw.Event.CREATED, (event: any) => {
+          if (this.allowDrawing) {
+            const layer = event.layer;
+            this.drawnItems.addLayer(layer);
+            this.handleDrawnPolygon(layer);
+
+            layer.on('click', () => {
+              this.wisGeselecteerdPerceel();
+              const bounds = layer.getBounds();
+              if (this.map) {
+                this.map.fitBounds(bounds, {
+                  padding: [50, 50],
+                  maxZoom: 16,
+                });
+              }
+              console.log('Polygon clicked and centered.');
+            });
+
+            // Remove the current draw control and re-add with polygon disabled
+            if (this.drawControl && this.map) {
+              this.map.removeControl(this.drawControl);
+            }
+            this.addDrawControl(false);
+          }
+        });
+
+        // Handle polygon edits and update corners
+        this.map.on(L.Draw.Event.EDITED, (event: any) => {
+          event.layers.eachLayer((layer: any) => {
+            this.handleDrawnPolygon(layer);
+            console.log('Polygon edited and corners updated.');
+          });
+        });
+
+        // Handle polygon deletions and allow drawing a new one
+        this.map.on(L.Draw.Event.DELETED, () => {
+          console.log('Polygon deleted. Drawing re-enabled.');
+          this.addDrawControl(true); // Re-enable polygon drawing
+          this.allowDrawing = true;
+        });
+      }
+    }
+  }
+
+  private addDrawControl(enablePolygon: boolean): void {
+    if (this.drawControl && this.map) {
+      this.map.removeControl(this.drawControl);
+    }
+
+    this.drawControl = new L.Control.Draw({
+      position: 'topleft',
+      draw: {
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        polygon: enablePolygon ? {} : false,
+      },
+      edit: {
+        featureGroup: this.drawnItems,
+        remove: true, // Enable delete option
+      },
+    });
+
+    if (this.map)
+      this.map.addControl(this.drawControl);
+  }
+
+  private handleDrawnPolygon(layer: any): void {
+    const latLngs = layer.getLatLngs();
+
+    // Reset corners
+    this.newDrawnCorners = latLngs[0].map((latLng: any, index: number) => ({
+      field: 0,
+      index: index,
+      xCord: latLng.lat.toString(),
+      yCord: latLng.lng.toString(),
+    }));
+
+    this.newDrawnField = {
+      name: '',
+      acreage: '',
+      municipality: '',
+      postalcode: '',
+      crop: '',
+    };
+
+    console.log('Updated polygon corners:', this.newDrawnCorners);
+  }
+
+
+  addNewDrawnField(): void {
+    if (this.newDrawnField) {
+      this.fieldService.createField(this.newDrawnField).subscribe({
+        next: (response) => {
+          console.log("field created ", response)
+          console.log(response.id)
+
+          if (this.newDrawnCorners && this.newDrawnCorners.length > 0) {
+            // Set the fieldId to the response.id (field ID from the newly created field)
+            this.newDrawnCorners.forEach((corner) => {
+              corner.field = response.id; // Assign the fieldId from the response
+            });
+            console.log(this.newDrawnCorners)
+
+            // Send all corners in one request
+            this.cornerService.createCorner(this.newDrawnCorners).subscribe({
+              next: (cornerResponse) => {
+                console.log("Corners created:", cornerResponse);
+                const userField: UserFieldRequestDto = {
+                  user: this.userId,
+                  field: response.id,
+                  grantedEmails: [],
+                };
+
+                this.userFieldService.addUserField(userField).subscribe({
+                  next: (response) => {
+                    console.log(response)
+                    this.newDrawnField = null
+                    this.newDrawnCorners = []
+                    this.newField = false
+                    this.loadUserFields(this.userId)
+                    this.drawnItems.clearLayers();
+                    this.drawControls(false);
+                  },
+                  error: (error) => {
+                    console.error(error)
+                  }
+                })
+              },
+              error: (error) => {
+                console.error("Error creating corners:", error);
+              }
+            });
+          }
+
+
+        },
+        error: (error) => {
+          console.error(error)
+        }
+      })
+    }
+  }
+
   // ------------------------ Perceel toevoegen ------------------------ //
 
   // Deze functie zorgt voor het kunnen toevoegen van een nieuw perceel
@@ -562,9 +791,16 @@ export class MapComponent {
     if (!this.newField) {
       this.drawUserFieldsOnMap();
       this.wisGeselecteerdPerceel();
+      // Zelf perceel tekenen
+      this.drawControls(false);
+      this.newDrawnField = null
+      this.newDrawnCorners = []
     } else {
       this.drawFieldsOnMap();
+      // Zelf perceel tekenen
+      this.drawControls(true);
     }
+
   }
 
   // Als de user een nieuw perceel gekozen heeft en dit toevoegd, wordt deze functie gebruikt
@@ -593,7 +829,7 @@ export class MapComponent {
 
           this.openPerceelToevoegen();
           this.loadUserFields(this.userId);
-          this.drawUserFieldsOnMap();
+          // this.drawUserFieldsOnMap();
         },
         error: (error) => {
           console.error('Error adding user field', error);
@@ -874,6 +1110,7 @@ export class MapComponent {
       perceel.name.toLowerCase().includes(this.filterText.toLowerCase()) ||
       perceel.municipality.toLowerCase().includes(this.filterText.toLowerCase()) ||
       perceel.postalcode.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      perceel.id.toString().toLowerCase().includes(this.filterText.toLowerCase()) ||
       (this.userRole < 2
         ? perceel.crop.toLowerCase().includes(this.filterText.toLowerCase())
         : perceel.user_name?.toLowerCase().includes(this.filterText.toLowerCase()))
@@ -899,19 +1136,25 @@ export class MapComponent {
   // Deze functie zoomt de map ook in
   requestPhoto(): void {
     this.requestPhotoForClaim = !this.requestPhotoForClaim
-    if (this.map) {
-      this.map.setZoom(17)
-    }
+    // if (this.map) {
+    //   this.map.setZoom(17)
+    // }
   }
 
   // Deze functie zorgt voor het bijhouden van de geselecteerde schadeclaim, en maakt de kaart clickable
-  selectClaim(claimId: number): void {
-    const selectedClaim = this.insuranceClaimsForSingleField.find(claim => claim.id === claimId)
-    if (selectedClaim) {
-      this.selectedClaim = selectedClaim
-      console.log(this.selectedClaim)
-    }
-    this.mapIsClickable = true;
+  selectClaim(claimId: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const selectedClaim = this.insuranceClaimsForSingleField.find(claim => claim.id === claimId);
+
+      if (selectedClaim) {
+        this.selectedClaim = selectedClaim;
+        console.log(this.selectedClaim);
+        this.mapIsClickable = true;
+        resolve(); // Resolve the promise when the claim is selected successfully
+      } else {
+        reject(new Error("Claim not found"));
+      }
+    });
   }
 
   // Indien er vanuit het "Foto's aanvragen" scherm terug of opslaan geklikt wordt

@@ -19,6 +19,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;  // Track dropdown visibility
   private apiUrl = `${environment.baseUrl}`;
   private routerSubscription: any;
+  public userRole: number = 0;
 
   constructor(private http: HttpClient, private router: Router, private userService: UserService) { }
 
@@ -30,7 +31,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (storedAuthStatus && storedUser) {
       this.authenticated = JSON.parse(storedAuthStatus);
       const user = JSON.parse(storedUser);
-      this.name = 'Hallo ' + user.firstName;
+      this.name = 'Hallo ' + user.firstName + '!';
 
       // Emit authentication state and user data
       Emitters.authEmitter.emit(this.authenticated);
@@ -53,8 +54,24 @@ export class NavigationComponent implements OnInit, OnDestroy {
       if (event instanceof NavigationStart) {
         this.isDropdownOpen = false;
       }
+      if (event instanceof NavigationStart && this.authenticated) {
+        this.checkUserRole();
+      }
     });
   }
+
+  private checkUserRole(): void {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      this.userService.getUserById(user.id).subscribe({
+        next: user => {
+          this.userRole = user.userRole_id;
+        }
+      });
+    }
+  }
+
 
   ngOnDestroy(): void {
     // Unsubscribe from the router events

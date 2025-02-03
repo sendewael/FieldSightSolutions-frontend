@@ -2,6 +2,7 @@ export interface InsuranceFormResponseDto {
   id: number;
   damage: number; // ID van het gerelateerde damage-object
   field: {
+    id: number,
     name: string; // Veldnaam
     acreage: string; // Oppervlakte
     crop: string; // Gewas

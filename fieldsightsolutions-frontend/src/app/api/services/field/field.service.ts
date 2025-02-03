@@ -3,6 +3,7 @@ import { FieldResponsetDto } from '../../dtos/Field/Field-response-dto';
 import { environment } from '../../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { FieldRequestDto } from '../../dtos/Field/Field-request-dto';
 
 
 @Injectable({
@@ -39,5 +40,9 @@ export class FieldService {
   // Fetch fields based on userId
   getFieldById(selectedFieldId: number): Observable<FieldResponsetDto[]> {
     return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/${selectedFieldId}`, { withCredentials: true });
+  }
+
+  createField(newField: FieldRequestDto): Observable<FieldResponsetDto> {
+    return this.http.post<FieldResponsetDto>(`${this.apiUrl}/`, newField);
   }
 }
