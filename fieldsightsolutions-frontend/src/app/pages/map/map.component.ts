@@ -13,7 +13,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 import { UserFieldRequestDto } from '../../api/dtos/UserField/UserField-request-dto';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserFieldResponseDto } from '../../api/dtos/UserField/UserField-response-dto';
 import { UserResponseDto } from '../../api/dtos/User/User-response-dto';
 import { UserService } from '../../api/services/user/user.service';
@@ -26,6 +26,8 @@ import { ClaimKnopComponent } from '../../components/claim-knop/claim-knop.compo
 import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
 import { ToastComponent } from '../../components/toast/toast.component';
 import { WeatherComponent } from '../../components/weather-vis/weather-vis.component';
+import { FieldRequestDto } from '../../api/dtos/Field/Field-request-dto';
+import { CornerRequestDto } from '../../api/dtos/Corner/Corner-request-dto';
 
 
 @Component({
