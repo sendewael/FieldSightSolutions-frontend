@@ -64,6 +64,8 @@ export class SchadeclaimFormComponent implements OnInit {
     fieldRisico: false,
     description: "//",
     insurance: false,
+    schade_nietverzekerd: false,
+    percentage_teeltareaal: 0,
   };
 
   user = {
@@ -193,8 +195,6 @@ export class SchadeclaimFormComponent implements OnInit {
   }
 
 
-
-
   //fetch the user
   fetchUserData(): void {
     this.userService.getUser()
@@ -237,8 +237,6 @@ export class SchadeclaimFormComponent implements OnInit {
     });
 
 
-
-
     //requested Images
     this.requestedImageService.getImages(claimId)
       .subscribe({
@@ -273,7 +271,9 @@ export class SchadeclaimFormComponent implements OnInit {
           this.fieldId = claim[0].field.id || 1; // Ensure fieldId is set
           this.schadeclaimForm.id = claim[0].id || undefined
           this.schadeclaimForm.description = claim[0].description || "",
-            this.schadeclaimForm.insurance = claim[0].insurance || false
+            this.schadeclaimForm.insurance = claim[0].insurance || false,
+            this.schadeclaimForm.schade_nietverzekerd = claim[0].schade_nietverzekerd || false,
+            this.schadeclaimForm.percentage_teeltareaal = claim[0].percentage_teeltareaal || 0
 
 
           // Only proceed with fetching field data if fieldId is defined
@@ -366,6 +366,8 @@ export class SchadeclaimFormComponent implements OnInit {
       endDate: this.schadeclaimForm.endDate,
       description: this.schadeclaimForm.description,
       insurance: this.schadeclaimForm.insurance,
+      schade_nietverzekerd: this.schadeclaimForm.schade_nietverzekerd,
+      percentage_teeltareaal: this.schadeclaimForm.percentage_teeltareaal,
       status: 1,
     };
 
@@ -398,6 +400,8 @@ export class SchadeclaimFormComponent implements OnInit {
       endDate: this.schadeclaimForm.endDate,
       description: this.schadeclaimForm.description,
       insurance: this.schadeclaimForm.insurance,
+      schade_nietverzekerd: this.schadeclaimForm.schade_nietverzekerd,
+      percentage_teeltareaal: this.schadeclaimForm.percentage_teeltareaal,
       status: 2,
     };
 
