@@ -1,0 +1,35 @@
+<div class="fixed bottom-7 left-3 z-50">
+	<div (click)="toggleChat()" class="w-16 h-16 bg-green-800 hover:bg-green-700 transition-all rounded-full flex items-center justify-center text-white text-2xl cursor-pointer">
+		<img src="icons/chat.png" alt="" height="30" width="30">
+	</div>
+    @if(isChatOpen) {
+        <div class="fixed bottom-24 left-3 w-96 h-[500px] bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
+            <div class="px-2 py-3 bg-green-600 text-white flex justify-between items-center">
+                <span>Harm de Chatbot</span>
+                <button (click)="toggleChat()" class="bg-none border-none text-white cursor-pointer text-lg hover:brightness-90 transition-all">
+                    <img src="icons/close.png" alt width="23" height="23">
+                </button>
+            </div>
+            <div class="py-2 px-2 flex space-x-3 overflow-x-auto border-b border-gray-300">
+                @for(predefined of predefinedMessages; track $index) {
+                    <button (click)="sendPredefinedMessage(predefined)" class="bg-gray-200 text-black rounded-md px-3 h-10 text-sm cursor-pointer hover:bg-gray-300 transition-all items-center whitespace-nowrap">
+                        {{ predefined }}
+                    </button>
+                }
+            </div>
+            <div class="flex flex-col flex-1 p-2 overflow-y-auto">
+                @for(message of messages; track $index) {
+                    <div [class]="message.user ? 'self-end bg-green-800 text-white' : 'self-start bg-gray-200 text-black'" class="my-1 p-2 rounded-md max-w-[80%] text-sm">
+                        {{ message.text }}
+                    </div>
+                }
+            </div>
+            <div class="flex py-2 px-2 border-t border-gray-300">
+                <input [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" type="text" placeholder="Stel me een vraag..." class="flex-1 p-2 h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+                <button [disabled]="!userMessage.length" (click)="sendMessage()" class="ml-2 bg-green-800 h-10 text-white border-none p-2 rounded-md disabled:opacity-50 hover:bg-green-700 transition-all">
+                    <img src="icons/send.png" alt width="20" height="20">
+                </button>
+            </div>
+	    </div>
+    }
+</div>

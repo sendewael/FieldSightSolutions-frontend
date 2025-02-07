@@ -1,9 +1,11 @@
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Router, NavigationStart, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
 import { Emitters } from '../../Auth/emitters/emitters';
 import { UserService } from '../../api/services/user/user.service';
+import { environment } from '../../../environments/environment.development';
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-navigation',
   standalone: true,
@@ -11,10 +13,13 @@ import { UserService } from '../../api/services/user/user.service';
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.css'
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent implements OnInit, OnDestroy {
   name = '';
   authenticated = false;
   isDropdownOpen = false;  // Track dropdown visibility
+  private apiUrl = `${environment.baseUrl}`;
+  private routerSubscription: any;
+  public userRole: number = 0;
 
   constructor(private http: HttpClient, private router: Router, private userService: UserService) { }
 
@@ -26,7 +31,7 @@ export class NavigationComponent implements OnInit {
     if (storedAuthStatus && storedUser) {
       this.authenticated = JSON.parse(storedAuthStatus);
       const user = JSON.parse(storedUser);
-      this.name = 'Hallo ' + user.firstName;
+      this.name = 'Hallo ' + user.firstName + '!';
 
       // Emit authentication state and user data
       Emitters.authEmitter.emit(this.authenticated);
@@ -43,6 +48,36 @@ export class NavigationComponent implements OnInit {
         this.name = ''; // Clear name if user is logged out
       }
     });
+
+    // Listen to router events to close the dropdown on navigation
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.isDropdownOpen = false;
+      }
+      if (event instanceof NavigationStart && this.authenticated) {
+        this.checkUserRole();
+      }
+    });
+  }
+
+  private checkUserRole(): void {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      this.userService.getUserById(user.id).subscribe({
+        next: user => {
+          this.userRole = user.userRole_id;
+        }
+      });
+    }
+  }
+
+
+  ngOnDestroy(): void {
+    // Unsubscribe from the router events
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   // Toggle dropdown visibility
@@ -65,9 +100,7 @@ export class NavigationComponent implements OnInit {
   fetchUserData(): void {
     this.userService.getUser()
       .subscribe(
-        
         (res: any) => {
-          this.name = 'Hallo ' + res.firstName;
           this.name = 'Hallo ' + res.firstName + '!';
 
           // Save authentication status and user data in localStorage
@@ -87,7 +120,9 @@ export class NavigationComponent implements OnInit {
   }
 
   logout(): void {
-    this.http.post('http://localhost:8000/api/logout', {}, { withCredentials: true })
+    const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+
+    this.http.post(logoutUrl, {}, { withCredentials: true })
       .subscribe(() => {
         this.authenticated = false;
         this.name = '';
@@ -99,6 +134,10 @@ export class NavigationComponent implements OnInit {
         // Emit unauthenticated state
         Emitters.authEmitter.emit(false);
         Emitters.userEmitter.emit(null);
+
+        // Reset dropdown state
+        this.isDropdownOpen = false;
+
         this.router.navigate(['/login']);
       });
   }

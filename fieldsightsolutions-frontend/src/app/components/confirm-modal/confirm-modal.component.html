@@ -1,5 +1,5 @@
 @if(showModal) {
-<div class="w-full h-screen backdrop-blur-xs absolute top-0 left-0 z-50">
+<!-- <div class="w-full h-screen backdrop-blur-xs absolute top-0 left-0 z-50">
     <div
         class="bg-white h-36 w-96 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50 rounded-md flex flex-col justify-center items-center border-4 border-green-800 shadow-sm">
         <div class="text-center">
@@ -13,6 +13,19 @@
                 Bevestig
             </button>
         </div>
+    </div>
+</div> -->
+<div class="confirmmodal">
+    <div class="flex justify-center items-center height-nav">
+        <p>U staat op het punt dit perceel uit uw lijst te verwijderen, bent u zeker?</p>
+    </div>
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+        <button (click)="closeModal()" type="button" class="w-3/5 mr-3 action-button">
+            <p>Annuleer</p>
+        </button>
+        <button (click)="confirmModal()" type="button" class="w-3/5 action-button-danger">
+            <p>Bevestig</p>
+        </button>
     </div>
 </div>
 }

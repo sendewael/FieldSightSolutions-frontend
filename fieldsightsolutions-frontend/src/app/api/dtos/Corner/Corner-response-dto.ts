@@ -1,6 +1,6 @@
 export interface CornerResponseDto {
     id: number;
-    fieldId: number;
+    field: number;
     index: number;
     xCord: string;
     yCord: string;

@@ -9,7 +9,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class WeatherIconComponent implements OnInit {
   @Input() prediction: string = '';
-  iconPath: string = 'nietGevonden.svg';
+  iconPath: string = 'nietGevonden.png';
   iconAlt: string = 'Onbekend';
 
   constructor() { }
@@ -20,10 +20,10 @@ export class WeatherIconComponent implements OnInit {
 
   setIcon(): void {
     const weatherIcons: { [key: string]: string } = {
-      "Helder": "Helder.png",
-      "Overwegend helder tot bewolkt": "OverwegendHelder.png",
-      "Mist, mogelijks met vorst": "Mist.png",
-      "Motregen": "Motregen.png",
+      "helder": "Helder.png",
+      "overwegend helder tot bewolkt": "OverwegendHelder.png",
+      "mist, mogelijks met vorst": "Mist.png",
+      "motregen": "Motregen.png",
       "motregen met kans op smeltende sneeuw": "Motregen.png",
       "regen met kans op smeltende sneeuw": "Regen.png",
       "regen": "Regen.png",
@@ -33,6 +33,7 @@ export class WeatherIconComponent implements OnInit {
       "Sneeuwbuien": "Sneeuwbuien.png",
       "Onweer": "Onweer.png",
       "Onweer met hagel": "OnweerHagel.png"
+
     };
 
     if (weatherIcons[this.prediction]) {

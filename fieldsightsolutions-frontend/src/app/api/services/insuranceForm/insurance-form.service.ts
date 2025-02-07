@@ -28,20 +28,23 @@ export class InsuranceFormService {
   postInsuranceformById(userId: number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
     return this.http.post<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`, formdata, { withCredentials: true });
   }
-    
-  putInsuranceform(formId:number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
+
+  putInsuranceform(formId: number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
     return this.http.put<InsuranceFormResponseDto[]>(`${this.apiUrl}/edit/${formId}`, formdata, { withCredentials: true });
-    
+
   }
   getInsuranceclaimsByUserId(userId: number): Observable<InsuranceFormResponseDto[]> {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`);
+  }
 
+  getInsuranceClaimsByFieldAndStatus(field_id: number, status: number): Observable<InsuranceFormResponseDto[]> {
+    return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/field/${field_id}/status/${status}`);
   }
 
   putInsuranceformById(insuranceformId: number, formdata: InsuranceFormResponseDto): Observable<InsuranceFormResponseDto> {
     return this.http.put<InsuranceFormResponseDto>(`${this.apiUrl}/edit/${insuranceformId}`, formdata);
   }
-  
+
   getInsuranceformsByUserIdByAccessToUserField(
     loggedInUserId: number,
     targetUserId: number
@@ -55,6 +58,6 @@ export class InsuranceFormService {
       }
     );
   }
-  
-  
+
+
 }

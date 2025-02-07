@@ -1,0 +1,23 @@
+.weather-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .weather-table th,
+  .weather-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .weather-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  .chart {
+    width: 100%;
+    height: 400px;
+  }
+  

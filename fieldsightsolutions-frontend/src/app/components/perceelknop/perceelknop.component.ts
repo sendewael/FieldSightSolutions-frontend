@@ -13,5 +13,6 @@ import { NgClass } from '@angular/common';
 export class PerceelknopComponent {
 
   @Input() perceel!: FieldResponsetDto;
+  @Input() userRole!: number;
 
 }

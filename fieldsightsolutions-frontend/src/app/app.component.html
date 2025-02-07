@@ -1,6 +1,7 @@
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col bg-gray-50">
     <!-- Header -->
     <app-navigation></app-navigation>
+    
   
     <!-- Main content -->
     <main class="flex-grow">
@@ -8,6 +9,7 @@
     </main>
   
     @if(!router.url.includes('login')) {
+      <app-chat-widget></app-chat-widget>
       <app-footer></app-footer>
     }
   </div>
