@@ -26,7 +26,7 @@ export class WeatherIconComponent implements OnInit {
       "Motregen": "Motregen.png",
       "motregen met kans op smeltende sneeuw": "Motregen.png",
       "regen met kans op smeltende sneeuw": "Regen.png",
-      "Regen": "Regen.png",
+      "regen": "Regen.png",
       "Sneeuwval": "Sneeuw.png",
       "Ijzel": "Ijzel.png",
       "Regenbuien": "Regenbuien.png",
