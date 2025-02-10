@@ -4,19 +4,19 @@ FROM nginx:alpine
 RUN apk add --no-cache nodejs npm
 
 # Set environment variable
-ENV BASE_URL "http://ikbensupercool:8000"
+ENV BASE_URL "http://placeholder:8000"
 
 # Expose port 80
 EXPOSE 80
 
 # Copy project files
-COPY . /app
+COPY . fieldsightsolutions-frontend/app
 
 # Install dependencies and Angular CLI
 WORKDIR /app
 RUN npm install --legacy-peer-deps && npm install -g @angular/cli
 
-# Remove lines from leaflet.css that reference .png files
+# Remove lines from leaflet.css
 RUN sed -i '/background-image: url(images\/layers.png);/d' node_modules/leaflet/dist/leaflet.css && \
     sed -i '/background-image: url(images\/layers-2x.png);/d' node_modules/leaflet/dist/leaflet.css && \
     sed -i '/background-image: url(images\/marker-icon.png);/d' node_modules/leaflet/dist/leaflet.css

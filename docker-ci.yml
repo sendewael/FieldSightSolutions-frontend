@@ -1,0 +1,29 @@
+variables:
+  DOCKER_IMAGE: "$CI_REGISTRY/$CI_PROJECT_PATH/frontend"
+
+docker-build:
+  services:
+    - docker:20.10.16-dind
+  stage: docker-build
+  image: docker:20.10.16
+  only:
+    refs:
+      - main
+    changes:
+      - Dockerfile
+      - .dockerignore
+      - entrypoint.sh
+      - fieldsightsolutions-frontend/**
+  before_script:
+    - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+        TAG="main"
+      elif [[ "$CI_COMMIT_BRANCH" == "dev" ]]; then
+        TAG="dev"
+      else
+        exit 1
+      fi
+    - docker build -t $DOCKER_IMAGE:$TAG .
+    - docker push $DOCKER_IMAGE:$TAG
