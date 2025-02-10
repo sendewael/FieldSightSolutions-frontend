@@ -22,10 +22,10 @@ export class WeatherModalComponent implements OnInit {
 
   setModalProperties(): void {
     const redConditions = [
-      "Regenbuien",
-      "Sneeuwbuien",
-      "Onweer",
-      "Onweer met hagel"
+      "regenbuien",
+      "sneeuwbuien",
+      "onweer",
+      "onweer met hagel"
     ];
 
     if (redConditions.includes(this.prediction)) {

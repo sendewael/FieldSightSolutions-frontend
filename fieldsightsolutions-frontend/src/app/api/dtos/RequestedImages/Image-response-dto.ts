@@ -1,8 +1,8 @@
 export interface RequestedImageResponseDto {
     id: number;
-    insuranceFormId: number;
-    fileName: string;
+    insuranceform: number;
+    // fileName: string;
     xCord: string;
     yCord: string;
-    date: Date;
+    date: string;
 }

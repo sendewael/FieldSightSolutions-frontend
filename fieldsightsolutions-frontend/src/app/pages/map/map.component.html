@@ -1,3 +1,13 @@
+<app-toast [message]="toastMessage" [toastClass]="toastClass" [toastHover]="toastHover" [timeout]="3000" #toast></app-toast>
+
+@if(blockMap) {
+    <div class="w-full h-screen absolute top-0 left-0 z-40">
+        <div class="bg-gray-50 h-12 rounded-md shadow-sm absolute left-1/2 -translate-x-1/2 top-24 px-3 flex justify-center items-center">
+            <p>Kaart geblokkeerd. Voltooi uw actie in het beheerscherm.</p>
+        </div>
+    </div>
+}
+
 <!-- Deze div bevat het hele menu -->
 <div class="overflow-hidden">
     <div id="percelenManager" [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen}" class="percelenManager transform transition-all duration-300 ease-in-out" [class.open]="isOpen">
@@ -5,279 +15,404 @@
         <!-- Laat een loader zien bij laden (bijv. API calls die uitgevoerd worden, methodes die uitgevoerd worden) -->
         @if(isLoading) {
             <app-loader></app-loader>
-        } @else {
-        @if(!newField && !selectedField && !manageAccess){
-            <div class="flex justify-center items-center relative mb-3">
-                <p class="text-green-800 text-2xl">{{ warningFields ? 'Gevaar percelen' : (userRole === 1 ? 'Mijn percelen' : 'Percelen') }}</p>
-                @if(checkWeatherPrediction()) {
-                  <button (click)="toggleWarningFields()" class="ml-3 animate-pulse" title="Bekijk percelen met een waarschuwing">
-                    <img src="icons/weather/warning.png" alt="" height="25px" width="25px">
-                  </button>
+        } 
+        @else {
+            @if(!newField && !selectedField && !manageAccess){
+                <div class="flex justify-center items-center relative mb-3">
+                    <p class="text-green-800 text-2xl">{{ warningFields ? 'Gevaar percelen' : (userRole === 1 ? 'Mijn percelen' : 'Percelen') }}</p>
+                    @if(checkWeatherPrediction() && userRole < 2) {
+                        <button (click)="toggleWarningFields()" class="ml-3 animate-pulse" title="Bekijk percelen met een waarschuwing">
+                            <img src="icons/weather/warning.png" alt="" height="25px" width="25px">
+                        </button>
+                    }
+                </div>
+                @if(!noUserFields) {
+                    <div class="relative w-full h-10 mb-3">
+                        <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" [placeholder]="userRole === 1 ? 'Zoek op nr, perceelnaam, gewas of gemeente' : 'Zoek op nr, perceelnaam, eigenaar of gemeente'" />
+                        <button *ngIf="filterText" (click)="clearFilterText()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-800 hover:text-green-700 focus:outline-none">
+                            <p class="font-bold">✕</p>
+                        </button>
+                    </div>
+                    <div class="full-height-minus-72 overflow-y-auto">
+                    @for (perceel of filteredUserPercelen; track $index) {
+                        <app-perceelknop [perceel]="perceel" [userRole]="userRole" (click)="focusOnField(perceel.id)"></app-perceelknop>
+                    }
+                    </div>
                 }
-              </div>
-        <input [(ngModel)]="filterText" type="text" class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Zoek op naam, gewas of gemeente" />
-        <div class="full-height-minus-72 overflow-y-auto">
-            @for (perceel of filteredUserPercelen; track $index) {
-            <app-perceelknop [perceel]="perceel" (click)="focusOnField(perceel.id)"></app-perceelknop>
-            }
-        </div>
-        @if(userRole < 2 && !warningFields) {
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button (click)="openPerceelToevoegen()" class="w-3/5 mr-3 action-button" title="Voeg een perceel toe aan uw percelenlijst">
-                    <p>Voeg perceel toe</p>
-                </button>
-                <button (click)="toggleToegangBeheren()" class="w-3/5 action-button" title="Beheer toegang voor al uw percelen">
-                    <p>Toegang beheren</p>
-                </button>
-            </div>
-        } @else if(userRole < 2 && warningFields) {
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button (click)="toggleWarningFields()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 transition-all" title="Bekijk al uw percelen">
-                    <p>Terug</p>
-                </button>
-            </div>
-        }
-        } @else if( manageAccess ) {
-            <h3>Alg. Toegang beheren</h3>
-            <select id="userSelection" [(ngModel)]="emailPermissionUser" (ngModelChange)="addEmailToList()" class="w-full h-10 p-2 mb-3 border border-gray-300 rounded-md">
-                <option disabled selected value="">Selecteer een persoon</option>
+                @else if(noUserFields && userRole > 1) {
+                    <p>U kan nog geen percelen bekijken. Vraag de landbouwer u toegang te geven tot zijn perceel.</p>
+                }
+                @if(userRole < 2 && !warningFields) {
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                        <button button (click)="openPerceelToevoegen()" class="w-3/5 mr-3 action-button" title="Voeg een perceel toe aan uw percelenlijst">
+                            <p>Voeg perceel toe</p>
+                        </button>
+                        <button (click)="toggleToegangBeheren()" class="w-3/5 action-button" title="Beheer toegang voor al uw percelen">
+                            <p>Toegang beheren</p>
+                        </button>
+                    </div>
+                } 
+                @else if(userRole < 2 && warningFields) {
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                        <button (click)="toggleWarningFields()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 transition-all" title="Bekijk al uw percelen">
+                            <p>Terug</p>
+                        </button>
+                    </div>
+                }
+            } 
+            @else if( manageAccess ) {
+                <h3>Alg. Toegang beheren</h3>
+                <select id="userSelection" [(ngModel)]="emailPermissionUser" (ngModelChange)="addEmailToList()" class="w-full h-10 p-2 mb-3 border border-gray-300 rounded-md">
+                    <option disabled selected value="">Selecteer een persoon</option>
                     @for (user of allGrantedUsers; track $index) {
-                <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
-                }
-            </select>
-            <p class="text-left pb-3">{{ globalEmailList.length > 0 ? 'Deze personen hebben toegang tot al uw percelen:' : 'U heeft nog geen personen toegelaten' }}</p>
+                        <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
+                    }
+                </select>
+                <p class="text-left pb-3">{{ globalEmailList.length > 0 ? 'Deze personen hebben toegang tot al uw percelen.' : 'U heeft nog geen personen toegelaten tot al uw percelen.' }}</p>
                 @for(email of globalEmailList; track $index) {
                     <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
                         <p class="flex-1 text-left">
-                          {{ email }}
+                            {{ email }}
                         </p>
                         <button (click)="removeEmail($index)" class="ml-2 "><img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all"></button>
-                      </div>
-                }
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button (click)="toggleToegangBeheren()" class="w-3/5 mr-3 action-button">
-                    <p>Terug</p>
-                </button>
-                <button (click)="giveGlobalPermission()" class="w-3/5 action-button">
-                    <p>Opslaan</p>
-                </button>
-            </div>
-        } @else if ( selectedField ) {
-        @if(!isEdit && !showFieldAccess) {
-        <div>
-                <h3>{{ selectedField.name }}</h3>
-                @if(userRole < 2) {
-                    <div class="flex items-center justify-center absolute right-3 top-32">
-                        <button (click)="toggleFieldAccess()" class="" title="Beheer toegang voor dit perceel">
-                            <img src="icons/person.svg" alt="Toegang" width="18" height="18" class="brightness-100 hover:brightness-90 transition-all mr-1">
-                        </button>
-                        <button (click)="editPerceel()" class="" title="Bewerk dit perceel">
-                            <img src="icons/pencil.svg" alt="Bewerk" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
-                        </button>
-                        <button (click)="deleteUserField()" class="" title="Verwijder dit perceel">
-                            <img src="icons/bin.svg" alt="Verwijder" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
-                        </button>
                     </div>
                 }
-            <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
-            <div class="text-left full-height-minus-72 overflow-y-auto">
-                <label class="text-sm pb-2 ml-1">Naam</label>
-                <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                    {{ selectedField.name }}
-                </p>
-                <label class="text-sm pb-2 ml-1">Gewas</label>
-                <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                    {{ selectedField.crop }}
-                </p>
-                <label class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
-                <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                    {{ selectedField.acreage }}
-                </p>
-                <div class="flex space-x-3">
-                    <div class="flex flex-col w-1/2">
-                      <label class="text-sm pb-2 ml-1">Gemeente</label>
-                      <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                        {{ selectedField.municipality }}
-                      </p>
-                    </div>
-                    <div class="flex flex-col w-1/2">
-                      <label class="text-sm pb-2 ml-1">Postcode</label>
-                      <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                        {{ selectedField.postalcode }}
-                      </p>
-                    </div>
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                    <button (click)="cancelGlobalFieldAccess()" class="w-3/5 mr-3 action-button">
+                        <p>Terug</p>
+                    </button>
+                    <button (click)="giveGlobalPermission()" class="w-3/5 action-button">
+                        <p>Opslaan</p>
+                    </button>
                 </div>
-            </div>
-            
-        </div>
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-            <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
-                <p>Terug</p>
-            </button>
-            <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 action-button" title="Maak een schadeclaim aan voor dit perceel">
-                <p>Schadeclaim maken</p>
-            </button>
-        </div>
-        } @else if (!isEdit && showFieldAccess ) {
-            <h3>Toegang beheren</h3>
-            <select id="userSelection" [(ngModel)]="emailPermissionUser" (ngModelChange)="addEmailToSingleFieldList()" class="w-full h-10 p-2 mb-3 border border-gray-300 rounded-md">
-                <option disabled selected value="">Selecteer een persoon</option>
-                    @for (user of allGrantedUsers; track $index) {
-                <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
-                }
-            </select>
-            <p class="text-left pb-3">
-                {{ singleFieldEmailList.length > 0 ? 'Deze personen hebben toegang tot ' + selectedField.name + ':' : 'U heeft nog geen personen toegelaten' }}
-              </p>
-            @for(email of singleFieldEmailList; track $index) {
-                <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
-                    <p class="flex-1 text-left">
-                      {{ email }}
+            } 
+            @else if ( selectedField ) {
+                @if(!isEdit && !showFieldAccess && !requestPhotoForClaim) {
+                    <div class="overflow-auto">
+                        <h3>{{ selectedField.name }}</h3>
+                        @if(userRole < 2) {
+                            <div class="flex items-center justify-center absolute right-3 top-32">
+                                <button (click)="toggleFieldAccess()" class="" title="Beheer toegang voor dit perceel">
+                                    <img src="icons/person.svg" alt="Toegang" width="18" height="18" class="brightness-100 hover:brightness-90 transition-all mr-1">
+                                </button>
+                                <button (click)="editPerceel()" class="" title="Bewerk dit perceel">
+                                    <img src="icons/pencil.svg" alt="Bewerk" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
+                                </button>
+                                <button (click)="deleteUserField()" class="" title="Verwijder dit perceel">
+                                    <img src="icons/bin.svg" alt="Verwijder" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
+                                </button>
+                            </div>
+                        }
+                        @if(userRole < 2) {
+                            <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
+                        }
+                        <div class="text-left full-height-minus-72">
+                            <label class="text-sm pb-2 ml-1">Perceelnaam</label>
+                            <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.name }}
+                            </p>
+                            @if(userRole > 1) {
+                            <label class="text-sm pb-2 ml-1">Eigenaar</label>
+                            <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.user_name }}
+                            </p>
+                            }
+                            <label class="text-sm pb-2 ml-1">Gewas</label>
+                            <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.crop }}
+                            </p>
+                            <label class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                            <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.acreage }}
+                            </p>
+                            <div class="flex space-x-3">
+                                <div class="flex flex-col w-1/2">
+                                <label class="text-sm pb-2 ml-1">Gemeente</label>
+                                <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                    {{ selectedField.municipality }}
+                                </p>
+                                </div>
+                                <div class="flex flex-col w-1/2">
+                                <label class="text-sm pb-2 ml-1">Postcode</label>
+                                <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                    {{ selectedField.postalcode }}
+                                </p>
+                                </div>
+                            </div>
+                            <!-- weervisualisatie -->
+                            <app-weather [fieldId]="selectedField.id" class="h-72 mt-4"></app-weather>
+                        </div>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
+                                <p>Terug</p>
+                            </button>
+                            @if(userRole < 2) {
+                                <button (click)="navigateToSchadeclaim(selectedField.id)" class="w-3/5 action-button" title="Maak een schadeclaim aan voor dit perceel">
+                                    <p>Schadeclaim maken</p>
+                                </button>
+                            }
+                            @else {
+                                <button (click)="requestPhoto()" [disabled]="!insuranceClaimsForSingleField.length" class="w-3/5 action-button disabled:opacity-50" title="Vraag foto's aan van schade aan dit perceel">
+                                    <p>Foto's aanvragen</p>
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                } 
+                @else if (!isEdit && !requestPhotoForClaim && showFieldAccess ) {
+                    <h3>Toegang beheren</h3>
+                    <select id="userSelection" [(ngModel)]="emailPermissionUser" (ngModelChange)="addEmailToSingleFieldList()" class="w-full h-10 p-2 mb-3 border border-gray-300 rounded-md">
+                        <option disabled selected value="">Selecteer een persoon</option>
+                        @for (user of allGrantedUsers; track $index) {
+                            <option   option [value]="user.email">{{ user.firstName }} {{ user.lastName}}</option>
+                        }
+                    </select>
+                    <p class="text-left pb-3">
+                        {{ singleFieldEmailList.length > 0 ? 'Deze personen hebben toegang tot ' + selectedField.name + '.' : 'U heeft nog geen personen toegelaten.' }}
                     </p>
-                    <button (click)="removeEmailSingleFieldList($index)" class="ml-2 "><img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all"></button>
-                  </div>
+                    @for(email of singleFieldEmailList; track $index) {
+                        <div class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex justify-between items-center">
+                            <p class="flex-1 text-left">
+                            {{ email }}
+                            </p>
+                            <button (click)="removeEmailSingleFieldList($index)" class="ml-2 "><img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all"></button>
+                        </div>
+                    }
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                        <button (click)="cancelSingleFieldAccess()" class="w-3/5 mr-3 action-button">
+                            <p>Terug</p>
+                        </button>
+                        <button (click)="giveSingleFieldPermission()" class="w-3/5 action-button">
+                            <p>Opslaan</p>
+                        </button>
+                    </div>
+                } 
+                @else if(!isEdit && !showFieldAccess && requestPhotoForClaim) {
+                    <h3>Foto's aanvragen</h3>
+                    @if(!selectedClaim) {
+                        <p class="mb-3">Kies de schadeclaim waarvoor u foto's wil aanvragen.</p>
+                        @for(claim of insuranceClaimsForSingleField; track $index){
+                            <app-claim-knop [claim]="claim" (click)="selectClaim(claim.id)"></app-claim-knop>
+                        }
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button (click)="requestPhoto()" class="w-full action-button">
+                                <p>Terug</p>
+                            </button>
+                        </div>
+                    }
+                    @else {
+                        @if(!clickCoordinates.length){
+                            <p>Klik op de kaart in het rode gebied om specifieke locaties aan te duiden van waar u foto's wenst.</p>
+                        }
+                        @else {
+                            @for(foto of clickCoordinates; track $index){
+                                <div class="w-full h-10 p-2 mb-1 border border-gray-300 rounded-md flex justify-between items-center">
+                                    <p class="">
+                                        <span class="text-sm">x {{ foto.x | number:'1.0-4' }} y {{ foto.y | number:'1.0-4' }}</span>
+                                    </p>
+                                    <button (click)="removeCoordinate($index)" class="ml-2">
+                                        <img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
+                                    </button>
+                                </div>
+                                <textarea type="text" [(ngModel)]="clickCoordinates[$index].description" placeholder="Voeg meer info toe indien gewenst" class="w-full flex-1 px-2 py-1 border mb-3 h-14 border-gray-300 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-green-800"></textarea>
+                            }
+                        }
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button (click)="clearSelectedClaim()" class="w-3/5 mr-3 action-button">
+                                <p>Terug</p>
+                            </button>
+                            <button (click)="submitRequestPhotos()" class="w-3/5 action-button disabled:opacity-50" [disabled]="!clickCoordinates.length">
+                                <p>Aanvragen</p>
+                            </button>
+                        </div>
+                    }
+                } 
+                @else {
+                    <h3>Bewerk perceel</h3>
+                    <form #perceelForm="ngForm" class="text-left">
+                        <div class="mb-3">
+                            <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                            <input [(ngModel)]="tempField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
+                            <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
+                                Perceelnaam is verplicht.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
+                            <input [(ngModel)]="tempField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
+                            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
+                            <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
+                                Gewas is verplicht en moet een woord zijn (bijv. Maïs).
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                            <input [(ngModel)]="tempField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
+                            <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
+                                Oppervlakte is verplicht en moet een geldig getal zijn.
+                            </div>
+                        </div>
+                        <div class="flex space-x-3 mb-3">
+                            <div class="flex flex-col w-1/2">
+                            <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
+                            <input [(ngModel)]="tempField.municipality" name="municipality" type="text" #municipality="ngModel" required
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
+                            <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
+                                Gemeente is verplicht.
+                            </div>
+                            </div>
+                        
+                            <div class="flex flex-col w-1/2">
+                            <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
+                            <input [(ngModel)]="tempField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
+                            <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
+                                Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
+                            </div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button (click)="cancelEditPerceel()" type="button" class="w-3/5 mr-3 action-button">
+                                <p>Annuleer</p>
+                            </button>
+                            <button (click)="confirmEditPerceel()" type="submit" [disabled]="!perceelForm.form.valid" class="w-3/5 action-button disabled:opacity-50">
+                                <p>Opslaan</p>
+                            </button>
+                        </div>
+                    </form>
+                }
             }
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button (click)="toggleFieldAccess()" class="w-3/5 mr-3 action-button">
-                    <p>Terug</p>
-                </button>
-                <button (click)="giveSingleFieldPermission()" class="w-3/5 action-button">
-                    <p>Opslaan</p>
-                </button>
-            </div>
-        } 
-        @else {
-        <h3>Bewerk perceel</h3>
-        <form #perceelForm="ngForm" class="text-left">
-            <div class="mb-3">
-                <label for="name" class="text-sm pb-2 ml-1">Naam</label>
-                <input [(ngModel)]="tempField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Naam" />
-                <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
-                    Naam is verplicht.
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
-                <input [(ngModel)]="tempField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
-                class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
-                <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
-                    Gewas is verplicht en moet een woord zijn (bijv. Maïs).
-                </div>
-            </div>
+            @else {
+                <h3>Nieuw perceel toevoegen</h3>
+                @if(selectedNewField){
+                <form #newPerceelForm="ngForm" class="text-left">
+                    <div class="mb-3">
+                        <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                        <input [(ngModel)]="selectedNewField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
+                        <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
+                            Perceelnaam is verplicht.
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
-                <input [(ngModel)]="tempField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
-                <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
-                    Oppervlakte is verplicht en moet een geldig getal zijn.
-                </div>
-            </div>
+                    <div class="mb-3">
+                        <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
+                        <input [(ngModel)]="selectedNewField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
+                        class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
+                        <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
+                            Gewas is verplicht en moet een woord zijn (bijv. Maïs).
+                        </div>
+                    </div>
 
-            <div class="flex space-x-3 mb-3">
-                <div class="flex flex-col w-1/2">
-                  <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
-                  <input [(ngModel)]="tempField.municipality" name="municipality" type="text" #municipality="ngModel" required
-                         class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
-                  <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
-                    Gemeente is verplicht.
-                  </div>
-                </div>
-              
-                <div class="flex flex-col w-1/2">
-                  <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
-                  <input [(ngModel)]="tempField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
-                         class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
-                  <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
-                    Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
-                  </div>
-                </div>
-              </div>
-              
+                    <div class="mb-3">
+                        <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                        <input [(ngModel)]="selectedNewField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
+                        <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
+                            Oppervlakte is verplicht en moet een geldig getal zijn.
+                        </div>
+                    </div>
 
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button (click)="cancelEditPerceel()" type="button" class="w-3/5 mr-3 action-button">
-                    <p>Annuleer</p>
-                </button>
-                <button (click)="confirmEditPerceel()" type="submit" [disabled]="!perceelForm.form.valid" class="w-3/5 action-button disabled:opacity-50">
-                    <p>Opslaan</p>
-                </button>
-            </div>
-        </form>
+                    <div class="flex space-x-3 mb-3">
+                        <div class="flex flex-col w-1/2">
+                        <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
+                        <input [(ngModel)]="selectedNewField.municipality" name="municipality" type="text" #municipality="ngModel" required
+                                class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
+                        <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
+                            Gemeente is verplicht.
+                        </div>
+                        </div>
+                    
+                        <div class="flex flex-col w-1/2">
+                        <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
+                        <input [(ngModel)]="selectedNewField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
+                                class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
+                        <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
+                            Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                        <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3 disabled:opacity-50">
+                            <p>Terug</p>
+                        </button>
+                        <button [disabled]="!selectedNewField || newPerceelForm.invalid" class="w-3/5 action-button disabled:opacity-50" (click)="perceelLandbouwerToevoeging(userId, selectedNewField.id)">
+                            <p>Toevoegen</p>
+                        </button>
+                    </div>
+                </form>
+                } @else if (newDrawnField) {
+                    <form #newDrawnPerceelForm="ngForm" class="text-left">
+                        <div class="mb-3">
+                            <label for="name" class="text-sm pb-2 ml-1">Perceelnaam</label>
+                            <input [(ngModel)]="newDrawnField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Perceelnaam" />
+                            <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
+                                Perceelnaam is verplicht.
+                            </div>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
+                            <input [(ngModel)]="newDrawnField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
+                            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
+                            <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
+                                Gewas is verplicht en moet een woord zijn (bijv. Maïs).
+                            </div>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                            <input [(ngModel)]="newDrawnField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
+                            <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
+                                Oppervlakte is verplicht en moet een geldig getal zijn.
+                            </div>
+                        </div>
+    
+                        <div class="flex space-x-3 mb-3">
+                            <div class="flex flex-col w-1/2">
+                            <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
+                            <input [(ngModel)]="newDrawnField.municipality" name="municipality" type="text" #municipality="ngModel" required
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
+                            <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
+                                Gemeente is verplicht.
+                            </div>
+                            </div>
+                        
+                            <div class="flex flex-col w-1/2">
+                            <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
+                            <input [(ngModel)]="newDrawnField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
+                                    class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
+                            <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
+                                Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                            <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3">
+                                <p>Terug</p>
+                            </button>
+                            <button (click)="addNewDrawnField()" [disabled]="!newDrawnField || newDrawnPerceelForm.invalid" class="w-3/5 action-button disabled:opacity-50">
+                                <p>Toevoegen</p>
+                            </button>
+                        </div>
+                    </form>
+                }
+                @else {
+                <p>Selecteer een perceel door er op te klikken, of teken zelf uw perceel door op de '⬟' knop te klikken.</p>
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                    <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 disabled:opacity-50 transition-all">
+                        <p>Terug</p>
+                    </button>
+                </div>
+                }
+            }
         }
-        }
-        @else {
-        <h3>Nieuw perceel toevoegen</h3>
-        @if(selectedNewField){
-        <form #newPerceelForm="ngForm" class="text-left">
-            <div class="mb-3">
-                <label for="name" class="text-sm pb-2 ml-1">Naam</label>
-                <input [(ngModel)]="selectedNewField.name" name="name" type="text" #name="ngModel" required class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Naam" />
-                <div [hidden]="name.valid || name.pristine" class="text-red-500 text-sm mt-2">
-                    Naam is verplicht.
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="crop" class="text-sm pb-2 ml-1">Gewas</label>
-                <input [(ngModel)]="selectedNewField.crop" name="crop" type="text" #crop="ngModel" required pattern="^[^0-9]+$"
-                class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gewas" />
-                <div [hidden]="crop.valid || crop.pristine" class="text-red-500 text-sm mt-2">
-                    Gewas is verplicht en moet een woord zijn (bijv. Maïs).
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="acreage" class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
-                <input [(ngModel)]="selectedNewField.acreage" name="acreage" type="text" #acreage="ngModel" required pattern="^[0-9]+(\.[0-9]{1,2})?$" class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Oppervlakte" />
-                <div [hidden]="acreage.valid || acreage.pristine" class="text-red-500 text-sm mt-2">
-                    Oppervlakte is verplicht en moet een geldig getal zijn.
-                </div>
-            </div>
-
-            <div class="flex space-x-3 mb-3">
-                <div class="flex flex-col w-1/2">
-                  <label for="municipality" class="text-sm pb-2 ml-1">Gemeente</label>
-                  <input [(ngModel)]="selectedNewField.municipality" name="municipality" type="text" #municipality="ngModel" required
-                         class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
-                  <div [hidden]="municipality.valid || municipality.pristine" class="text-red-500 text-sm mt-2">
-                    Gemeente is verplicht.
-                  </div>
-                </div>
-              
-                <div class="flex flex-col w-1/2">
-                  <label for="postalcode" class="text-sm pb-2 ml-1">Postcode</label>
-                  <input [(ngModel)]="selectedNewField.postalcode" name="postalcode" type="text" #postalcode="ngModel" required pattern="^[0-9]{4}$"
-                         class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Postcode" />
-                  <div [hidden]="postalcode.valid || postalcode.pristine" class="text-red-500 text-sm mt-2">
-                    Postcode is verplicht en moet een geldige postcode zijn (bijv. 2000).
-                  </div>
-                </div>
-              </div>
-              
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-3/5 action-button mr-3">
-                    <p>Terug</p>
-                </button>
-                <button [disabled]="!selectedNewField || newPerceelForm.invalid" class="w-3/5 action-button disabled:opacity-50" (click)="perceelLandbouwerToevoeging(userId, selectedNewField.id)">
-                    <p>Toevoegen</p>
-                </button>
-            </div>
-        </form>
-        } @else {
-        <p>Selecteer een perceel door er op te klikken.</p>
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-            <button [disabled]="noUserFields" [ngClass]="{'bg-green-600': !noUserFields, 'bg-gray-400': noUserFields}" (click)="openPerceelToevoegen()" class="w-full bg-green-800 h-10 rounded-md hover:bg-green-700 transition-all">
-                <p>Terug</p>
-            </button>
-        </div>
-        }
-        }
+        <app-modal [showModal]="messageModal" [message]="modalMessage" (close)="closeModal()"></app-modal>
+        @if(selectedField) {
+            <app-confirm-modal [showModal]="confirmMessageModal" (confirm)="confirmDeleteUserField(selectedField.id)" (close)="closeConfirmModal()"></app-confirm-modal>
         }
     </div>
-    <app-modal [showModal]="messageModal" [message]="modalMessage" (close)="openModal()"></app-modal>
-    @if(selectedField) {
-    <app-confirm-modal [showModal]="confirmMessageModal" (confirm)="confirmDeleteUserField(selectedField.id)" (close)="closeConfirmModal()"></app-confirm-modal>
-    }
 </div>
 <!-- Deze div is de map -->
 <div id="map"></div>

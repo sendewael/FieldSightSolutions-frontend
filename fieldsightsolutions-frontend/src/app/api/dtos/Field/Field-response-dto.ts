@@ -8,4 +8,5 @@ export interface FieldResponsetDto {
     risico: boolean;
     crop: string;
     prediction: string;
+    user_name: string;
 }

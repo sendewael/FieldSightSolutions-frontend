@@ -15,15 +15,28 @@
 					Percelen
 				</a>
 			</li>
-			<li>
-				<a [routerLinkActiveOptions]="{ exact: true }"
-					routerLink="/schadeclaims"
-					routerLinkActive="active"
-					class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-					<i class="fas fa-tractor mr-2"></i>
-					Schadeclaims
-				</a>
-			</li>
+			@if(userRole < 2) {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }"
+						routerLink="/schadeclaims"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Schadeclaims
+					</a>
+				</li>
+			} @else {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }"
+						routerLink="verzekeraar/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+			}
+			
 		</ul>
 		@if(authenticated) {
 			<div class="absolute right-4 top-1/2 -translate-y-1/2">

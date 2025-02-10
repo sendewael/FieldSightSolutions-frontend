@@ -13,7 +13,7 @@ export class ToastComponent {
   message = '';
   @Input()
   timeout = 3000;
-  @Input() 
+  @Input()
   toastClass: string = 'bg-green-500';
   @Input()
   toastHover: string = 'bg-green-400';

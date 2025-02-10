@@ -1,5 +1,5 @@
 export interface CornerRequestDto {
-    fieldId: number;
+    field: number;
     index: number;
     xCord: string;
     yCord: string;

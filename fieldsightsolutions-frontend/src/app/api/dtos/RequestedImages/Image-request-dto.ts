@@ -1,7 +1,8 @@
 export interface RequestedImageRequestDto {
-    insuranceform_id: number;
-    fileName: number;
+    insuranceform: number;
+    // fileName: number;
     xCord: string;
     yCord: string;
-    date: Date;
+    date: string;
+    description: string;
 }

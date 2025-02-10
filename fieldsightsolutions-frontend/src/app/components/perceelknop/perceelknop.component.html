@@ -2,7 +2,11 @@
 <button  class="h-20 w-full rounded-md mb-3 relative bg-gray-200 hover:bg-gray-300 transition-all">
     <div class="text-center">
         <p>{{ perceel.name }}</p>
-        <p class="text-sm">{{ perceel.crop }}</p>
+        @if(userRole < 2) {
+            <p class="text-sm">{{ perceel.crop }}</p>
+        } @else{
+            <p class="text-sm">{{ perceel.user_name }}</p>
+        }
         <p class="text-sm">{{ perceel.postalcode}} - {{ perceel.municipality}}</p>
     </div>
     <p class="absolute left-2 top-2 text-xs">{{ perceel.id }}</p>

@@ -6,13 +6,15 @@ import {
 import { Injectable } from '@angular/core';
 import { UserResponseDto } from '../../dtos/User/User-response-dto';
 import { environment } from '../../../../environments/environment.development';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private apiUrl = `${environment.baseUrl}/user`
+  private userRoleSubject = new BehaviorSubject<number>(0);
+  public userRole$ = this.userRoleSubject.asObservable();
 
   constructor(private http: HttpClient) {
   }
@@ -40,8 +42,8 @@ export class UserService {
   getUsersByAccessToUserField(pk: number): Observable<UserResponseDto[]> {
     return this.http.get<UserResponseDto[]>(`${this.apiUrl}/access-field/`, { params: { userId: pk.toString() } });
   }
-  
-  
-  
-  
+
+
+
+
 }
