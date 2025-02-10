@@ -9,16 +9,14 @@ ENV BASE_URL "http://placeholder:8000"
 # Expose port 80
 EXPOSE 80
 
-# Copy project files into the container (into the correct directory)
-COPY . /fieldsightsolutions-frontend/app
-
-# Set working directory to where your app is
-WORKDIR /fieldsightsolutions-frontend/app
+# Copy project files
+COPY . /app
 
 # Install dependencies and Angular CLI
+WORKDIR /app
 RUN npm install --legacy-peer-deps && npm install -g @angular/cli
 
-# Remove lines from leaflet.css
+# Remove lines from leaflet.css that reference .png files
 RUN sed -i '/background-image: url(images\/layers.png);/d' node_modules/leaflet/dist/leaflet.css && \
     sed -i '/background-image: url(images\/layers-2x.png);/d' node_modules/leaflet/dist/leaflet.css && \
     sed -i '/background-image: url(images\/marker-icon.png);/d' node_modules/leaflet/dist/leaflet.css
