@@ -471,7 +471,9 @@ export class SchadeclaimFormComponent implements OnInit {
     return decimal;
   }
 
-
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 
