@@ -5,23 +5,31 @@ import { CommonModule } from '@angular/common';
 import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
 import { ImageService } from '../../api/services/image/image.service';
 import { PDFService } from '../../api/services/pdf/pdf.service';
+import { LoaderComponent } from '../loader/loader.component';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-schadeclaims',
   templateUrl: './schadeclaims.component.html',
   styleUrls: ['./schadeclaims.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule]  // Add CommonModule here
+  imports: [CommonModule, RouterModule, LoaderComponent, FormsModule,]  // Add CommonModule here
 })
 export class SchadeclaimsComponent implements OnInit {
   claims: any[] = [];  // Store the insurance claims
   userId: number | null = null;  // Store the user ID
+  isLoading: boolean = false;
+
+  filterText: string = '';
+  filterFromDate: string = '';
+  filterToDate: string = '';
+  filterStatus: string = '';
 
   constructor(
-    private http: HttpClient, 
-    private router: Router, 
+    private http: HttpClient,
+    private router: Router,
     private insuranceformservice: InsuranceFormService,
     private imageService: ImageService,
-    private pdfService: PDFService
+    private pdfService: PDFService,
 
   ) { }
 
@@ -42,11 +50,13 @@ export class SchadeclaimsComponent implements OnInit {
   
 
   fetchInsuranceClaims(userId: number): void {
+    this.isLoading = true;
     // Make the API call to get insurance claims based on the user ID
     this.insuranceformservice.getInsuranceformByUserId(userId)
       .subscribe({
         next: (response: any) => {
           this.claims = response;  // Assign the response data to the claims array
+          this.isLoading = false;
         },
         error: (err) => {
           console.error('Failed to fetch insurance claims', err);
@@ -75,5 +85,37 @@ export class SchadeclaimsComponent implements OnInit {
           console.error('Failed to generate PDF', err);
         }
       });
+  }
+
+  get filteredClaims() {
+    return this.claims.filter((claim) => {
+      const matchesName =
+        !this.filterText ||
+        claim.field.name.toLowerCase().includes(this.filterText.toLowerCase());
+
+      const matchesDateRange =
+        (!this.filterFromDate || new Date(claim.startDate) >= new Date(this.filterFromDate)) &&
+        (!this.filterToDate || new Date(claim.endDate) <= new Date(this.filterToDate));
+
+      const matchesStatus =
+        !this.filterStatus || claim.status.toString() === this.filterStatus;
+
+      return matchesName && matchesDateRange && matchesStatus;
+    });
+  }
+
+  clearFilterText() {
+    this.filterText = '';
+  }
+
+  getStatusLabel(status: number): string {
+    switch (status) {
+      case 1:
+        return 'openstaand';
+      case 2:
+        return 'bezig';
+      default:
+        return 'onbekend';
+    }
   }
 }

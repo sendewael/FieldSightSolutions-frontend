@@ -1,67 +1,124 @@
-<div *ngIf="claims.length > 0; else noClaims" class="claims-container">
-
-    <!-- Header Section -->
-    <div class="claims-row-header">
-        <div class="header-item">Veld Naam</div>
-        <div class="header-item">Datum (van - tot)</div>
-        <div class="header-item">Soort Schade</div>
-        <div class="header-item"></div>
-        <div class="header-item">Status</div>
-        
-
-    </div>
-
-    <!-- Claim Rows Section -->
-    <div *ngFor="let claim of claims" class="claim-card">
-        <div class="card-content">
-            <div class="card-item">{{ claim.field.name }}</div>
-            <div class="card-item">
-                {{ claim.startDate | date:'dd/MM/yyyy' }} - {{ claim.endDate | date:'dd/MM/yyyy' }}
+<div class="p-3">
+    @if(isLoading) {
+        <app-loader></app-loader>
+    } @else {
+        <div *ngIf="claims.length > 0; else noClaims">
+            <h1>Mijn schadeclaims</h1>
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex">
+                    <div class=" h-10 mr-3">
+                        <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Zoek op perceelnaam" />
+                        <button *ngIf="filterText" (click)="clearFilterText()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-800 hover:text-green-700 focus:outline-none">
+                            <p class="font-bold">&#x2715;</p>
+                        </button>
+                    </div>
+                    <div class="h-10 mr-3">
+                        <input id="fromDate" [(ngModel)]="filterFromDate" type="text" placeholder="Datum van" onfocus="(this.type='date')" onblur="(this.type='text')" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" />
+                    </div>
+                    <div class="h-10 mr-3">
+                        <input id="toDate" [(ngModel)]="filterToDate" type="text" placeholder="Datum tot" onfocus="(this.type='date')" onblur="(this.type='text')" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" />
+                    </div>
+                    <div class="h-10 mr-3">
+                        <select [(ngModel)]="filterStatus" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+                            <option value="">Status</option>
+                            <option value="1">openstaand</option>
+                            <option value="2">bezig</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="">
+                    <button [routerLinkActiveOptions]="{ exact: true }"
+                        routerLink="/schadeclaim"
+                        routerLinkActive="active"
+                        class="action-button px-3">
+                        Schadeclaim Aanmaken
+                    </button>
+                </div>
             </div>
-            <div class="card-item">{{ claim.damage_type }}</div>
-
-            <div class="card-item">
-                <span *ngIf="claim.status === 1; else closedbutton"> <button (click)="editClaim(claim.id)"
-                        class="edit-button">Bekijk/Bewerk</button>
-                </span>
-                <ng-template #closedbutton> <button (click)="editClaim(claim.id)" class="edit-button">Bekijk</button>
-                </ng-template>
-            </div>
-
-            <div class="card-item">
-                <span *ngIf="claim.status === 1; else closed">openstaand</span>
-                <ng-template #closed>bezig</ng-template>
-            </div>
-
-            <div *ngIf="claim.status === 2 || claim.status === 3 || claim.status === 4" class="mt-4 text-sm text-gray-500">
-            <!-- PDF Generation Button -->
-            <div class="card-item">
-                <button (click)="generatePDF(claim.id)" class="pdf-button">
-                    Download PDF
-                </button>
-            </div>
-
+            @if(filteredClaims.length < 1) {
+                <p>Er zijn geen schadeclaims gevonden.</p>
+            } @else {
+                <div class="rounded-md px-3 items-center mb-1 grid grid-cols-8 text-sm">
+                    <div class="flex text-center col-span-5 justify-between items-center">
+                        <div class="grid grid-cols-8 items-center justify-evenly w-full">
+                            <div class="col-span-1">Perceelnaam</div>
+                            <div class="col-span-2">Gewas</div>
+                            <div class="col-span-2">Datum</div>
+                            <div class="col-span-1">Schadetype</div>
+                            <div class="col-span-1">Gesch. schadebedrag</div>
+                            <div class="col-span-1">Status</div>
+                        </div>
+                        <div class="col-span-3">
+                        </div>
+                    </div>
+                </div>
+                
+                @for(claim of filteredClaims; track $index) {
+                    <div class="">
+                    <div class="bg-gray-200 transition-all rounded-md h-28 p-3 items-center mb-3 grid grid-cols-8">
+                        <div class="flex text-center col-span-5 justify-between items-center">
+                            <div class="grid grid-cols-8 items-center justify-evenly w-full">
+                                <div class="col-span-1">
+                                    <p class="whitespace-nowrap truncate">{{ claim.field.name }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="whitespace-nowrap truncate">{{ claim.field.crop }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="whitespace-nowrap truncate">
+                                        {{ claim.startDate | date: 'dd/MM/yyyy' }} - {{ claim.endDate | date: 'dd/MM/yyyy' }}
+                                    </p>
+                                </div>
+                                <div class="col-span-1">
+                                    <p class="whitespace-nowrap truncate">{{ claim.damage_type }}</p>
+                                </div>
+                                <div class="col-span-1">
+                                    <p class="whitespace-nowrap truncate">€ {{ claim.estimated_cost }}</p>
+                                </div>
+                                <div class="col-span-1">
+                                    <div class="card-item font-bold whitespace-nowrap">
+                                        <span *ngIf="claim.status === 1; else closed">openstaand</span>
+                                        <ng-template #closed>bezig</ng-template>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="flex flex-col col-span-3 justify-end items-end">
+                            @if(claim.status === 1) {
+                                <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
+                                    Bekijk/Bewerk
+                                </button>
+                            } @else {
+                                <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
+                                    Bekijk
+                                </button>
+                            }
+                            @if(claim.status === 2 || claim.status === 3 || claim.status === 4) {
+                                <button (click)="generatePDF(claim.id)" class="w-32 h-10 bg-blue-500 hover:bg-blue-600 rounded-md transition-all text-white">
+                                    Download PDF
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            }
         </div>
-
+    }
+    
+    <ng-template #noClaims>
+        <h1 class="text-center">
+            Nog geen claims gevonden
+        </h1>
+        <div class="button-container">
+            <a [routerLinkActiveOptions]="{ exact: true }"
+                routerLink="/schadeclaim"
+                routerLinkActive="active"
+                class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+                Schadeclaim Aanmaken
+            </a>
         </div>
-    </div>
-
-    <!-- Centered button below the claims section -->
-    <div class="button-container">
-        <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
-            Schadeclaim Aanmaken
-        </a>
-    </div>
+    </ng-template>
 </div>
 
-<ng-template #noClaims>
-    <p>Nog geen claims gevonden</p>
-
-    <div class="button-container">
-        <a routerLink="/schadeclaim" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
-            Schadeclaim Aanmaken
-        </a>
-    </div>
-</ng-template>
