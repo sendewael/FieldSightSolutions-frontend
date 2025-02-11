@@ -4,7 +4,7 @@ FROM nginx:alpine
 RUN apk add --no-cache nodejs npm
 
 # Set environment variable
-ENV BASE_URL "http://ikbensupercool:8000"
+ENV BASE_URL "http://placeholder:8000"
 
 # Expose port 80
 EXPOSE 80

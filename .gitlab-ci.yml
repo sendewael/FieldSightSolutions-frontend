@@ -1,0 +1,7 @@
+stages:
+  - test
+  - docker-build
+
+include:
+  - local: 'docker-ci.yml'
+  - local: 'SAST-ci.yml'

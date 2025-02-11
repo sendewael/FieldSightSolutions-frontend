@@ -44,6 +44,7 @@ export class SchadeclaimFormComponent implements OnInit {
     url: string;
     xCord?: string | number;
     yCord?: string | number;
+    fulfilled: boolean | false;
   }[] = [];
 
   schadeclaimForm = {
@@ -150,17 +151,20 @@ export class SchadeclaimFormComponent implements OnInit {
     }
   }
 
-  //fetch damages for dropdown
+  //fetch damages for dropdown and sort them alphabetically
   fetchDamages(): void {
-    this.damageService.getAllDamages()
-      .subscribe(
-        (damages: any[]) => {
-          this.damages = damages; // Populate damages array
-        },
-        (err) => {
-          console.error('Error fetching damages:', err);
-        }
-      );
+    this.damageService.getAllDamages().subscribe(
+      (damages: any[]) => {
+        this.damages = damages.sort((a, b) => {
+          if (a.id === 0) return -1; // Keep "none" damage at the top
+          if (b.id === 0) return 1;
+          return a.type.localeCompare(b.type); // Sort alphabetically otherwise
+        });
+      },
+      (err) => {
+        console.error('Error fetching damages:', err);
+      }
+    );
   }
 
 
@@ -242,14 +246,15 @@ export class SchadeclaimFormComponent implements OnInit {
       .subscribe({
         next: (images: any[]) => {
           images.forEach((image: any) => {
-            console.log(image)
             this.requestedImages.push({
               file: null,
               url: "no url",
               xCord: image.xCord,
-              yCord: image.yCord
+              yCord: image.yCord,
+              fulfilled: image.fulfilled
             });
           });
+          // console.log(this.requestedImages[0])
         },
         error: (err) => {
           console.error('Error fetching requested image data:', err);

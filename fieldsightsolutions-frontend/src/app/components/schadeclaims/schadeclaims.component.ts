@@ -34,10 +34,11 @@ export class SchadeclaimsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.claims)
+    console.log(this.claims);
+  
     // Get the logged-in user data (you can get this from localStorage or cookies)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+  
     if (user && user.id) {
       this.userId = user.id;  // Set the user ID from the logged-in user data
       this.fetchInsuranceClaims(user.id);  // Fetch claims for this user
@@ -46,6 +47,7 @@ export class SchadeclaimsComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
+  
 
   fetchInsuranceClaims(userId: number): void {
     this.isLoading = true;

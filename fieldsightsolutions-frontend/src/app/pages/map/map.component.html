@@ -106,7 +106,7 @@
                         @if(userRole < 2) {
                             <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
                         }
-                        <div class="text-left full-height-minus-72">
+                        <div class="text-left full-height-minus-60">
                             <label class="text-sm pb-2 ml-1">Perceelnaam</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
                                 {{ selectedField.name }}
@@ -140,7 +140,7 @@
                                 </div>
                             </div>
                             <!-- weervisualisatie -->
-                            <app-weather [fieldId]="selectedField.id" class="h-72 mt-4"></app-weather>
+                            <app-weather [fieldId]="selectedField.id" class="h-36 mt-4"></app-weather>
                         </div>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
                             <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
