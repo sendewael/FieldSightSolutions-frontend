@@ -1,4 +1,9 @@
 <app-toast></app-toast>
+@if(schadeclaimForm.status === 0 || schadeclaimForm.status === 1) {
+	<h2>Schadeclaim aanmaken</h2>
+} @else{
+	<h2>Schadeclaim bekijken</h2>
+}
 @if(requestedImages.length > 0) {
 	<div class="p-3 bg-yellow-300 rounded-md mb-3 w-5/12 flex items-center">
 		<i class="fas fa-exclamation-circle text-orange-500 mr-3 text-3xl"></i>
@@ -14,11 +19,12 @@
 		<form (ngSubmit)="onSubmit()"
 			class="mr-1.5">
 			<div *ngIf="schadeclaimForm.status === 0 || schadeclaimForm.status === 1 || schadeclaimForm.status === 2">
+				
 				<!-- Section 1: Field Information -->
 				<div *ngIf="schadeclaimForm.status === 0">
 					<div class="bg-gray-200 px-3 pt-3 rounded-md">
 						<h2 class>
-							<span>Datum van schade</span>
+							<span class="text-xl">Datum van schade</span>
 						</h2>
 						<div class="grid grid-cols-2 gap-6">
 							<div>
@@ -50,7 +56,7 @@
 				</div>
 				<div class="bg-gray-200 p-3 rounded-md">
 					<h2>
-						<span>
+						<span class="text-xl">
 							Gegevens van het perceel
 						</span>
 					</h2>
@@ -173,7 +179,7 @@
 				<!-- Section 2: Farmer Information -->
 				<div class="bg-gray-200 p-3 rounded-md">
 					<h2 class>
-						<span>Uw gegevens</span>
+						<span class="text-xl">Uw gegevens</span>
 					</h2>
 					<div class>
 						<div class="flex space-x-3">
@@ -279,7 +285,7 @@
 		<!-- Section 3: Damage Information -->
 		<div class="bg-gray-200 p-3 rounded-md">
 			<h2 class>
-				<span>Schadebeschrijving</span>
+				<span class="text-xl">Schadebeschrijving</span>
 			</h2>
 			<div class="grid grid-cols-2">
 				<div class="mr-3">
