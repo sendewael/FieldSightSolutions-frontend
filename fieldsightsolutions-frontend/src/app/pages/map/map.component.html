@@ -33,7 +33,7 @@
                             <p class="font-bold">✕</p>
                         </button>
                     </div>
-                    <div class="full-height-minus-72 overflow-y-auto">
+                    <div class="full-height-minus-72">
                     @for (perceel of filteredUserPercelen; track $index) {
                         <app-perceelknop [perceel]="perceel" [userRole]="userRole" (click)="focusOnField(perceel.id)"></app-perceelknop>
                     }
@@ -88,10 +88,10 @@
             } 
             @else if ( selectedField ) {
                 @if(!isEdit && !showFieldAccess && !requestPhotoForClaim) {
-                    <div class="overflow-auto">
+                    <div>
                         <h3>{{ selectedField.name }}</h3>
                         @if(userRole < 2) {
-                            <div class="flex items-center justify-center absolute top-32 right-4">
+                            <div class="flex items-center justify-center absolute top-32 right-4 ">
                                 <button (click)="toggleFieldAccess()" class="" title="Beheer toegang voor dit perceel">
                                     <img src="icons/person.svg" alt="Toegang" width="18" height="18" class="brightness-100 hover:brightness-90 transition-all mr-1">
                                 </button>
@@ -106,7 +106,7 @@
                         @if(userRole < 2) {
                             <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
                         }
-                        <div class="text-left full-height-minus-60">
+                        <div class="text-left full-height-minus-0 overflow-y-scroll">
                             <label class="text-sm pb-2 ml-1">Perceelnaam</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
                                 {{ selectedField.name }}
@@ -140,7 +140,9 @@
                                 </div>
                             </div>
                             <!-- weervisualisatie -->
-                            <app-weather [fieldId]="selectedField.id" class="h-36 mt-4"></app-weather>
+                            <div class="h-36">
+                                <app-weather [fieldId]="selectedField.id" class="min-h-full"></app-weather>
+                            </div>                        
                         </div>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
                             <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">

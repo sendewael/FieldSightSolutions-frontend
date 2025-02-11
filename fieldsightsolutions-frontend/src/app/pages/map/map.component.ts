@@ -723,7 +723,7 @@ export class MapComponent {
     this.newDrawnField = {
       name: '',
       acreage: '',
-      municipality: '',
+      municipality: 'gemeente',
       postalcode: '',
       crop: '',
     };
