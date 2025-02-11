@@ -1,7 +1,13 @@
-<div *ngIf="loading">Loading weather data...</div>
+<div *ngIf="loading">
+	Loading weather data...
+</div>
 <div *ngIf="errorMessage">{{ errorMessage }}</div>
 
+
+
 <!-- visualiseren van de weerdata in een tabel zonder chartjs -->
+
+
 
 <!-- <table *ngIf="weatherData" class="weather-table">
   <thead>
@@ -23,5 +29,7 @@
 </table> -->
 
 
+
+
 <!-- Chart.js Canvas for the weather chart -->
-<canvas id="weatherChart" height="240px"></canvas>
+<canvas id="weatherChart"></canvas>

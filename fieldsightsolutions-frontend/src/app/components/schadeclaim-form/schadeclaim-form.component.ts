@@ -383,7 +383,7 @@ export class SchadeclaimFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating insurance form:', err);
-          this.toast.message = 'vul datums in en selecteer een veld'; // Set toast message
+          this.toast.message = 'Vul correcte datums in en selecteer een veld.'; // Set toast message
           this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
           this.toast.showToast(); // Show toast
         },
