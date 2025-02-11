@@ -245,7 +245,7 @@ export class SchadeclaimFormComponent implements OnInit {
             console.log(image)
             this.requestedImages.push({
               file: null,
-              url:"no url",
+              url: "no url",
               xCord: image.xCord,
               yCord: image.yCord
             });
@@ -466,7 +466,9 @@ export class SchadeclaimFormComponent implements OnInit {
     return decimal;
   }
 
-
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 

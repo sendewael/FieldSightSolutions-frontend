@@ -1,24 +1,20 @@
-.claims-container {
+/* .claims-container {
     padding: 20px;
     background-color: #f3f3f3;
     border-radius: 8px;
-}
+} */
 
-/* Header Section */
-.claims-row-header {
+/* .claims-row-header {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr; /* Adjusted to 5 columns */
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr;
     background-color: #ddd;
     padding: 10px;
     border-radius: 8px;
     font-weight: bold;
     margin-bottom: 10px;
-}
+} */
 
-
-
-/* Individual Claim Card */
-.claim-card {
+/* .claim-card {
     background-color: #e6e6e6;
     border-radius: 8px;
     margin-bottom: 10px;
@@ -29,23 +25,21 @@
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Claim Content Layout */
 .card-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr; /* Adjusted to 5 columns */
-    align-items: center;
-    width: 100%;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr;
+align-items: center;
+width: 100%;
 }
 
-/* Individual Card Items */
-.card-item {
+*/
+/* .card-item {
     padding: 8px;
     text-align: left;
     display: flex;
     align-items: center;
 }
 
-/* Edit Button */
 .edit-button {
     background-color: #4CAF50;
     color: white;
@@ -60,13 +54,12 @@
     background-color: #45a049;
 }
 
-/* "Create Insurance Claim" Button */
 .button-container {
     text-align: center;
     margin-top: 20px;
-}
+} */
 
-.button-container a {
+/* .button-container a {
     background-color: #f0f0f0;
     padding: 10px 20px;
     text-decoration: none;
@@ -79,4 +72,26 @@
 
 .button-container a:hover {
     background-color: #e0e0e0;
+} */
+
+h1 {
+    color: #166534;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.action-button {
+    color: white;
+    background-color: #166534;
+    height: 40px;
+    border-radius: 0.375rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.action-button:hover {
+    background-color: #15803d;
 }

@@ -27,13 +27,12 @@ export class WeatherIconComponent implements OnInit {
       "motregen met kans op smeltende sneeuw": "Motregen.png",
       "regen met kans op smeltende sneeuw": "Regen.png",
       "regen": "Regen.png",
-      "Sneeuwval": "Sneeuw.png",
-      "Ijzel": "Ijzel.png",
-      "Regenbuien": "Regenbuien.png",
-      "Sneeuwbuien": "Sneeuwbuien.png",
-      "Onweer": "Onweer.png",
-      "Onweer met hagel": "OnweerHagel.png"
-
+      "sneeuwval": "Sneeuw.png",
+      "ijzel": "Ijzel.png",
+      "regenbuien": "Regenbuien.png",
+      "sneeuwbuien": "Sneeuwbuien.png",
+      "onweer": "Onweer.png",
+      "onweer met hagel": "OnweerHagel.png"
     };
 
     if (weatherIcons[this.prediction]) {

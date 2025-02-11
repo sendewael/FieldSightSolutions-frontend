@@ -13,6 +13,10 @@ module.exports = {
       backdropBlur: {
         xs: '2px',
       },
+      spacing: {
+        22: '5.7rem',
+        1.5: '0.37rem'
+      },
     },
   },
   plugins: [],
