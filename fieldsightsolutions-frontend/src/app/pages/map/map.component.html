@@ -11,7 +11,7 @@
 <!-- Deze div bevat het hele menu -->
 <div class="overflow-hidden">
     <div id="percelenManager" [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen}" class="percelenManager transform transition-all duration-300 ease-in-out" [class.open]="isOpen">
-        <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120" src="menubutton.svg" title="Open/sluit menu" />
+        <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120" src="menubutton.png" title="Open/sluit menu" />
         <!-- Laat een loader zien bij laden (bijv. API calls die uitgevoerd worden, methodes die uitgevoerd worden) -->
         @if(isLoading) {
             <app-loader></app-loader>
