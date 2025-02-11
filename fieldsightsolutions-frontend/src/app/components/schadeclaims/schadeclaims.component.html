@@ -38,7 +38,7 @@
             @if(filteredClaims.length < 1) {
                 <p>Er zijn geen schadeclaims gevonden.</p>
             } @else {
-                <div class="rounded-md px-3 items-center mb-1 grid grid-cols-8">
+                <div class="rounded-md px-3 items-center mb-1 grid grid-cols-8 text-sm">
                     <div class="flex text-center col-span-5 justify-between items-center">
                         <div class="grid grid-cols-8 items-center justify-evenly w-full">
                             <div class="col-span-1">Perceelnaam</div>
@@ -55,7 +55,7 @@
                 
                 @for(claim of filteredClaims; track $index) {
                     <div class="">
-                    <div class="bg-gray-200 transition-all rounded-md h-20 p-3 items-center mb-3 grid grid-cols-8">
+                    <div class="bg-gray-200 transition-all rounded-md h-28 p-3 items-center mb-3 grid grid-cols-8">
                         <div class="flex text-center col-span-5 justify-between items-center">
                             <div class="grid grid-cols-8 items-center justify-evenly w-full">
                                 <div class="col-span-1">
@@ -84,18 +84,18 @@
                             </div>
                             
                         </div>
-                        <div class="flex col-span-3 justify-end">
+                        <div class="flex flex-col col-span-3 justify-end items-end">
                             @if(claim.status === 1) {
-                                <button (click)="editClaim(claim.id)" class="action-button w-32">
+                                <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
                                     Bekijk/Bewerk
                                 </button>
                             } @else {
-                                <button (click)="editClaim(claim.id)" class="action-button w-32 mr-3">
+                                <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
                                     Bekijk
                                 </button>
                             }
                             @if(claim.status === 2 || claim.status === 3 || claim.status === 4) {
-                                <button (click)="generatePDF(claim.id)" class="w-32 bg-blue-500 hover:bg-blue-600 rounded-md transition-all text-white">
+                                <button (click)="generatePDF(claim.id)" class="w-32 h-10 bg-blue-500 hover:bg-blue-600 rounded-md transition-all text-white">
                                     Download PDF
                                 </button>
                             }
