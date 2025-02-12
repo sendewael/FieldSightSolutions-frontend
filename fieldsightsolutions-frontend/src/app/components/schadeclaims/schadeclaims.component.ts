@@ -7,6 +7,9 @@ import { ImageService } from '../../api/services/image/image.service';
 import { PDFService } from '../../api/services/pdf/pdf.service';
 import { LoaderComponent } from '../loader/loader.component';
 import { FormsModule } from '@angular/forms';
+import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
+import { Emitters } from '../../Auth/emitters/emitters';
+
 @Component({
   selector: 'app-schadeclaims',
   templateUrl: './schadeclaims.component.html',
@@ -24,21 +27,30 @@ export class SchadeclaimsComponent implements OnInit {
   filterToDate: string = '';
   filterStatus: string = '';
 
+  requestedImages: {
+    claimId: number;
+    file: File | null;
+    url: string;
+    xCord?: string | number;
+    yCord?: string | number;
+  }[] = [];
+
   constructor(
     private http: HttpClient,
     private router: Router,
     private insuranceformservice: InsuranceFormService,
     private imageService: ImageService,
     private pdfService: PDFService,
+    private requestedImageService: RequestedImageService
 
   ) { }
 
   ngOnInit(): void {
     console.log(this.claims);
-  
+
     // Get the logged-in user data (you can get this from localStorage or cookies)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-  
+
     if (user && user.id) {
       this.userId = user.id;  // Set the user ID from the logged-in user data
       this.fetchInsuranceClaims(user.id);  // Fetch claims for this user
@@ -47,7 +59,7 @@ export class SchadeclaimsComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
-  
+
 
   fetchInsuranceClaims(userId: number): void {
     this.isLoading = true;
@@ -56,6 +68,20 @@ export class SchadeclaimsComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           this.claims = response;  // Assign the response data to the claims array
+
+          this.claims.forEach(claim => {
+            this.requestedImageService.getImages(claim.id).subscribe(images => {
+              this.requestedImages.push(...images.map(image => ({
+                claimId: claim.id,
+                file: null,
+                url: "no url",
+                xCord: image.xCord,
+                yCord: image.yCord,
+              })));
+            });
+          });
+
+
           this.isLoading = false;
         },
         error: (err) => {
@@ -63,6 +89,11 @@ export class SchadeclaimsComponent implements OnInit {
         }
       });
   }
+
+  hasRequestedImages(claimId: number): boolean {
+    return this.requestedImages.some(img => img.claimId === claimId);
+  }
+
 
   editClaim(claimId: number): void {
     this.router.navigate(['/edit-schadeclaim', claimId]); // Pass claim ID in route
@@ -88,21 +119,37 @@ export class SchadeclaimsComponent implements OnInit {
   }
 
   get filteredClaims() {
-    return this.claims.filter((claim) => {
-      const matchesName =
-        !this.filterText ||
-        claim.field.name.toLowerCase().includes(this.filterText.toLowerCase());
+    return this.claims
+      .slice() // Maak een kopie om mutatie te voorkomen
+      .sort((a, b) => {
+        const hasImagesA = this.hasRequestedImages(a.id) ? 1 : 0;
+        const hasImagesB = this.hasRequestedImages(b.id) ? 1 : 0;
 
-      const matchesDateRange =
-        (!this.filterFromDate || new Date(claim.startDate) >= new Date(this.filterFromDate)) &&
-        (!this.filterToDate || new Date(claim.endDate) <= new Date(this.filterToDate));
+        // Eerst sorteren op aanwezigheid van requestedImages (1 boven 0)
+        if (hasImagesA !== hasImagesB) {
+          return hasImagesB - hasImagesA;
+        }
 
-      const matchesStatus =
-        !this.filterStatus || claim.status.toString() === this.filterStatus;
+        // Daarna sorteren op ID (nieuwe claims eerst, dus de hoogste ID bovenaan)
+        return b.id - a.id;  // Sorteren van hoogste naar laagste ID
+      })
+      .filter((claim) => {
+        const matchesName =
+          !this.filterText ||
+          claim.field.name.toLowerCase().includes(this.filterText.toLowerCase());
 
-      return matchesName && matchesDateRange && matchesStatus;
-    });
+        const matchesDateRange =
+          (!this.filterFromDate || new Date(claim.startDate) >= new Date(this.filterFromDate)) &&
+          (!this.filterToDate || new Date(claim.endDate) <= new Date(this.filterToDate));
+
+        const matchesStatus =
+          !this.filterStatus || claim.status.toString() === this.filterStatus;
+
+        return matchesName && matchesDateRange && matchesStatus;
+      });
   }
+
+
 
   clearFilterText() {
     this.filterText = '';
