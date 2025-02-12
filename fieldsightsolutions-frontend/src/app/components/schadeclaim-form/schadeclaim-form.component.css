@@ -19,3 +19,11 @@ h2 {
 .action-button:hover {
     background-color: #15803d;
 }
+
+.dropdown-style {
+    background-color: white !important;
+}
+
+.dropdown-style:disabled {
+    background-color: #f9fafb !important;
+}

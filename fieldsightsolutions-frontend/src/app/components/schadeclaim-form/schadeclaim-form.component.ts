@@ -26,6 +26,7 @@ export class SchadeclaimFormComponent implements OnInit {
   @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
 
   private apiUrl = `${environment.baseUrl}`;
+  public confirmModal: boolean = false;
 
   userId: number | undefined;
   claimId: number | undefined;
@@ -473,6 +474,14 @@ export class SchadeclaimFormComponent implements OnInit {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  confirmCreate(): void {
+    this.confirmModal = true
+  }
+
+  cancelCreate(): void {
+    this.confirmModal = false;
   }
 }
 

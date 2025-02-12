@@ -225,7 +225,7 @@
 				  
 						  <div class="mb-3">
 							<label for="damage-type" class="text-sm pb-2 ml-1">Schadetype</label>
-							<select [(ngModel)]="schadeclaimForm.damage" [disabled]="schadeclaimForm.status > 1" id="damage-type" name="damageType" class="w-full h-10 mb-3 p-2 border bg-white border-gray-300 rounded-md flex items-center disabled:bg-gray-50" required>
+							<select [(ngModel)]="schadeclaimForm.damage" [disabled]="schadeclaimForm.status > 1" id="damage-type" name="damageType" class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center dropdown-style" required>
 							  <option *ngFor="let damage of damages" [value]="damage.id">{{ damage.type }}</option>
 							</select>
 						  </div>
@@ -293,15 +293,24 @@
 				  
 						@if(schadeclaimForm.status === 1) {
 							<div class="mt-auto text-center">
-								<button type="submit" class="action-button px-3 w-3/5 mt-3">Verstuur Schadeclaim</button>
+								<button type="button" (click)="confirmCreate()" class="action-button px-3 w-3/5 mt-3">Schadeclaim indienen</button>
 							  </div>
+						}
+						@if(confirmModal) {
+							<div class="w-screen h-full backdrop-blur-sm fixed left-0 top-0 z-50">
+								<div class="w-96 h-40 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-md text-center p-3">
+									<p>Bent u zeker dat u deze schadeclaim wil indienen?</p>
+									<p class="text-sm">Let op! Deze kan nadien niet worden aangepast!</p>
+									<div class="flex mt-3 mb-3 text-white">
+										<button type="button" (click)="cancelCreate()" class="h-10 w-3/5 bg-red-800 rounded-md mr-3 hover:bg-red-500 transition-all">Annuleer</button>
+										<button type="submit" (click)="cancelCreate()" class="h-10 w-3/5 bg-green-800 rounded-md hover:bg-green-700 transition-all">Indienen</button>
+									</div>
+								</div>
+							</div>
 						}
 					  </div>
 					</div>
 				  </form>
-				  
-				  
-				  
 			</div>
 		</div>
 		
