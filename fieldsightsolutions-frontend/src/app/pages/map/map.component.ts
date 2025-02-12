@@ -481,7 +481,7 @@ export class MapComponent {
       // Fetch insurance claims for user roles > 1
       if (this.userRole > 1) {
         this.isLoading = true;
-        this.insuranceFormService.getInsuranceClaimsByFieldAndStatus(fieldId, 4).subscribe({
+        this.insuranceFormService.getInsuranceClaimsByFieldId(fieldId).subscribe({
           next: (insuranceClaims) => {
             this.insuranceClaimsForSingleField = insuranceClaims;
             console.log(this.insuranceClaimsForSingleField);
@@ -1153,7 +1153,21 @@ export class MapComponent {
         this.selectedClaim = selectedClaim;
         console.log(this.selectedClaim);
         this.mapIsClickable = true;
-        resolve(); // Resolve the promise when the claim is selected successfully
+
+        const updatedClaimData = { ...selectedClaim, status: 4 };
+
+        this.insuranceFormService.putInsuranceform(selectedClaim.id, updatedClaimData).subscribe({
+          next: (response) => {
+            console.log("Claim status updated successfully", response);
+            resolve();
+          },
+          error: (error) => {
+            console.error("Error updating claim status", error);
+            reject(error);
+          }
+        });
+
+        resolve();
       } else {
         reject(new Error("Claim not found"));
       }
@@ -1211,6 +1225,7 @@ export class MapComponent {
           xCord: coord.x,
           yCord: coord.y,
           description: coord.description,
+          fulfilled: false,
         };
 
         this.requestImageService.addRequestImage(requestBody).subscribe(

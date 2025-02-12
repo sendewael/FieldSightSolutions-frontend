@@ -5,4 +5,5 @@ export interface RequestedImageResponseDto {
     xCord: string;
     yCord: string;
     date: string;
+    fulfilled: boolean;
 }
