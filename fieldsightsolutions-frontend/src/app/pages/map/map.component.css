@@ -48,6 +48,10 @@ h3 {
     height: calc(100vh - 270px);
 }
 
+.full-height-menu {
+    height: calc(100vh - 220px);
+}
+
 .leaflet-draw-toolbar a {
     background-image: url('/spritesheet.png') !important;
     background-image: linear-gradient(transparent, transparent), url('/spritesheet.png') !important;
