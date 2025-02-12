@@ -22,6 +22,9 @@
                             <option value="">Alle statussen</option>
                             <option value="1">openstaand</option>
                             <option value="2">bezig</option>
+                            <option value="4">actie vereist</option>
+                            <option value="5">goedgekeurd</option>
+                            <option value="6">afgekeurd</option>
                         </select>
                     </div>
                     <button [routerLinkActiveOptions]="{ exact: true }"
@@ -78,8 +81,26 @@
                                 </div>
                                 <div class="col-span-1">
                                     <div class="card-item whitespace-nowrap">
-                                        <span *ngIf="claim.status === 1; else closed">openstaand</span>
-                                        <ng-template #closed>bezig</ng-template>
+                                        @if(claim.status === 1) {
+                                            <p>openstaand</p>
+                                        }
+                                        @else if (claim.status === 2) {
+                                            <p>bezig</p>
+                                        }
+                                        @else if (claim.status === 3) {
+                                            <p>bezig</p>
+                                        }
+                                        @else if (claim.status === 4) {
+                                            <p>actie vereist</p>
+                                        }
+                                        @else if (claim.status === 5) {
+                                            <p>goedgekeurd</p>
+                                        }
+                                        @else if (claim.status === 6) {
+                                            <p>afgekeurd</p>
+                                        }
+                                        <!-- <span *ngIf="claim.status === 1; else closed">openstaand</span>
+                                        <ng-template #closed>bezig</ng-template> -->
                                     </div>
                                 </div>
                             </div>
