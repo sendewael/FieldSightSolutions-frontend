@@ -71,7 +71,9 @@ export class SchadeclaimsComponent implements OnInit {
 
           this.claims.forEach(claim => {
             this.requestedImageService.getImages(claim.id).subscribe(images => {
-              this.requestedImages.push(...images.map(image => ({
+              const unfulfilledImages = images.filter(image => !image.fulfilled);
+
+              this.requestedImages.push(...unfulfilledImages.map(image => ({
                 claimId: claim.id,
                 file: null,
                 url: "no url",

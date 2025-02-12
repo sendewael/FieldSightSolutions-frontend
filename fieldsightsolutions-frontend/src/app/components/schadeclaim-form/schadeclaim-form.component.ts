@@ -246,16 +246,17 @@ export class SchadeclaimFormComponent implements OnInit {
     this.requestedImageService.getImages(claimId)
       .subscribe({
         next: (images: any[]) => {
-          images.forEach((image: any) => {
-            this.requestedImages.push({
-              file: null,
-              url: "no url",
-              xCord: image.xCord,
-              yCord: image.yCord,
-              fulfilled: image.fulfilled
+          images
+            .filter((image: any) => !image.fulfilled) // Only keep unfulfilled images
+            .forEach((image: any) => {
+              this.requestedImages.push({
+                file: null,
+                url: "no url",
+                xCord: image.xCord,
+                yCord: image.yCord,
+                fulfilled: image.fulfilled
+              });
             });
-          });
-          // console.log(this.requestedImages[0])
         },
         error: (err) => {
           console.error('Error fetching requested image data:', err);
