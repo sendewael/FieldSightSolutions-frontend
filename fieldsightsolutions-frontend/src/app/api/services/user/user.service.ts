@@ -9,22 +9,32 @@ import { environment } from '../../../../environments/environment.development';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = `${environment.baseUrl}/user`
+  private apiUrl = `${environment.baseUrl}/user`;
   private userRoleSubject = new BehaviorSubject<number>(0);
   public userRole$ = this.userRoleSubject.asObservable();
+  private userSubject = new BehaviorSubject<UserResponseDto[]>([]);
+  public users$: Observable<UserResponseDto[]> =
+    this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {}
+
+  fetchUsers(): void {
+    this.http
+      .get<UserResponseDto[]>(`${this.apiUrl}/all`)
+      .subscribe((users) => {
+        this.userSubject.next(users);
+      });
   }
 
   getAllUsers(): Observable<UserResponseDto[]> {
-    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/all`)
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/all`);
   }
 
   getUserById(userId: number): Observable<UserResponseDto> {
-    return this.http.get<UserResponseDto>(`${this.apiUrl}/${userId}/`)
+    return this.http.get<UserResponseDto>(`${this.apiUrl}/${userId}/`);
   }
 
   getUsersByRoleIds(roleIds: number[]): Observable<UserResponseDto[]> {
@@ -32,18 +42,20 @@ export class UserService {
   }
 
   getUser(): Observable<UserResponseDto[]> {
-    return this.http.get<UserResponseDto[]>(`${this.apiUrl}`, { withCredentials: true });
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}`, {
+      withCredentials: true,
+    });
   }
 
   updateUser(user: object): Observable<UserResponseDto[]> {
-    return this.http.put<UserResponseDto[]>(`${this.apiUrl}`, user, { withCredentials: true });
+    return this.http.put<UserResponseDto[]>(`${this.apiUrl}`, user, {
+      withCredentials: true,
+    });
   }
 
   getUsersByAccessToUserField(pk: number): Observable<UserResponseDto[]> {
-    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/access-field/`, { params: { userId: pk.toString() } });
+    return this.http.get<UserResponseDto[]>(`${this.apiUrl}/access-field/`, {
+      params: { userId: pk.toString() },
+    });
   }
-
-
-
-
 }

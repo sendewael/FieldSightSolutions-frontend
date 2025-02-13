@@ -1,0 +1,81 @@
+<div class="container mx-auto p-4">
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-2xl font-bold mb-4">Gebruikersbeheer</h1>
+
+    <!-- Filter sectie -->
+    <div class="mb-4">
+      <input type="text" placeholder="Zoek op naam" [(ngModel)]="filter.name"
+        class="border p-2 rounded m-2 w-full md:w-auto" />
+      <input type="text" placeholder="Zoek op rolnaam" [(ngModel)]="filter.role"
+        class="border p-2 rounded m-2 w-full md:w-auto" />
+      <div class="flex items-center m-2">
+        <label class="mr-2">Actief</label>
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="filter.active" (change)="toggleActiveFilter()" />
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Gebruikers tabel -->
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-2">Naam</th>
+          <th class="py-2">Rol</th>
+          <th class="py-2">Status</th>
+          <th class="py-2">Acties</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users$ | async; track: $index" [ngClass]="{
+            'bg-green-100': user.is_active,
+            'bg-red-100': !user.is_active
+          }">
+          <td class="border px-4 py-2">
+            {{ user.firstName }} {{ user.lastName }}
+          </td>
+          <td class="border px-4 py-2">
+            <ng-container *ngIf="user.isEditing; else viewMode">
+              <select [(ngModel)]="user.userRole_id" class="border p-2 rounded w-full text-black">
+                <option *ngFor="let role of userRoles" [value]="role.id">
+                  {{ role.name }}
+                </option>
+              </select>
+
+            </ng-container>
+            <ng-template #viewMode>
+              {{ user.role_name }}
+            </ng-template>
+          </td>
+          <td class="border px-4 py-2">
+            {{ user.is_active ? "Actief" : "Niet Actief" }}
+          </td>
+          <td class="border px-4 py-2">
+            <ng-container *ngIf="user.isEditing; else actionButtons">
+              <button (click)="saveUser(user)" class="text-green-600 m-2 rounded hover:text-green-700 transition">
+                <i class="fas fa-save fa-lg"></i>
+              </button>
+              <button (click)="cancelEdit(user)" class="text-red-600 m-2 rounded hover:text-red-700 transition">
+                <i class="fas fa-times fa-lg"></i>
+              </button>
+            </ng-container>
+            <ng-template #actionButtons>
+              <button (click)="editUser(user)" class="" title="Bewerk dit perceel">
+                <img src="icons/pencil.svg" alt="Bewerk" width="25" height="25"
+                  class="brightness-100 hover:brightness-90 transition-all" />
+              </button>
+              <button (click)="deleteUser(user)" class="" title="Verwijder dit perceel">
+                <img src="icons/bin.svg" alt="Verwijder" width="25" height="25"
+                  class="brightness-100 hover:brightness-90 transition-all" />
+              </button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginatie -->
+    <pagination-controls (pageChange)="page = $event"></pagination-controls>
+  </div>
+</div>
