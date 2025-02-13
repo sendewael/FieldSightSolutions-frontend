@@ -1,4 +1,4 @@
-export interface UserResponseDto {
+export interface UserCrudDto {
   id: number;
   userRole_id: number;
   firstName: string;
@@ -7,7 +7,11 @@ export interface UserResponseDto {
   password: string;
   adres: string;
   gemeente: string;
-  role_name?: string;
+  bus?: string | null;
   is_active: boolean;
   isEditing?: boolean;
+  role?: {
+    id: number;
+    name: string;
+  };
 }
