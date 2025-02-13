@@ -4,42 +4,41 @@
     } @else {
         <div *ngIf="claims.length > 0; else noClaims">
             <h1>Mijn schadeclaims</h1>
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex">
-                    <div class=" h-10 mr-3">
+            <div class="flex items-center justify-between mb-6">
+                    <div class="w-full h-10 mr-3">
                         <input [(ngModel)]="filterText" type="text" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Zoek op perceelnaam" />
                         <button *ngIf="filterText" (click)="clearFilterText()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-800 hover:text-green-700 focus:outline-none">
                             <p class="font-bold">&#x2715;</p>
                         </button>
                     </div>
-                    <div class="h-10 mr-3">
+                    <div class="w-full h-10 mr-3">
                         <input id="fromDate" [(ngModel)]="filterFromDate" type="text" placeholder="Datum van" onfocus="(this.type='date')" onblur="(this.type='text')" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" />
                     </div>
-                    <div class="h-10 mr-3">
+                    <div class="w-full h-10 mr-3">
                         <input id="toDate" [(ngModel)]="filterToDate" type="text" placeholder="Datum tot" onfocus="(this.type='date')" onblur="(this.type='text')" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" />
                     </div>
-                    <div class="h-10 mr-3">
-                        <select [(ngModel)]="filterStatus" class="w-full h-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
-                            <option value="">Status</option>
+                    <div class="w-full h-10 mr-3">
+                        <select [(ngModel)]="filterStatus" class="w-full h-full p-2 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+                            <option value="">Alle statussen</option>
                             <option value="1">openstaand</option>
                             <option value="2">bezig</option>
+                            <option value="4">actie vereist</option>
+                            <option value="5">goedgekeurd</option>
+                            <option value="6">afgekeurd</option>
                         </select>
                     </div>
-                </div>
-                <div class="">
                     <button [routerLinkActiveOptions]="{ exact: true }"
                         routerLink="/schadeclaim"
                         routerLinkActive="active"
-                        class="action-button px-3">
+                        class=" w-3/5 action-button px-3">
                         Schadeclaim Aanmaken
                     </button>
-                </div>
             </div>
             @if(filteredClaims.length < 1) {
                 <p>Er zijn geen schadeclaims gevonden.</p>
             } @else {
-                <div class="rounded-md px-3 items-center mb-1 grid grid-cols-8 text-sm">
-                    <div class="flex text-center col-span-5 justify-between items-center">
+                <div class="rounded-md px-3 items-center mb-3 grid grid-cols-8 text-sm bg-gray-200 h-10">
+                    <div class="flex text-center col-span-6 justify-between items-center rounded-md h-10">
                         <div class="grid grid-cols-8 items-center justify-evenly w-full">
                             <div class="col-span-1">Perceelnaam</div>
                             <div class="col-span-2">Gewas</div>
@@ -48,16 +47,21 @@
                             <div class="col-span-1">Gesch. schadebedrag</div>
                             <div class="col-span-1">Status</div>
                         </div>
-                        <div class="col-span-3">
-                        </div>
+                    </div>
+                    <div class="flex justify-center col-span-2">
                     </div>
                 </div>
                 
                 @for(claim of filteredClaims; track $index) {
                     <div class="">
-                    <div class="bg-gray-200 transition-all rounded-md h-28 p-3 items-center mb-3 grid grid-cols-8">
-                        <div class="flex text-center col-span-5 justify-between items-center">
+                        
+                    <div (click)="editClaim(claim.id)" class="relative bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer rounded-md h-20 p-3 items-center mb-3 grid grid-cols-8">
+                        @if(hasRequestedImages(claim.id)) {
+                            <i class="fas fa-exclamation-circle text-orange-500 mr-3 text-xl absolute left-2 top-1 animate-pulse"></i>
+                        }
+                        <div class="flex text-center col-span-6 justify-between items-center">
                             <div class="grid grid-cols-8 items-center justify-evenly w-full">
+                                
                                 <div class="col-span-1">
                                     <p class="whitespace-nowrap truncate">{{ claim.field.name }}</p>
                                 </div>
@@ -76,16 +80,35 @@
                                     <p class="whitespace-nowrap truncate">€ {{ claim.estimated_cost }}</p>
                                 </div>
                                 <div class="col-span-1">
-                                    <div class="card-item font-bold whitespace-nowrap">
-                                        <span *ngIf="claim.status === 1; else closed">openstaand</span>
-                                        <ng-template #closed>bezig</ng-template>
+                                    <div class="card-item whitespace-nowrap">
+                                        @if(claim.status === 1) {
+                                            <p>openstaand</p>
+                                        }
+                                        @else if (claim.status === 2) {
+                                            <p>bezig</p>
+                                        }
+                                        @else if (claim.status === 3) {
+                                            <p>bezig</p>
+                                        }
+                                        @else if (claim.status === 4) {
+                                            <p>actie vereist</p>
+                                        }
+                                        @else if (claim.status === 5) {
+                                            <p>goedgekeurd</p>
+                                        }
+                                        @else if (claim.status === 6) {
+                                            <p>afgekeurd</p>
+                                        }
+                                        <!-- <span *ngIf="claim.status === 1; else closed">openstaand</span>
+                                        <ng-template #closed>bezig</ng-template> -->
                                     </div>
                                 </div>
                             </div>
                             
                         </div>
-                        <div class="flex flex-col col-span-3 justify-end items-end">
-                            @if(claim.status === 1) {
+                        <div class="flex flex-col col-span-2 justify-end items-end">
+                            
+                            <!-- @if(claim.status === 1) {
                                 <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
                                     Bekijk/Bewerk
                                 </button>
@@ -93,9 +116,9 @@
                                 <button (click)="editClaim(claim.id)" class="action-button w-32 mb-1">
                                     Bekijk
                                 </button>
-                            }
+                            } -->
                             @if(claim.status === 2 || claim.status === 3 || claim.status === 4) {
-                                <button (click)="generatePDF(claim.id)" class="w-32 h-10 bg-blue-500 hover:bg-blue-600 rounded-md transition-all text-white">
+                                <button (click)="$event.stopPropagation(); generatePDF(claim.id)"  class="w-32 h-10 bg-blue-500 hover:bg-blue-600 rounded-md transition-all text-white">
                                     Download PDF
                                 </button>
                             }
@@ -108,16 +131,20 @@
     }
     
     <ng-template #noClaims>
-        <h1 class="text-center">
-            Nog geen claims gevonden
-        </h1>
-        <div class="button-container">
-            <a [routerLinkActiveOptions]="{ exact: true }"
+        <div class="text-center mb-3">
+            <h2 class="">
+                Hier kan u een schadeclaim aanmaken door op onderstaande knop te klikken.
+            </h2>
+            <p>Let op! U moet een verzekeraar toegang geven tot uw perceel voor de schadeclaim gecontroleerd kan worden.</p>
+        </div>
+        
+        <div class="button-container text-center">
+            <button [routerLinkActiveOptions]="{ exact: true }"
                 routerLink="/schadeclaim"
                 routerLinkActive="active"
-                class="bg-gray-200 px-5 py-2 rounded-md text-green-800 hover:bg-green-100 border-green-800 transition-all">
+                class="action-button px-3">
                 Schadeclaim Aanmaken
-            </a>
+            </button>
         </div>
     </ng-template>
 </div>

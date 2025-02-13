@@ -1,106 +1,134 @@
 <div class="container">
-	<div class="text-green-800 text-center mt-3">
-		<h1 class="text-4xl">
-			{{ user.firstName }} {{ user.lastName }}
-		</h1>
-		<p>{{ roleName }}</p>
-	</div>
-	<div class="flex justify-center mt-3">
-		<div class="w-1/4">
+  <div class="text-green-800 text-center mt-3">
+    <h1 class="text-4xl">
+      {{ user.firstName }} {{ user.lastName }}
+    </h1>
+    <p>{{ roleName }}</p>
+  </div>
+  <div class="flex justify-center mt-3">
+    <div class="w-1/4">
       @if(!isEdit) {
-        <div class="flex justify-between">
-          <p class="mb-3">
-            Persoonlijke gegevens
-          </p>
-          <button (click)="toggleEdit()"  class="" title="Bewerk uw gegevens">
-            <img src="icons/pencil.svg" alt="Bewerk" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
-        </button>
-        </div>
-        <div class="flex space-x-3">
-          <div class="flex flex-col w-1/2">
-            <label class="text-sm pb-2 ml-1">Voornaam</label>
-            <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-              {{ user.firstName }}
-            </p>
-          </div>
-          <div class="flex flex-col w-1/2">
-            <label class="text-sm pb-2 ml-1">Achternaam</label>
-            <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.lastName }}</p>
-          </div>
-        </div>
-        <label class="text-sm pb-2 ml-1">Email</label>
-        <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.email }}</p>
-        <div class="flex space-x-3">
-          <div class="flex flex-col w-1/2">
-            <label class="text-sm pb-2 ml-1">Straatnaam + nummer</label>
-            <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.adres }}</p>
-          </div>
-          <div class="flex flex-col w-1/2">
-            <label class="text-sm pb-2 ml-1">Gemeente</label>
-            <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.gemeente }}</p>
-          </div>
-        </div>
-      } @else {
+      <div class="flex justify-between">
         <p class="mb-3">
-          Bewerk uw gegevens
+          Persoonlijke gegevens
         </p>
-        <form #gegevensForm="ngForm">
-          <div class="flex space-x-3 mb-3">
-            <div class="flex flex-col w-1/2">
-              <label for="municipality" class="text-sm pb-2 ml-1">Voornaam</label>
-              <input [(ngModel)]="editUser.firstName" name="firstName" type="text" #firstName="ngModel" required pattern="^[^0-9]+$"
-                     class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Voornaam" />
-              <div [hidden]="firstName.valid || firstName.pristine" class="text-red-500 text-sm mt-2">
-                Voornaam is verplicht (bijv. Jan).
-              </div>
-            </div>
-          
-            <div class="flex flex-col w-1/2">
-              <label for="postalcode" class="text-sm pb-2 ml-1">Achternaam</label>
-              <input [(ngModel)]="editUser.lastName" name="lastName" type="text" #lastName="ngModel" required pattern="^[^0-9]+$"
-                     class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Achternaam" />
-              <div [hidden]="lastName.valid || lastName.pristine" class="text-red-500 text-sm mt-2">
-                Achternaam is verplicht (bijv. Janssens).
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="acreage" class="text-sm pb-2 ml-1">Email</label>
-            <input [(ngModel)]="editUser.email" name="email" type="text" #email="ngModel" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Email" />
-            <div [hidden]="email.valid || email.pristine" class="text-red-500 text-sm mt-2">
-                Email is verplicht en moet geldig zijn (bijv. jan&#64;janssens.be).
-            </div>
-          </div>
-          <div class="flex space-x-3 mb-3">
-            <div class="flex flex-col w-1/2">
-              <label for="municipality" class="text-sm pb-2 ml-1">Straatnaam + nummer</label>
-              <input [(ngModel)]="editUser.adres" name="adres" type="text" #adres="ngModel" required
-                     class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Straatnaam + nummer" />
-              <div [hidden]="adres.valid || adres.pristine" class="text-red-500 text-sm mt-2">
-                Adres is verplicht (bijv. Stationstraat 1).
-              </div>
-            </div>
-          
-            <div class="flex flex-col w-1/2">
-              <label for="postalcode" class="text-sm pb-2 ml-1">Gemeente</label>
-              <input [(ngModel)]="editUser.gemeente" name="gemeente" type="text" #gemeente="ngModel" required pattern="^[^0-9]+$"
-                     class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800" placeholder="Gemeente" />
-              <div [hidden]="gemeente.valid || gemeente.pristine" class="text-red-500 text-sm mt-2">
-                Gemeente is verplicht (bijv. Geel).
-              </div>
-            </div>
-          </div>
-          <div class="w-full flex text-white">
-            <button (click)="toggleEdit()" type="button" class="w-3/5 mr-3 action-button">
-                <p>Annuleer</p>
-            </button>
-            <button (click)="save()" type="submit" [disabled]="!gegevensForm.form.valid" class="w-3/5 action-button disabled:opacity-50">
-                <p>Opslaan</p>
-            </button>
+        <button (click)="toggleEdit()" class="" title="Bewerk uw gegevens">
+          <img src="icons/pencil.svg" alt="Bewerk" width="25" height="25"
+            class="brightness-100 hover:brightness-90 transition-all">
+        </button>
+      </div>
+      <div class="flex space-x-3">
+        <div class="flex flex-col w-1/2">
+          <label class="text-sm pb-2 ml-1">Voornaam</label>
+          <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+            {{ user.firstName }}
+          </p>
         </div>
-        </form>
+        <div class="flex flex-col w-1/2">
+          <label class="text-sm pb-2 ml-1">Achternaam</label>
+          <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.lastName }}</p>
+        </div>
+      </div>
+      <label class="text-sm pb-2 ml-1">Email</label>
+      <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.email }}</p>
+      <div class="flex space-x-3">
+        <div class="flex flex-col w-1/2">
+          <label class="text-sm pb-2 ml-1">Straatnaam + nummer</label>
+          <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.adres }}</p>
+        </div>
+        <div class="flex flex-col w-1/2">
+          <label class="text-sm pb-2 ml-1">Gemeente</label>
+          <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.gemeente }}</p>
+        </div>
+      </div>
+      <div class="flex flex-col w-1/6">
+        <label class="text-sm pb-2 ml-1">Bus</label>
+        <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">{{ user.bus }}</p>
+      </div>
+      } @else {
+      <p class="mb-3">
+        Bewerk uw gegevens
+      </p>
+      <form #gegevensForm="ngForm">
+        <div class="flex space-x-3 mb-3">
+          <div class="flex flex-col w-1/2">
+            <label for="municipality" class="text-sm pb-2 ml-1">Voornaam</label>
+            <input [(ngModel)]="editUser.firstName" name="firstName" type="text" #firstName="ngModel" required
+              pattern="^[^0-9]+$"
+              class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+              placeholder="Voornaam" />
+            <div [hidden]="firstName.valid || firstName.pristine" class="text-red-500 text-sm mt-2">
+              Voornaam is verplicht (bijv. Jan).
+            </div>
+          </div>
+
+          <div class="flex flex-col w-1/2">
+            <label for="postalcode" class="text-sm pb-2 ml-1">Achternaam</label>
+            <input [(ngModel)]="editUser.lastName" name="lastName" type="text" #lastName="ngModel" required
+              pattern="^[^0-9]+$"
+              class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+              placeholder="Achternaam" />
+            <div [hidden]="lastName.valid || lastName.pristine" class="text-red-500 text-sm mt-2">
+              Achternaam is verplicht (bijv. Janssens).
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="acreage" class="text-sm pb-2 ml-1">Email</label>
+          <input [(ngModel)]="editUser.email" name="email" type="text" #email="ngModel" required
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+            placeholder="Email" />
+          <div [hidden]="email.valid || email.pristine" class="text-red-500 text-sm mt-2">
+            Email is verplicht en moet geldig zijn (bijv. jan&#64;janssens.be).
+          </div>
+        </div>
+        <div class="flex space-x-3 mb-3">
+          <div class="flex flex-col w-1/2">
+            <label for="municipality" class="text-sm pb-2 ml-1">Straatnaam + nummer</label>
+            <input [(ngModel)]="editUser.adres" name="adres" type="text" #adres="ngModel" required
+              class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+              placeholder="Straatnaam + nummer" />
+            <div [hidden]="adres.valid || adres.pristine" class="text-red-500 text-sm mt-2">
+              Adres is verplicht (bijv. Stationstraat 1).
+            </div>
+          </div>
+
+          <div class="flex flex-col w-1/2">
+            <label for="postalcode" class="text-sm pb-2 ml-1">Gemeente</label>
+            <input [(ngModel)]="editUser.gemeente" name="gemeente" type="text" #gemeente="ngModel" required
+              pattern="^[^0-9]+$"
+              class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+              placeholder="Gemeente" />
+            <div [hidden]="gemeente.valid || gemeente.pristine" class="text-red-500 text-sm mt-2">
+              Gemeente is verplicht (bijv. Geel).
+            </div>
+          </div>
+
+        </div>
+        <div class="flex flex-col w-1/6">
+          <label for="bus" class="text-sm pb-2 ml-1">Bus</label>
+          <input [(ngModel)]="editUser.bus" name="bus" type="text" #bus="ngModel"
+            pattern="^[0-9]*$"
+            class="w-full h-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800"
+            placeholder="bus" />
+          <div [hidden]="bus.valid || bus.pristine" class="text-red-500 text-sm mt-2">
+            Bus mag alleen cijfers bevatten of kan leeg zijn.
+          </div>
+        </div>
+        
+
+        <div class="w-full flex text-white mt-3">
+          <button (click)="toggleEdit()" type="button" class="w-3/5 mr-3 action-button">
+            <p>Annuleer</p>
+          </button>
+          <button (click)="save()" type="submit" [disabled]="!gegevensForm.form.valid"
+            class="w-3/5 action-button disabled:opacity-50">
+            <p>Opslaan</p>
+          </button>
+        </div>
+      </form>
       }
-		</div>
-	</div>
+    </div>
+  </div>
 </div>

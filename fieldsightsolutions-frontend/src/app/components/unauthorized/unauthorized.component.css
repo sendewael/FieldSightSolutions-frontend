@@ -1,11 +1,3 @@
-h2 {
-    color: #166534;
-    font-size: 1.5rem;
-    line-height: 2rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
 .action-button {
     color: white;
     background-color: #166534;
@@ -18,12 +10,4 @@ h2 {
 
 .action-button:hover {
     background-color: #15803d;
-}
-
-.dropdown-style {
-    background-color: white !important;
-}
-
-.dropdown-style:disabled {
-    background-color: #f9fafb !important;
 }

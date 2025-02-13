@@ -95,3 +95,10 @@ h1 {
 .action-button:hover {
     background-color: #15803d;
 }
+
+h2 {
+    color: #166534;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    text-align: center;
+}

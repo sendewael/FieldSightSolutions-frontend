@@ -40,7 +40,8 @@ export class AuthComponent implements OnInit {
       email: '',
       adres: '',
       gemeente: '',
-      password: ''
+      password: '',
+      bus: ''
     });
   }
 

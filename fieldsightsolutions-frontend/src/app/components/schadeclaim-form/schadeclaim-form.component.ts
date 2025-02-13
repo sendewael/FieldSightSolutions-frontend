@@ -26,6 +26,7 @@ export class SchadeclaimFormComponent implements OnInit {
   @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
 
   private apiUrl = `${environment.baseUrl}`;
+  public confirmModal: boolean = false;
 
   userId: number | undefined;
   claimId: number | undefined;
@@ -198,7 +199,6 @@ export class SchadeclaimFormComponent implements OnInit {
 
   }
 
-
   //fetch the user
   fetchUserData(): void {
     this.userService.getUser()
@@ -245,16 +245,17 @@ export class SchadeclaimFormComponent implements OnInit {
     this.requestedImageService.getImages(claimId)
       .subscribe({
         next: (images: any[]) => {
-          images.forEach((image: any) => {
-            this.requestedImages.push({
-              file: null,
-              url: "no url",
-              xCord: image.xCord,
-              yCord: image.yCord,
-              fulfilled: image.fulfilled
+          images
+            .filter((image: any) => !image.fulfilled) // Only keep unfulfilled images
+            .forEach((image: any) => {
+              this.requestedImages.push({
+                file: null,
+                url: "no url",
+                xCord: image.xCord,
+                yCord: image.yCord,
+                fulfilled: image.fulfilled
+              });
             });
-          });
-          // console.log(this.requestedImages[0])
         },
         error: (err) => {
           console.error('Error fetching requested image data:', err);
@@ -316,40 +317,45 @@ export class SchadeclaimFormComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       Array.from(input.files).forEach((file: File) => {
+        if (!file.type.match('image/jpeg')) {
+          alert('Alleen JPG-bestanden zijn toegestaan.');
+          return;
+        }
+  
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const data = reader.result as string;
             const exif = piexif.load(data);
             const gps = exif['GPS'];
+  
+            let xCord, yCord;
             if (gps) {
               const latitude = gps[piexif.GPSIFD.GPSLatitude];
               const latitudeRef = gps[piexif.GPSIFD.GPSLatitudeRef];
               const longitude = gps[piexif.GPSIFD.GPSLongitude];
               const longitudeRef = gps[piexif.GPSIFD.GPSLongitudeRef];
-
-              // Convert to decimal
-              const xCord = this.convertDMSToDecimal(latitude, latitudeRef);
-              const yCord = this.convertDMSToDecimal(longitude, longitudeRef);
-
-              // Add the image with the coordinates
-              this.uploadedImages.push({
-                file,
-                url: reader.result as string,
-                xCord: xCord.toString(),
-                yCord: yCord.toString(),
-              });
-            } else {
-              console.warn('No GPS data found in EXIF metadata');
+  
+              xCord = this.convertDMSToDecimal(latitude, latitudeRef);
+              yCord = this.convertDMSToDecimal(longitude, longitudeRef);
             }
+  
+            this.uploadedImages.push({
+              file,
+              url: reader.result as string,
+              xCord: xCord?.toString() || '',
+              yCord: yCord?.toString() || '',
+            });
+  
           } catch (error) {
-            console.error('Error parsing EXIF data with piexifjs:', error);
+            console.error('Error parsing EXIF data:', error);
           }
         };
         reader.readAsDataURL(file);
       });
     }
   }
+  
 
   removeImage(index: number): void {
     this.uploadedImages.splice(index, 1);
@@ -383,7 +389,7 @@ export class SchadeclaimFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating insurance form:', err);
-          this.toast.message = 'vul datums in en selecteer een veld'; // Set toast message
+          this.toast.message = 'Vul correcte datums in en selecteer een veld.'; // Set toast message
           this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
           this.toast.showToast(); // Show toast
         },
@@ -471,9 +477,16 @@ export class SchadeclaimFormComponent implements OnInit {
     return decimal;
   }
 
+
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  confirmCreate(): void {
+    this.confirmModal = true
+  }
+
+  cancelCreate(): void {
+    this.confirmModal = false;
+  }
 }
-
-
