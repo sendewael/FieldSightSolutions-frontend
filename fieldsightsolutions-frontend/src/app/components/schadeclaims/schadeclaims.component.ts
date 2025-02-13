@@ -92,7 +92,7 @@ export class SchadeclaimsComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to fetch insurance claims', err);
-  
+
           // Check if the error is related to the "No UserField found for this user" error
           if (err?.error?.detail && err.error.detail.includes("No UserField found for this user")) {
             console.warn("UserField not found, but not logging out.");
@@ -100,27 +100,27 @@ export class SchadeclaimsComponent implements OnInit {
           } else {
             // If error is not related to missing UserField, log out the user
             const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
-  
+
             this.http.post(logoutUrl, {}, { withCredentials: true })
               .subscribe(() => {
                 this.authenticated = false;
                 this.name = '';
-  
+
                 // Remove authentication state and user data from localStorage
                 localStorage.removeItem('authenticated');
                 localStorage.removeItem('user');
-  
+
                 // Emit unauthenticated state
                 Emitters.authEmitter.emit(false);
                 Emitters.userEmitter.emit(null);
-  
+
                 this.router.navigate(['/login']);
               });
           }
         }
       });
   }
-  
+
 
   hasRequestedImages(claimId: number): boolean {
     return this.requestedImages.some(img => img.claimId === claimId);
