@@ -47,3 +47,20 @@ h3 {
 .full-height-minus-72 {
     height: calc(100vh - 270px);
 }
+
+.full-height-menu {
+    height: calc(100vh - 220px);
+}
+
+.leaflet-draw-toolbar a {
+    background-image: url('/spritesheet.png') !important;
+    background-image: linear-gradient(transparent, transparent), url('/spritesheet.png') !important;
+    background-repeat: no-repeat;
+    background-size: 300px 30px;
+    background-clip: padding-box;
+}
+
+.leaflet-retina .leaflet-draw-toolbar a {
+    background-image: url('/spritesheet.png') !important;
+    background-image: linear-gradient(transparent, transparent), url('/spritesheet.png') !important;
+}

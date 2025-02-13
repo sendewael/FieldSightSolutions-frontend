@@ -25,6 +25,10 @@ export class InsuranceFormService {
     return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`, { withCredentials: true });
   }
 
+  getInsuranceClaimsByFieldId(fieldId: number): Observable<InsuranceFormResponseDto[]> {
+    return this.http.get<InsuranceFormResponseDto[]>(`${this.apiUrl}/field/${fieldId}`, { withCredentials: true });
+  }
+
   postInsuranceformById(userId: number | undefined, formdata: object): Observable<InsuranceFormResponseDto[]> {
     return this.http.post<InsuranceFormResponseDto[]>(`${this.apiUrl}/${userId}`, formdata, { withCredentials: true });
   }

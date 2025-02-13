@@ -26,6 +26,7 @@ export class SchadeclaimFormComponent implements OnInit {
   @ViewChild(ToastComponent) toast!: ToastComponent; // Reference to ToastComponent
 
   private apiUrl = `${environment.baseUrl}`;
+  public confirmModal: boolean = false;
 
   userId: number | undefined;
   claimId: number | undefined;
@@ -244,16 +245,17 @@ export class SchadeclaimFormComponent implements OnInit {
     this.requestedImageService.getImages(claimId)
       .subscribe({
         next: (images: any[]) => {
-          images.forEach((image: any) => {
-            this.requestedImages.push({
-              file: null,
-              url: "no url",
-              xCord: image.xCord,
-              yCord: image.yCord,
-              fulfilled: image.fulfilled
+          images
+            .filter((image: any) => !image.fulfilled) // Only keep unfulfilled images
+            .forEach((image: any) => {
+              this.requestedImages.push({
+                file: null,
+                url: "no url",
+                xCord: image.xCord,
+                yCord: image.yCord,
+                fulfilled: image.fulfilled
+              });
             });
-          });
-          // console.log(this.requestedImages[0])
         },
         error: (err) => {
           console.error('Error fetching requested image data:', err);
@@ -387,7 +389,7 @@ export class SchadeclaimFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating insurance form:', err);
-          this.toast.message = 'vul datums in en selecteer een veld'; // Set toast message
+          this.toast.message = 'Vul correcte datums in en selecteer een veld.'; // Set toast message
           this.toast.toastClass = 'bg-red-500'; // Optional: set error styling
           this.toast.showToast(); // Show toast
         },
@@ -475,4 +477,16 @@ export class SchadeclaimFormComponent implements OnInit {
     return decimal;
   }
 
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  confirmCreate(): void {
+    this.confirmModal = true
+  }
+
+  cancelCreate(): void {
+    this.confirmModal = false;
+  }
 }

@@ -24,6 +24,14 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/leaflet/dist/images"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/leaflet-draw/dist/images"
               }
             ],
             "styles": [
@@ -32,7 +40,8 @@
               "node_modules/leaflet-search/dist/leaflet-search.min.css",
               "node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css",
               "node_modules/leaflet-geosearch/dist/geosearch.css",
-              "node_modules/leaflet-draw/dist/leaflet.draw.css"
+              "node_modules/leaflet-draw/dist/leaflet.draw.css",
+              "src/app/pages/map/map.component.css"
             ],
             "scripts": [
               "node_modules/leaflet-draw/dist/leaflet.draw.js",
@@ -45,7 +54,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -96,6 +105,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/leaflet/dist/images",
+                "output": "assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/leaflet-draw/dist/images",
+                "output": "assets/leaflet-draw/"
               }
             ],
             "styles": [

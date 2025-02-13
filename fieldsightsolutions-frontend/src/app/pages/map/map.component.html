@@ -11,7 +11,7 @@
 <!-- Deze div bevat het hele menu -->
 <div class="overflow-hidden">
     <div id="percelenManager" [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen}" class="percelenManager transform transition-all duration-300 ease-in-out" [class.open]="isOpen">
-        <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120" src="menubutton.svg" title="Open/sluit menu" />
+        <img (click)="togglePanel()" class="absolute cursor-pointer -left-16 top-40" width="64" height="120" src="menubutton.png" title="Open/sluit menu" />
         <!-- Laat een loader zien bij laden (bijv. API calls die uitgevoerd worden, methodes die uitgevoerd worden) -->
         @if(isLoading) {
             <app-loader></app-loader>
@@ -33,7 +33,7 @@
                             <p class="font-bold">✕</p>
                         </button>
                     </div>
-                    <div class="full-height-minus-72 overflow-y-auto">
+                    <div class="full-height-minus-72">
                     @for (perceel of filteredUserPercelen; track $index) {
                         <app-perceelknop [perceel]="perceel" [userRole]="userRole" (click)="focusOnField(perceel.id)"></app-perceelknop>
                     }
@@ -88,10 +88,10 @@
             } 
             @else if ( selectedField ) {
                 @if(!isEdit && !showFieldAccess && !requestPhotoForClaim) {
-                    <div class="overflow-auto">
+                    <div class="">
                         <h3>{{ selectedField.name }}</h3>
                         @if(userRole < 2) {
-                            <div class="flex items-center justify-center absolute right-3 top-32">
+                            <div class="flex items-center justify-center absolute top-32 right-4 ">
                                 <button (click)="toggleFieldAccess()" class="" title="Beheer toegang voor dit perceel">
                                     <img src="icons/person.svg" alt="Toegang" width="18" height="18" class="brightness-100 hover:brightness-90 transition-all mr-1">
                                 </button>
@@ -106,16 +106,16 @@
                         @if(userRole < 2) {
                             <app-weather-modal [prediction]="selectedField.prediction"></app-weather-modal>
                         }
-                        <div class="text-left full-height-minus-72">
+                        <div class="text-left full-height-menu overflow-y-auto">
                             <label class="text-sm pb-2 ml-1">Perceelnaam</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
                                 {{ selectedField.name }}
                             </p>
                             @if(userRole > 1) {
-                            <label class="text-sm pb-2 ml-1">Eigenaar</label>
-                            <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
-                                {{ selectedField.user_name }}
-                            </p>
+                                <label class="text-sm pb-2 ml-1">Eigenaar</label>
+                                <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                    {{ selectedField.user_name }}
+                                </p>
                             }
                             <label class="text-sm pb-2 ml-1">Gewas</label>
                             <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
@@ -140,7 +140,9 @@
                                 </div>
                             </div>
                             <!-- weervisualisatie -->
-                            <app-weather [fieldId]="selectedField.id" class="h-72 mt-4"></app-weather>
+                            <div class="h-36">
+                                <app-weather [fieldId]="selectedField.id" class="min-h-full"></app-weather>
+                            </div>                        
                         </div>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
                             <button (click)="wisGeselecteerdPerceel()" class="w-3/5 mr-3 action-button" title="Ga terug naar uw percelenlijst">
