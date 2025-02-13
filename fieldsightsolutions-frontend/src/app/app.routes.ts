@@ -11,6 +11,7 @@ import { DashboardAdminComponent } from './pages/admin/dashboard-admin/dashboard
 import { BeheerUsersComponent } from './pages/admin/beheer-users/beheer-users.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { AuthGuard } from './guards/auth.guard';
+import { DashboardMapComponent } from './components/dashboard-map/dashboard-map.component';
 
 export const routes: Routes = [
   { path: '', component: MapComponent },
@@ -57,4 +58,5 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: [2, 3, 4] },
   },
+  { path: '**', component: UnauthorizedComponent },
 ];
