@@ -6,6 +6,7 @@ import { AcountComponent } from './components/acount/acount.component';
 import { SchadeclaimsComponent } from './components/schadeclaims/schadeclaims.component';
 import { AuthComponent } from './Auth/inlogandregister/inlogandregister.component';
 import { DashboardVerzekeraarComponent } from './pages/verzekeraar/dashboard-verzekeraar/dashboard/dashboard-verzekeraar.component';
+import { DashboardOverheidComponent } from './pages/overheid/dashboard-overheid/dashboard-overheid.component';
 import { SchadeclaimsUserComponent } from './pages/verzekeraar/schadeclaims-user/schadeclaims-user.component';
 import { DashboardAdminComponent } from './pages/admin/dashboard-admin/dashboard-admin.component';
 import { BeheerUsersComponent } from './pages/admin/beheer-users/beheer-users.component';
@@ -14,7 +15,13 @@ import { AuthGuard } from './guards/auth.guard';
 import { DashboardMapComponent } from './components/dashboard-map/dashboard-map.component';
 
 export const routes: Routes = [
-  { path: '', component: MapComponent },
+
+  { path: 'login',
+    component: AuthComponent },
+  { path: '',
+    component: MapComponent,
+    canActivate: [AuthGuard],
+    data: { role: [1,2] } },
   { path: 'login', component: AuthComponent },
   {
     path: 'acount',
@@ -38,13 +45,13 @@ export const routes: Routes = [
     path: 'verzekeraar/dashboard',
     component: DashboardVerzekeraarComponent,
     canActivate: [AuthGuard],
-    data: { role: [2, 3, 4] },
+    data: { role: [2] },
   },
   {
     path: 'verzekeraar/schadeclaims',
     component: SchadeclaimsUserComponent,
     canActivate: [AuthGuard],
-    data: { role: [2, 3, 4] },
+    data: { role: [2] },
   },
   {
     path: 'edit-schadeclaim/:id',
@@ -64,5 +71,10 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: [4] },
   },
+  { path: 'overheid/dashboard',
+    component: DashboardOverheidComponent,
+    canActivate: [AuthGuard],
+    data: { role: [3] } },
+
   { path: '**', component: UnauthorizedComponent },
 ];

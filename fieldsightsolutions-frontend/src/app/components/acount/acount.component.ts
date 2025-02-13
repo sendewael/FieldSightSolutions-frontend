@@ -103,6 +103,7 @@ export class AcountComponent implements OnInit {
           this.user = { ...this.editUser };
           this.isEdit = false;
           this.router.navigate(['/acount']);
+          console.log(user)
         },
         error: (err) => {
           console.error('Failed to update account', err);

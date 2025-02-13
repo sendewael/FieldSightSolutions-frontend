@@ -113,12 +113,22 @@ export class AuthComponent implements OnInit {
 
         localStorage.setItem('authenticated', 'true');
         localStorage.setItem('user', JSON.stringify(user));
+        console.log(user.userRole_id)
+
+        if(user.userRole_id == 3){
+          this.router.navigate(['/overheid/dashboard']);
+
+        }else{
+          this.router.navigate(['/']);
+
+        }
 
         if (user.userRole_id === 4) {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/']);
         }
+
       });
   }
 }
