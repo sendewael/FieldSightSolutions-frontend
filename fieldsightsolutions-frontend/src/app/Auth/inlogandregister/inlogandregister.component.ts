@@ -118,12 +118,8 @@ export class AuthComponent implements OnInit {
         if(user.userRole_id == 3){
           this.router.navigate(['/overheid/dashboard']);
 
-        }else{
-          this.router.navigate(['/']);
-
         }
-
-        if (user.userRole_id === 4) {
+        else if (user.userRole_id === 4) {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/']);
