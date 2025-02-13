@@ -45,4 +45,10 @@ export class FieldService {
   createField(newField: FieldRequestDto): Observable<FieldResponsetDto> {
     return this.http.post<FieldResponsetDto>(`${this.apiUrl}/`, newField);
   }
+
+    // Fetch fields based on Gemeente overheid (using userId)
+    getFieldsByGemeente(userId: number): Observable<FieldResponsetDto[]> {
+      return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/gemeente/${userId}/`, { withCredentials: true });
+    }
+  
 }
