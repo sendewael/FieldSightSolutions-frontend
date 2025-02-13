@@ -4,21 +4,19 @@
 
     <!-- Filter sectie -->
     <div class="mb-4">
-      <input type="text" placeholder="Zoek op naam" [(ngModel)]="filter.name"
+      <!-- Filteren op naam tijdens het typen -->
+      <input type="text" placeholder="Zoek op naam" [(ngModel)]="filter.name" (input)="filterUsers()"
         class="border p-2 rounded m-2 w-full md:w-auto" />
-      <input type="text" placeholder="Zoek op rolnaam" [(ngModel)]="filter.role"
-        class="border p-2 rounded m-2 w-full md:w-auto" />
-      <div class="flex items-center m-2">
-        <label class="mr-2">Actief</label>
-        <label class="switch">
-          <input type="checkbox" [(ngModel)]="filter.active" (change)="toggleActiveFilter()" />
-          <span class="slider round"></span>
-        </label>
-      </div>
+
+      <!-- Dropdown voor rol filteren -->
+      <select [(ngModel)]="filter.role" (change)="filterUsers()" class="border p-2 rounded m-2 w-full md:w-auto">
+        <option value="">Alle</option>
+        <option *ngFor="let role of userRoles" [value]="role.id">{{ role.name }}</option>
+      </select>
     </div>
 
     <!-- Gebruikers tabel -->
-    <table class="min-w-full bg-white">
+    <table class="min-w-full bg-white" *ngIf="users$; else noUsersFound">
       <thead>
         <tr>
           <th class="py-2">Naam</th>
@@ -29,12 +27,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let user of users$ | async; track: $index" [ngClass]="{
-            'bg-green-100': user.is_active,
-            'bg-red-100': !user.is_active
+            'bg-green-200': user.is_active,
+            'bg-red-200': !user.is_active
           }">
-          <td class="border px-4 py-2">
-            {{ user.firstName }} {{ user.lastName }}
-          </td>
+          <td class="border px-4 py-2">{{ user.firstName }} {{ user.lastName }}</td>
           <td class="border px-4 py-2">
             <ng-container *ngIf="user.isEditing; else viewMode">
               <select [(ngModel)]="user.userRole_id" class="border p-2 rounded w-full text-black">
@@ -42,15 +38,10 @@
                   {{ role.name }}
                 </option>
               </select>
-
             </ng-container>
-            <ng-template #viewMode>
-              {{ user.role_name }}
-            </ng-template>
+            <ng-template #viewMode>{{ user.role?.name }}</ng-template>
           </td>
-          <td class="border px-4 py-2">
-            {{ user.is_active ? "Actief" : "Niet Actief" }}
-          </td>
+          <td class="border px-4 py-2">{{ user.is_active ? "Actief" : "Niet Actief" }}</td>
           <td class="border px-4 py-2">
             <ng-container *ngIf="user.isEditing; else actionButtons">
               <button (click)="saveUser(user)" class="text-green-600 m-2 rounded hover:text-green-700 transition">
@@ -74,6 +65,11 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Fallback bericht wanneer geen gebruikers gevonden zijn -->
+    <ng-template #noUsersFound>
+      <p class="text-center text-gray-500">Geen gebruikers gevonden</p>
+    </ng-template>
 
     <!-- Paginatie -->
     <pagination-controls (pageChange)="page = $event"></pagination-controls>

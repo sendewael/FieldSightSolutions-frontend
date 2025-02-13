@@ -20,5 +20,10 @@ export const routes: Routes = [
   { path: 'verzekeraar/schadeclaims', component: SchadeclaimsUserComponent },
   { path: 'edit-schadeclaim/:id', component: SchadeclaimComponent },
   { path: 'admin/dashboard', component: DashboardAdminComponent },
-  { path: 'admin/GebruikersBeheer', component: BeheerUsersComponent },
+  {
+    path: 'admin/GebruikersBeheer',
+    component: BeheerUsersComponent,
+    canActivate: [AuthGuard],
+    data: { role: [2, 3, 4] },
+  },
 ];
