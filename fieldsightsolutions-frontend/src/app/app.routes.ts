@@ -53,6 +53,12 @@ export const routes: Routes = [
     data: { role: [1] },
   },
   {
+    path: 'admin/dashboard',
+    component: DashboardAdminComponent,
+    canActivate: [AuthGuard],
+    data: { role: [2, 3, 4] },
+  },
+  {
     path: 'admin/GebruikersBeheer',
     component: BeheerUsersComponent,
     canActivate: [AuthGuard],
