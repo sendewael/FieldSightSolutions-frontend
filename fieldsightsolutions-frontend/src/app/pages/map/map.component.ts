@@ -423,7 +423,7 @@ export class MapComponent {
     this.totalFieldsToDraw = 0;
     const [lat, lng] = this.mapCenter;
 
-    this.fieldService.getFieldsInRadius(lat, lng, 1).subscribe({
+    this.fieldService.getFieldsInRadius(lat, lng, 0.3).subscribe({
       next: (fields) => {
         if (!fields || fields.length === 0) {
           this.isLoading = false;

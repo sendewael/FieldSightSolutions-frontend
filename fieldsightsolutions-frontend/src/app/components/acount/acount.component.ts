@@ -16,12 +16,15 @@ import { environment } from '../../../environments/environment.development'; // 
   standalone: true,
 })
 export class AcountComponent implements OnInit {
+  name = '';
+  authenticated = false;
   user = {
     firstName: '',
     lastName: '',
     adres: '',
     gemeente: '',
-    email: ''
+    email: '',
+    bus: ''
   };
 
   editUser = { ...this.user };
@@ -43,10 +46,34 @@ export class AcountComponent implements OnInit {
       return; // Stop further execution if no user is found
     }
 
-    this.userService.getUser().subscribe((data: any) => {
-      this.user = data;
-      this.editUser = { ...data };
-      this.fetchUserRole(data.id);
+    // Fetch user data
+    this.userService.getUser().subscribe({
+      next: (data: any) => {
+        this.user = data;
+        this.editUser = { ...data };
+        this.fetchUserRole(data.id);
+      },
+      error: (err) => {
+        console.error('Failed to fetch user data', err);
+        const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+          
+        this.http.post(logoutUrl, {}, { withCredentials: true })
+          .subscribe(() => {
+            this.authenticated = false;
+            this.name = '';
+    
+            // Remove authentication state and user data from localStorage
+            localStorage.removeItem('authenticated');
+            localStorage.removeItem('user');
+    
+            // Emit unauthenticated state
+            Emitters.authEmitter.emit(false);
+            Emitters.userEmitter.emit(null);
+  
+    
+            this.router.navigate(['/login']);
+          });
+      }
     });
   }
 
@@ -65,7 +92,7 @@ export class AcountComponent implements OnInit {
 
   save(): void {
     const saveUrl = `${environment.baseUrl}/users/update`; // Use dynamic baseUrl if needed
-
+    
     // Save updated user data
     this.userService.updateUser(this.editUser)
       .subscribe({
@@ -80,6 +107,8 @@ export class AcountComponent implements OnInit {
         error: (err) => {
           console.error('Failed to update account', err);
         }
+
+        
       });
   }
 }

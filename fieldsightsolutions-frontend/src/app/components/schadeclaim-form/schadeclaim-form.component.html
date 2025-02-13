@@ -236,7 +236,7 @@
         <label for="photos" class="block text-sm font-medium text-gray-700">Upload foto's</label>
         <input type="file" id="photos" (change)="onFileChange($event)" multiple
           class="mt-2 block w-full text-sm text-gray-500 border border-gray-300 rounded-md shadow-sm p-2 cursor-pointer"
-          accept="image/*" [disabled]="schadeclaimForm.status > 1" />
+          accept="image/jpeg, image/jpg" [disabled]="schadeclaimForm.status > 1" />
       </div>
 
       <!-- Image Preview Section -->
@@ -249,7 +249,7 @@
               class="w-full h-32 object-cover rounded-lg shadow-md border border-gray-200" />
 
             <div *ngIf="schadeclaimForm.status === 1">
-              <button (click)="removeImage(i)"
+              <button type="button" (click)="removeImage(i)"
                 class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-900 transition-opacity opacity-70 ">
                 ❌
               </button>

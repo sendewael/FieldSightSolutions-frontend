@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
 import { ImageService } from '../../api/services/image/image.service';
 import { PDFService } from '../../api/services/pdf/pdf.service';
+import { Emitters } from '../../Auth/emitters/emitters';
+import { environment } from '../../../environments/environment.development';
 @Component({
   selector: 'app-schadeclaims',
   templateUrl: './schadeclaims.component.html',
@@ -13,6 +15,9 @@ import { PDFService } from '../../api/services/pdf/pdf.service';
   imports: [CommonModule, RouterModule]  // Add CommonModule here
 })
 export class SchadeclaimsComponent implements OnInit {
+  name = '';
+  authenticated = false;
+
   claims: any[] = [];  // Store the insurance claims
   userId: number | null = null;  // Store the user ID
 
@@ -50,9 +55,35 @@ export class SchadeclaimsComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to fetch insurance claims', err);
+  
+          // Check if the error is related to the "No UserField found for this user" error
+          if (err?.error?.detail && err.error.detail.includes("No UserField found for this user")) {
+            console.warn("UserField not found, but not logging out.");
+            // Handle the case where there is no UserField (optional, depending on your needs)
+          } else {
+            // If error is not related to missing UserField, log out the user
+            const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+  
+            this.http.post(logoutUrl, {}, { withCredentials: true })
+              .subscribe(() => {
+                this.authenticated = false;
+                this.name = '';
+  
+                // Remove authentication state and user data from localStorage
+                localStorage.removeItem('authenticated');
+                localStorage.removeItem('user');
+  
+                // Emit unauthenticated state
+                Emitters.authEmitter.emit(false);
+                Emitters.userEmitter.emit(null);
+  
+                this.router.navigate(['/login']);
+              });
+          }
         }
       });
   }
+  
 
   editClaim(claimId: number): void {
     this.router.navigate(['/edit-schadeclaim', claimId]); // Pass claim ID in route
