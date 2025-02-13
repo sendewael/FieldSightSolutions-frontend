@@ -1,71 +1,83 @@
 @if(authenticated) {
-	<nav class="w-full h-20 bg-green-600 items-center relative top-0 z-50 shadow-sm">
-		<div class="absolute left-2 top-1/2 -translate-y-1/2">
-			<img src="fieldsightsolutions.png"
-				alt="FieldSightSolutions logo"
-				class="h-12 w-auto">
-		</div>
-		<ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-			<li>
-				<a [routerLinkActiveOptions]="{ exact: true }"
-					routerLink="/"
-					routerLinkActive="active"
-					class="mr-4 bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-					<i class="fas fa-map-marker-alt mr-2"></i>
-					Percelen
+<nav class="w-full h-20 bg-green-600 items-center relative top-0 z-50 shadow-sm">
+	<div class="absolute left-2 top-1/2 -translate-y-1/2">
+		<img src="fieldsightsolutions.png" alt="FieldSightSolutions logo" class="h-12 w-auto">
+	</div>
+	<ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+
+
+		@if (userRole < 4) { <li>
+			<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/" routerLinkActive="active"
+				class="mr-4 bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+				<i class="fas fa-map-marker-alt mr-2"></i>
+				Percelen
+			</a>
+			</li>@if(userRole < 2) { <li class="">
+				<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/schadeclaims" routerLinkActive="active"
+					class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+					<i class="fas fa-tractor mr-2"></i>
+					Schadeclaims
 				</a>
-			</li>
-			@if(userRole < 2) {
-				<li class="">
-					<a [routerLinkActiveOptions]="{ exact: true }"
-						routerLink="/schadeclaims"
-						routerLinkActive="active"
-						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-						<i class="fas fa-tractor mr-2"></i>
-						Schadeclaims
-					</a>
 				</li>
-			} @else {
+				} @else if (userRole == 2) {
 				<li>
-					<a [routerLinkActiveOptions]="{ exact: true }"
-						routerLink="verzekeraar/dashboard"
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="verzekeraar/dashboard"
 						routerLinkActive="active"
 						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
 						<i class="fas fa-tractor mr-2"></i>
 						Dashboard
 					</a>
 				</li>
-			}
-			
-		</ul>
-		@if(authenticated) {
-			<div class="absolute right-4 top-1/2 -translate-y-1/2">
-			<div class="relative inline-block">
-				<button (click)="toggleDropdown($event)"
-					class="bg-green-800 text-white px-4 h-[40px] flex items-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-					<span class="whitespace-nowrap">{{ name }}</span>
-					<i class="fas fa-caret-down ml-2"></i>
-				</button>
-				<ul *ngIf="isDropdownOpen"
-					class="absolute right-0 mt-2 bg-white shadow-sm rounded-md w-full">
-					<li>
-						<a [routerLinkActiveOptions]="{ exact: true }"
-							routerLink="/acount"
-							routerLinkActive="active"
-							class="flex px-3 h-[40px] items-center text-green-800 hover:bg-green-100 rounded-md transition-all">
-							Account
-						</a>
-					</li>
-					<li>
-						<a (click)="logout()"
-							routerLink="/"
-							class="flex px-3 h-[40px] items-center text-red-600 hover:bg-red-100 rounded-md transition-all">
-							Logout
-						</a>
-					</li>
-				</ul>
-			</div>
+				}
+				<!-- Path voor gemeente dashboard -->
+				@else if (userRole == 3) {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="verzekeraar/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+				}
+				}
+				@else {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="admin/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+				}
+
+
+	</ul>
+	@if(authenticated) {
+	<div class="absolute right-4 top-1/2 -translate-y-1/2">
+		<div class="relative inline-block">
+			<button (click)="toggleDropdown($event)"
+				class="bg-green-800 text-white px-4 h-[40px] flex items-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+				<span class="whitespace-nowrap">{{ name }}</span>
+				<i class="fas fa-caret-down ml-2"></i>
+			</button>
+			<ul *ngIf="isDropdownOpen" class="absolute right-0 mt-2 bg-white shadow-sm rounded-md w-full">
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/acount" routerLinkActive="active"
+						class="flex px-3 h-[40px] items-center text-green-800 hover:bg-green-100 rounded-md transition-all">
+						Account
+					</a>
+				</li>
+				<li>
+					<a (click)="logout()" routerLink="/"
+						class="flex px-3 h-[40px] items-center text-red-600 hover:bg-red-100 rounded-md transition-all">
+						Logout
+					</a>
+				</li>
+			</ul>
 		</div>
-		}
-	</nav>	
+	</div>
+	}
+</nav>
 }
