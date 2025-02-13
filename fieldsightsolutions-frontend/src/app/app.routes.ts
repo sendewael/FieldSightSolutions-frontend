@@ -16,12 +16,8 @@ import { DashboardMapComponent } from './components/dashboard-map/dashboard-map.
 
 export const routes: Routes = [
 
-  { path: 'login',
-    component: AuthComponent },
   { path: '',
-    component: MapComponent,
-    canActivate: [AuthGuard],
-    data: { role: [1,2] } },
+    component: MapComponent},
   { path: 'login', component: AuthComponent },
   {
     path: 'acount',
