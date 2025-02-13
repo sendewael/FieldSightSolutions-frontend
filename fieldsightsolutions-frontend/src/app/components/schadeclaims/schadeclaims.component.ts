@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
 import { ImageService } from '../../api/services/image/image.service';
 import { PDFService } from '../../api/services/pdf/pdf.service';
+import { environment } from '../../../environments/environment.development';
 import { LoaderComponent } from '../loader/loader.component';
 import { FormsModule } from '@angular/forms';
 import { RequestedImageService } from '../../api/services/requestedImage/requestedImage.service';
@@ -18,6 +19,9 @@ import { Emitters } from '../../Auth/emitters/emitters';
   imports: [CommonModule, RouterModule, LoaderComponent, FormsModule,]  // Add CommonModule here
 })
 export class SchadeclaimsComponent implements OnInit {
+  name = '';
+  authenticated = false;
+
   claims: any[] = [];  // Store the insurance claims
   userId: number | null = null;  // Store the user ID
   isLoading: boolean = false;
@@ -88,9 +92,35 @@ export class SchadeclaimsComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to fetch insurance claims', err);
+  
+          // Check if the error is related to the "No UserField found for this user" error
+          if (err?.error?.detail && err.error.detail.includes("No UserField found for this user")) {
+            console.warn("UserField not found, but not logging out.");
+            // Handle the case where there is no UserField (optional, depending on your needs)
+          } else {
+            // If error is not related to missing UserField, log out the user
+            const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
+  
+            this.http.post(logoutUrl, {}, { withCredentials: true })
+              .subscribe(() => {
+                this.authenticated = false;
+                this.name = '';
+  
+                // Remove authentication state and user data from localStorage
+                localStorage.removeItem('authenticated');
+                localStorage.removeItem('user');
+  
+                // Emit unauthenticated state
+                Emitters.authEmitter.emit(false);
+                Emitters.userEmitter.emit(null);
+  
+                this.router.navigate(['/login']);
+              });
+          }
         }
       });
   }
+  
 
   hasRequestedImages(claimId: number): boolean {
     return this.requestedImages.some(img => img.claimId === claimId);
