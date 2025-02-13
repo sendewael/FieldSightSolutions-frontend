@@ -29,6 +29,10 @@ export class UserFieldService {
     return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/granted-email/${email}`)
   }
 
+  getUserFieldsByMunicipality(municipality: string): Observable<UserFieldResponseDto[]> {
+    return this.http.get<UserFieldResponseDto[]>(`${this.apiUrl}/by-municipality/${municipality}`)
+  }
+
   addUserField(userFieldRequest: UserFieldRequestDto): Observable<UserFieldResponseDto> {
     return this.http.post<UserFieldResponseDto>(`${this.apiUrl}/`, userFieldRequest);
   }

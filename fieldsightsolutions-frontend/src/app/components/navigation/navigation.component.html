@@ -4,33 +4,44 @@
 		<img src="fieldsightsolutions.png" alt="FieldSightSolutions logo" class="h-12 w-auto">
 	</div>
 	<ul class="flex justify-center absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-		@if(userRole < 3) {
 
-		<li>
+
+		@if (userRole < 3) { <li>
 			<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/" routerLinkActive="active"
 				class="mr-4 bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
 				<i class="fas fa-map-marker-alt mr-2"></i>
 				Percelen
 			</a>
-		</li>
-		}
-		@if(userRole == 1) {
-		<li class="">
-			<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/schadeclaims" routerLinkActive="active"
-				class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-				<i class="fas fa-tractor mr-2"></i>
-				Schadeclaims
-			</a>
-		</li>
-		} @else if (userRole ==2) {
-		<li>
-			<a [routerLinkActiveOptions]="{ exact: true }" routerLink="verzekeraar/dashboard" routerLinkActive="active"
-				class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
-				<i class="fas fa-tractor mr-2"></i>
-				Dashboard
-			</a>
-		</li>
-		}@else if (userRole ==3) {
+
+			</li>@if(userRole == 1) { <li class="">
+				<a [routerLinkActiveOptions]="{ exact: true }" routerLink="/schadeclaims" routerLinkActive="active"
+					class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+					<i class="fas fa-tractor mr-2"></i>
+					Schadeclaims
+				</a>
+				</li>
+				} @else if (userRole == 2) {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="verzekeraar/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+				}
+
+  @else if (userRole == 2) {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="verzekeraar/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+				}
+				      @else if (userRole ==3) {
 		<li>
 			<a [routerLinkActiveOptions]="{ exact: true }" routerLink="overheid/dashboard" routerLinkActive="active"
 				class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
@@ -39,6 +50,18 @@
 			</a>
 		</li>
 		}
+				@else if (userRole == 4) {
+				<li>
+					<a [routerLinkActiveOptions]="{ exact: true }" routerLink="admin/dashboard"
+						routerLinkActive="active"
+						class="bg-green-800 text-white px-5 h-[40px] flex items-center justify-center rounded-md hover:bg-green-700 transition-all ease-in-out">
+						<i class="fas fa-tractor mr-2"></i>
+						Dashboard
+					</a>
+				</li>
+				}
+
+
 
 	</ul>
 	@if(authenticated) {
