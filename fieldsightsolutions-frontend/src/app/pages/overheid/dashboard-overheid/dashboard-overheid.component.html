@@ -1,16 +1,10 @@
 <h1 class="text-center font-bold">
 	Dashboard {{ selectedGemeente }}
 </h1>
-
-
-<div class="flex justify-between items-start gap-4 p-4">
-
-
+<div class="flex justify-between items-start gap-4 p-3">
 	<!-- Left side: Fields list -->
 	<div class="w-1/2">
 		<h2 class="text-xl font-semibold">Fields</h2>
-
-
 		<!-- Gemeente Dropdown -->
 		<label for="gemeenteSelect"
 			class="block font-medium">
@@ -25,23 +19,13 @@
 				{{ gemeente }}
 			</option>
 		</select>
-
-
-
-
 		<ul class="list-disc pl-4 mt-2">
 			<li *ngFor="let field of fields">
 				{{ field.name }} - {{ field.crop }} - {{ field.acreage }}
 			</li>
 		</ul>
 	</div>
-
-
-	<!-- Right side: Map -->
-	<div class="w-1/2 h-[500px] border rounded-lg overflow-hidden shadow-md relative">
-		<app-dashboard-map [userMunicipality]="selectedGemeente"
-			class="absolute inset-0"></app-dashboard-map>
+	<div class="relative w-1/2 h-1/2">
+		<app-dashboard-map [userMunicipality]="selectedGemeente"></app-dashboard-map>
 	</div>
-
-
 </div>

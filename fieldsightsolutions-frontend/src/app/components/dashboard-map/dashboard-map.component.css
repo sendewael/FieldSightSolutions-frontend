@@ -1,0 +1,32 @@
+h3 {
+    color: #166534;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100vh - 15rem);
+    width: 100%;
+    z-index: 30;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: #d1d5db;
+
+}
+
+#beheer {
+    height: calc(100vh - 15rem);
+    border-width: 1px;
+    border-color: #d1d5db;
+    border-top: 1px solid #d1d5db;
+    border-bottom: 1px solid #d1d5db;
+    border-right: 1px solid #d1d5db;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+}

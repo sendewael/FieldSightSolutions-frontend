@@ -8,21 +8,23 @@ import { UserService } from '../../api/services/user/user.service';
 import { FieldResponsetDto } from '../../api/dtos/Field/Field-response-dto';
 import { FieldService } from '../../api/services/field/field.service';
 import { CornerService } from '../../api/services/corner/corner.service';
+import { NgClass } from '@angular/common';
+import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
+import { InsuranceFormResponseDto } from '../../api/dtos/InsuranceForm/InsuranceForm-response-dto';
 
 @Component({
   selector: 'app-dashboard-map',
   standalone: true,
-  imports: [],
+  imports: [NgClass],
   templateUrl: './dashboard-map.component.html',
   styleUrl: './dashboard-map.component.css'
 })
 export class DashboardMapComponent {
 
   constructor(
-    private userFieldService: UserFieldService,
-    private userService: UserService,
     private fieldService: FieldService,
-    private cornerService: CornerService
+    private cornerService: CornerService,
+    private insuranceFormService: InsuranceFormService
   ) { }
 
   // Variablen
@@ -31,29 +33,18 @@ export class DashboardMapComponent {
 
   public userFieldsTable: UserFieldResponseDto[] = [];
   public fields: FieldResponsetDto[] = [];
+  public insuranceClaims: InsuranceFormResponseDto[] = [];
   public fieldPolygons: Map<number, L.Polygon> = new Map();
 
-  public userId: number = 0
-
   @Input() userMunicipality: string | null = null;
+
+  public selectedField: FieldResponsetDto | null = null;
+
 
 
   // Opstart methode
   ngOnInit(): void {
-    // const user = JSON.parse(localStorage.getItem('user') || '{}');
-    // if (user && user.id) {
-    //   this.userId = user.id;
-    //   this.userService.getUserById(this.userId).subscribe({
-    //     next: (user) => {
-    //       console.log(user)
-    //       this.userMunicipality = user.overzicht_gemeente
-    //       this.initMap()
-    //       this.loadFields()
-    //     }
-    //   })
-    // }
     this.initMap()
-    // this.loadFields()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -112,6 +103,11 @@ export class DashboardMapComponent {
     this.fieldPolygons.clear();
   }
 
+  public clearSelectedField(): void {
+    this.selectedField = null
+    console.log(this.selectedField, "cleared")
+  }
+
 
   private centerMapOnField(field: FieldResponsetDto): void {
     if (!this.map) return;
@@ -155,6 +151,7 @@ export class DashboardMapComponent {
 
           this.fieldPolygons.set(fieldId, polygon);
 
+          const field = this.fields.find(f => f.id === fieldId);
           const fieldName = this.fields.find(field => field.id === fieldId)?.name || `Field ${fieldId}`;
           const fieldOwner = this.fields.find(field => field.id === fieldId)?.user_name || `Field ${fieldId}`;
           const fieldCrop = this.fields.find(field => field.id === fieldId)?.crop || `Field ${fieldId}`;
@@ -163,10 +160,32 @@ export class DashboardMapComponent {
             { permanent: false, direction: 'center' }
           );
 
+          polygon.on('click', () => {
+            this.selectedField = field || null;
+            this.insuranceClaims = [];
+            this.getInsuranceClaimsForField(fieldId);
+
+            console.log("Geselecteerd veld:", this.selectedField);
+
+          });
+
         } else {
           console.error(`Geen hoeken gevonden voor veld ${fieldId}`);
         }
       });
+    }
+  }
+
+  private getInsuranceClaimsForField(fieldId: number): void {
+    if (this.selectedField) {
+      this.insuranceFormService.getInsuranceClaimsByFieldId(fieldId).subscribe(
+        (insuranceClaims) => {
+          if (insuranceClaims.length > 0) {
+            this.insuranceClaims = insuranceClaims;
+            console.log("Insurance claims", this.insuranceClaims)
+          }
+        }
+      )
     }
   }
 }

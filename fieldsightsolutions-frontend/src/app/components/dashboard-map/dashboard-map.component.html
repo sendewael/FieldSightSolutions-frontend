@@ -1,1 +1,79 @@
-<div id="map" style="width: 100%; height: 100%;"></div>
+<div>
+        <div id="beheer" [ngClass]="{'-translate-x-0': selectedField, 'translate-x-full': !selectedField}" class="bg-gray-50 w-2/5 z-40 absolute top-0 right-0 p-4 overflow-y-auto transition-all duration-300 ease-in-out">
+            <button (click)="clearSelectedField()" class="absolute top-4 left-4 text-lg text-green-800 hover:text-green-700 transition-all">X</button>
+        
+            @if(selectedField) {
+                <h3 class="text-center">{{ selectedField.name }}</h3>
+        
+                <div class="text-left">
+                    <label class="text-sm pb-2 ml-1">Perceelnaam</label>
+                    <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                        {{ selectedField.name }}
+                    </p>
+            
+                    <label class="text-sm pb-2 ml-1">Eigenaar</label>
+                    <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                        @if(selectedField.user_name) {
+                            {{ selectedField.user_name }}
+                        } @else {
+                            Geen eigenaar
+                        }
+                    </p>
+            
+                    <label class="text-sm pb-2 ml-1">Gewas</label>
+                    <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                        {{ selectedField.crop }}
+                    </p>
+            
+                    <label class="text-sm pb-2 ml-1">Oppervlakte in m²</label>
+                    <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                        {{ selectedField.acreage }}
+                    </p>
+            
+                    <div class="flex space-x-3">
+                        <div class="flex flex-col w-1/2">
+                            <label class="text-sm pb-2 ml-1">Gemeente</label>
+                            <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.municipality }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col w-1/2">
+                            <label class="text-sm pb-2 ml-1">Postcode</label>
+                            <p class="h-10 mb-5 p-2 border border-gray-300 rounded-md flex items-center">
+                                {{ selectedField.postalcode }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if(insuranceClaims.length > 1) {
+                        <label class="text-md pb-2 ml-1">Voor dit perceel zijn er {{ insuranceClaims.length }} schadeclaims ingediend:</label>
+                    } @else if (insuranceClaims.length === 1 ) {
+                        <label class="text-md pb-2 ml-1">Voor dit perceel is er 1 schadeclaim ingediend:</label>
+                    } @else {
+                        <label class="text-md pb-2 ml-1">Voor dit perceel zijn er geen schadeclaims ingediend.</label>
+                    }
+                    @for(claim of insuranceClaims; track $index) {
+                        <div class="flex space-x-3">
+                            <div class="flex flex-col w-1/2">
+                                <label class="text-sm pb-2 ml-1">Datum van</label>
+                                <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                    {{ claim.startDate }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col w-1/2">
+                                <label class="text-sm pb-2 ml-1">Datum tot</label>
+                                <p class="h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                                    {{ claim.endDate }}
+                                </p>
+                            </div>
+                        </div>
+                        <label class="text-sm pb-2 ml-1">Schadetype</label>
+                        <p class="w-full h-10 mb-3 p-2 border border-gray-300 rounded-md flex items-center">
+                            {{ claim.damage_type }}
+                        </p>
+                    }
+                </div>
+            }
+        </div>
+	<div id="map"></div>
+</div>
