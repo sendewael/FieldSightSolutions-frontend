@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import "leaflet/dist/leaflet.css"
 import * as L from 'leaflet';
 import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
@@ -33,23 +33,33 @@ export class DashboardMapComponent {
   public fields: FieldResponsetDto[] = [];
   public fieldPolygons: Map<number, L.Polygon> = new Map();
 
-  public userMunicipality: string | null = null;
   public userId: number = 0
+
+  @Input() userMunicipality: string | null = null;
 
 
   // Opstart methode
   ngOnInit(): void {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user && user.id) {
-      this.userId = user.id;
-      this.userService.getUserById(this.userId).subscribe({
-        next: (user) => {
-          console.log(user)
-          this.userMunicipality = user.overzicht_gemeente
-          this.initMap()
-          this.loadFields()
-        }
-      })
+    // const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // if (user && user.id) {
+    //   this.userId = user.id;
+    //   this.userService.getUserById(this.userId).subscribe({
+    //     next: (user) => {
+    //       console.log(user)
+    //       this.userMunicipality = user.overzicht_gemeente
+    //       this.initMap()
+    //       this.loadFields()
+    //     }
+    //   })
+    // }
+    this.initMap()
+    // this.loadFields()
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userMunicipality']) {
+      console.log("userMunicipality is veranderd:", this.userMunicipality);
+      this.loadFields();
     }
   }
 
@@ -59,12 +69,12 @@ export class DashboardMapComponent {
       center: [51.1620, 4.9910],
       zoom: 13,
     });
-  
+
 
     L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg', {
       attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
-  
+
     this.map.attributionControl.setPosition('bottomleft');
 
     const searchControl = GeoSearchControl({
@@ -75,31 +85,33 @@ export class DashboardMapComponent {
     });
 
     this.map.addControl(searchControl);
-    
+
   }
 
   // Laad de velden
   private loadFields(): void {
     if (this.userMunicipality) {
-      this.userFieldService.getUserFieldsByMunicipality(this.userMunicipality).subscribe(
-        (userFields) => {
-          this.userFieldsTable = userFields;
-          const fieldIds = userFields.map(uf => uf.field);
-          this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
-            next: (fields) => {
-              this.fields = fields;
-              if (fields.length > 0) {
-                // Centreer de kaart op het eerste veld
-                const firstField = fields[0];
-                this.centerMapOnField(firstField);
-              }
-              this.drawFieldsOnMap();
-            }
-          });
+      this.clearPolygons();
+      this.fieldService.getFieldsByGemeente(this.userMunicipality).subscribe(
+        (fields) => {
+          this.fields = fields;
+          if (fields.length > 0) {
+            const firstField = fields[0];
+            this.centerMapOnField(firstField);
+          }
+          this.drawFieldsOnMap();
         }
-      );
+      )
     }
   }
+
+  private clearPolygons(): void {
+    this.fieldPolygons.forEach((polygon) => {
+      this.map?.removeLayer(polygon);
+    });
+    this.fieldPolygons.clear();
+  }
+
 
   private centerMapOnField(field: FieldResponsetDto): void {
     if (!this.map) return;
