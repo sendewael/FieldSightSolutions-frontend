@@ -1,31 +1,47 @@
-<h1 class="text-center font-bold">Dashboard {{ selectedGemeente }}</h1>
+<h1 class="text-center font-bold">
+	Dashboard {{ selectedGemeente }}
+</h1>
+
 
 <div class="flex justify-between items-start gap-4 p-4">
-  
-  <!-- Left side: Fields list -->
-  <div class="w-1/2">
-    <h2 class="text-xl font-semibold">Fields</h2>
-    
-    <!-- Gemeente Dropdown -->
-    <label for="gemeenteSelect" class="block font-medium">Select Gemeente:</label>
-    <select id="gemeenteSelect" [(ngModel)]="selectedGemeente" (change)="onGemeenteChange($event)" class="border p-2 rounded">
-      <option *ngFor="let gemeente of gemeentes" [value]="gemeente">
-        {{ gemeente }}
-      </option>
-    </select>
-    
-    
 
-    <ul class="list-disc pl-4 mt-2">
-      <li *ngFor="let field of fields">
-        {{ field.name }} - {{ field.crop }} - {{ field.acreage }}
-      </li>
-    </ul>
-  </div>
 
-  <!-- Right side: Map -->
-  <div class="w-1/2 h-[500px] border rounded-lg overflow-hidden shadow-md relative">
-    <app-dashboard-map class="absolute inset-0"></app-dashboard-map>
-  </div>
+	<!-- Left side: Fields list -->
+	<div class="w-1/2">
+		<h2 class="text-xl font-semibold">Fields</h2>
+
+
+		<!-- Gemeente Dropdown -->
+		<label for="gemeenteSelect"
+			class="block font-medium">
+			Select Gemeente:
+		</label>
+		<select [(ngModel)]="selectedGemeente"
+			(change)="onGemeenteChange($event)"
+			id="gemeenteSelect"
+			class="border p-2 rounded">
+			<option *ngFor="let gemeente of gemeentes"
+				[value]="gemeente">
+				{{ gemeente }}
+			</option>
+		</select>
+
+
+
+
+		<ul class="list-disc pl-4 mt-2">
+			<li *ngFor="let field of fields">
+				{{ field.name }} - {{ field.crop }} - {{ field.acreage }}
+			</li>
+		</ul>
+	</div>
+
+
+	<!-- Right side: Map -->
+	<div class="w-1/2 h-[500px] border rounded-lg overflow-hidden shadow-md relative">
+		<app-dashboard-map [userMunicipality]="selectedGemeente"
+			class="absolute inset-0"></app-dashboard-map>
+	</div>
+
 
 </div>
