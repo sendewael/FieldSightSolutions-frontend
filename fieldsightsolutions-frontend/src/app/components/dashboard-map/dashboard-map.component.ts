@@ -44,11 +44,8 @@ export class DashboardMapComponent {
       this.userId = user.id;
       this.userService.getUserById(this.userId).subscribe({
         next: (user) => {
-          //DEZE LIJN COMMENTEN
-          this.userMunicipality = "geel"
-          //DEZE LIJN UNCOMMENTEN
-          // this.userMunicipality = user.overzicht_gemeente
-          console.log(this.userMunicipality)
+          console.log(user)
+          this.userMunicipality = user.overzicht_gemeente
           this.initMap()
           this.loadFields()
         }
@@ -62,11 +59,12 @@ export class DashboardMapComponent {
       center: [51.1620, 4.9910],
       zoom: 13,
     });
+  
 
     L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg', {
       attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
-
+  
     this.map.attributionControl.setPosition('bottomleft');
 
     const searchControl = GeoSearchControl({
@@ -77,11 +75,11 @@ export class DashboardMapComponent {
     });
 
     this.map.addControl(searchControl);
+    
   }
 
   // Laad de velden
   private loadFields(): void {
-    console.log("Load fields")
     if (this.userMunicipality) {
       this.userFieldService.getUserFieldsByMunicipality(this.userMunicipality).subscribe(
         (userFields) => {
@@ -90,7 +88,6 @@ export class DashboardMapComponent {
           this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
             next: (fields) => {
               this.fields = fields;
-              console.log(fields);
               if (fields.length > 0) {
                 // Centreer de kaart op het eerste veld
                 const firstField = fields[0];

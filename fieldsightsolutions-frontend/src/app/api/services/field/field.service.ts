@@ -46,9 +46,14 @@ export class FieldService {
     return this.http.post<FieldResponsetDto>(`${this.apiUrl}/`, newField);
   }
 
-    // Fetch fields based on Gemeente overheid (using userId)
-    getFieldsByGemeente(userId: number): Observable<FieldResponsetDto[]> {
-      return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/gemeente/${userId}/`, { withCredentials: true });
-    }
-  
+  // Fetch fields based on Gemeente overheid (using userId)
+  getFieldsByGemeente(gemeentenaam: string): Observable<FieldResponsetDto[]> {
+    return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/gemeente/${gemeentenaam}/`, { withCredentials: true });
+  }
+
+
+  getFieldGemeentes(): Observable<FieldResponsetDto[]> {
+    return this.http.get<FieldResponsetDto[]>(`${this.apiUrl}/gemeentes/`, { withCredentials: true });
+  }
+
 }
