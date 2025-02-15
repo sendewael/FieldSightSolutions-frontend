@@ -9,13 +9,7 @@ docker-build:
   only:
     refs:
       - main
-    changes:
-      - fieldsightsolutions-frontend/Dockerfile
-      - fieldsightsolutions-frontend/.dockerignore
-      - fieldsightsolutions-frontend/entrypoint.sh
-      - fieldsightsolutions-frontend/src
-      - fieldsightsolutions-frontend/public
-      - fieldsightsolutions-frontend/dist
+      - dev
   before_script:
     - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
