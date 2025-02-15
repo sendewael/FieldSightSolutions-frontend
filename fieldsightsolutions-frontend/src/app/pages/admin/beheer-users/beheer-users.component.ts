@@ -133,7 +133,16 @@ export class BeheerUsersComponent implements OnInit {
   }
 
   deleteUser(user: UserCrudDto): void {
-    // Voeg hier de logica toe om een gebruiker te verwijderen
+    this.userService.deleteUser(user.id).subscribe(
+      () => {
+        console.log('User deleted successfully');
+        this.userService.fetchUsers();
+        // Voeg hier eventuele extra logica toe, zoals het updaten van de UI
+      },
+      (error) => {
+        console.error('Error deleting user:', error);
+      }
+    );
   }
 
   toggleActiveFilter(): void {

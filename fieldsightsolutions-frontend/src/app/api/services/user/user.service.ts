@@ -79,4 +79,10 @@ export class UserService {
       params: { userId: pk.toString() },
     });
   }
+
+  deleteUser(userId: number): Observable<UserCrudDto> {
+    return this.http.delete<UserCrudDto>(`${this.apiUrl}/delete/${userId}`, {
+      withCredentials: true,
+    });
+  }
 }
