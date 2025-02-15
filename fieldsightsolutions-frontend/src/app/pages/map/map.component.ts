@@ -150,7 +150,7 @@ export class MapComponent {
           this.loadUserFields(this.userId)
         }
       })
-      this.userService.getUsersByRoleIds([2, 3, 4]).subscribe({
+      this.userService.getUsersByRoleIds([2]).subscribe({
         next: (users) => {
           this.allGrantedUsers = users.sort((a, b) => a.firstName.localeCompare(b.firstName));
         },
