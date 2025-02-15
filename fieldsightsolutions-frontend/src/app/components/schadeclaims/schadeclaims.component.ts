@@ -72,7 +72,8 @@ export class SchadeclaimsComponent implements OnInit {
     this.insuranceformservice.getInsuranceformByUserId(userId)
       .subscribe({
         next: (response: any) => {
-          this.claims = response;  // Assign the response data to the claims array
+          // Ensure claims is always an array to avoid "forEach is not a function" error
+          this.claims = Array.isArray(response) ? response : [];
 
           this.claims.forEach(claim => {
             this.requestedImageService.getImages(claim.id).subscribe(images => {
@@ -96,16 +97,15 @@ export class SchadeclaimsComponent implements OnInit {
             });
           });
 
-
           this.isLoading = false;
         },
         error: (err) => {
           console.error('Failed to fetch insurance claims', err);
 
-          // Check if the error is related to the "No UserField found for this user" error
+          // Check if the error is related to "No UserField found for this user" error
           if (err?.error?.detail && err.error.detail.includes("No UserField found for this user")) {
             console.warn("UserField not found, but not logging out.");
-            // Handle the case where there is no UserField (optional, depending on your needs)
+            // Handle case where there is no UserField (optional, depending on your needs)
           } else {
             // If error is not related to missing UserField, log out the user
             const logoutUrl = `${environment.baseUrl}/logout`; // Use dynamic baseUrl from environment
@@ -126,9 +126,11 @@ export class SchadeclaimsComponent implements OnInit {
                 this.router.navigate(['/login']);
               });
           }
+
+          this.isLoading = false; // Stop loading in case of an error
         }
       });
-  }
+}
 
   hasEOPlazaImages(claimId: number): boolean {
     return this.claimHasEOPlazaImages[claimId] ?? false;
