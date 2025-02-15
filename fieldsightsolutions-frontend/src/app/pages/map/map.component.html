@@ -192,43 +192,48 @@
                 } 
                 @else if(!isEdit && !showFieldAccess && requestPhotoForClaim) {
                     <h3>Foto's aanvragen</h3>
-                    @if(!selectedClaim) {
-                        <p class="mb-3">Kies de schadeclaim waarvoor u foto's wil aanvragen.</p>
-                        @for(claim of insuranceClaimsForSingleField; track $index){
-                            <app-claim-knop [claim]="claim" (click)="selectClaim(claim.id)"></app-claim-knop>
-                        }
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                            <button (click)="requestPhoto()" class="w-full action-button">
-                                <p>Terug</p>
-                            </button>
-                        </div>
-                    }
-                    @else {
-                        @if(!clickCoordinates.length){
-                            <p>Klik op de kaart in het rode gebied om specifieke locaties aan te duiden van waar u foto's wenst.</p>
+                    <div class="full-height-menu overflow-y-auto">
+                        @if(!selectedClaim) {
+                            <p class="mb-3">Kies de schadeclaim waarvoor u foto's wil aanvragen.</p>
+                            @for(claim of insuranceClaimsForSingleField; track $index){
+                                <app-claim-knop [claim]="claim" (click)="selectClaim(claim.id)"></app-claim-knop>
+                            }
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                                <button (click)="requestPhoto()" class="w-full action-button">
+                                    <p>Terug</p>
+                                </button>
+                            </div>
                         }
                         @else {
-                            @for(foto of clickCoordinates; track $index){
-                                <div class="w-full h-10 p-2 mb-1 border border-gray-300 rounded-md flex justify-between items-center">
-                                    <p class="">
-                                        <span class="text-sm">x {{ foto.x | number:'1.0-4' }} y {{ foto.y | number:'1.0-4' }}</span>
-                                    </p>
-                                    <button (click)="removeCoordinate($index)" class="ml-2">
-                                        <img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
-                                    </button>
-                                </div>
-                                <textarea type="text" [(ngModel)]="clickCoordinates[$index].description" placeholder="Voeg meer info toe indien gewenst" class="w-full flex-1 px-2 py-1 border mb-3 h-14 border-gray-300 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-green-800"></textarea>
+                            @if(!clickCoordinates.length){
+                                <p>Klik op de kaart in het rode gebied om specifieke locaties aan te duiden van waar u foto's wenst. <br class="mb-2"><span class="font-bold">Tip!</span> U  kan meerdere punten tegelijk aanduiden!</p>
                             }
+                            @else {
+                                @for(foto of clickCoordinates; track $index){
+                                    <div class="w-full h-10 p-2 mb-1 border border-gray-300 rounded-md flex justify-between items-center">
+                                        <p class="">
+                                            <span class="text-sm">x {{ foto.x | number:'1.0-4' }} y {{ foto.y | number:'1.0-4' }}</span>
+                                        </p>
+                                        <button (click)="removeCoordinate($index)" class="ml-2">
+                                            <img src="icons/bin.svg" alt="Bin" width="25" height="25" class="brightness-100 hover:brightness-90 transition-all">
+                                        </button>
+                                    </div>
+                                    <textarea type="text" [(ngModel)]="clickCoordinates[$index].description" placeholder="Voeg meer info toe indien gewenst" class="w-full flex-1 px-2 py-1 border mb-3 h-14 border-gray-300 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-green-800"></textarea>
+                                }
+                                @if(clickCoordinates.length < 2) {
+                                    <p class="mt-2">U kan nog meer punten toevoegen!</p>
+                                }
+                            }
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
+                                <button (click)="clearSelectedClaim()" class="w-3/5 mr-3 action-button">
+                                    <p>Terug</p>
+                                </button>
+                                <button (click)="submitRequestPhotos()" class="w-3/5 action-button disabled:opacity-50" [disabled]="!clickCoordinates.length">
+                                    <p>Aanvragen</p>
+                                </button>
+                            </div>
                         }
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex px-3 text-white">
-                            <button (click)="clearSelectedClaim()" class="w-3/5 mr-3 action-button">
-                                <p>Terug</p>
-                            </button>
-                            <button (click)="submitRequestPhotos()" class="w-3/5 action-button disabled:opacity-50" [disabled]="!clickCoordinates.length">
-                                <p>Aanvragen</p>
-                            </button>
-                        </div>
-                    }
+                    </div>
                 } 
                 @else {
                     <h3>Bewerk perceel</h3>
