@@ -73,5 +73,23 @@
 
     <!-- Paginatie -->
     <pagination-controls (pageChange)="page = $event"></pagination-controls>
+
+    @if(confirmModal) {
+    <div class="w-screen h-full backdrop-blur-sm fixed left-0 top-0 z-50">
+      <div
+        class="w-96 max-h-72 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-md text-center p-3">
+        <p>Bent u zeker dat u <span class="font-bold">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}
+          </span>wilt verwijderen?
+        </p>
+        <p class="text-sm">De gegevens worden permanent verwijderd!</p>
+        <div class="flex mt-3 text-white">
+          <button type="button" (click)="cancelDelete()"
+            class="h-10 w-3/5 bg-red-800 rounded-md mr-3 hover:bg-red-500 transition-all">Nee</button>
+          <button type="submit" (click)="confirmDelete()"
+            class="h-10 w-3/5 bg-green-800 rounded-md hover:bg-green-700 transition-all">Ja</button>
+        </div>
+      </div>
+    </div>
+    }
   </div>
 </div>

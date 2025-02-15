@@ -26,6 +26,8 @@ export class BeheerUsersComponent implements OnInit {
   page: number = 1;
   users$!: Observable<UserCrudDto[]>;
   userRoles: UserRoleResponseDto[] = [];
+  confirmModal: boolean = false;
+  selectedUser?: UserCrudDto;
 
   constructor(
     private userService: UserService,
@@ -133,16 +135,32 @@ export class BeheerUsersComponent implements OnInit {
   }
 
   deleteUser(user: UserCrudDto): void {
-    this.userService.deleteUser(user.id).subscribe(
+    this.confirmModal = true;
+    this.selectedUser = user;
+
+    console.log(this.selectedUser);
+  }
+
+  confirmDelete(): void {
+    if (!this.selectedUser) {
+      return;
+    }
+
+    this.userService.deleteUser(this.selectedUser.id).subscribe(
       () => {
         console.log('User deleted successfully');
         this.userService.fetchUsers();
-        // Voeg hier eventuele extra logica toe, zoals het updaten van de UI
+        this.confirmModal = false;
       },
       (error) => {
         console.error('Error deleting user:', error);
       }
     );
+  }
+
+  cancelDelete(): void {
+    this.confirmModal = false;
+    this.selectedUser = undefined;
   }
 
   toggleActiveFilter(): void {
