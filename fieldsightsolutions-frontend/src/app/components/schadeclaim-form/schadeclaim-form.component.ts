@@ -14,6 +14,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ToastComponent } from '../toast/toast.component';
 import * as piexif from 'piexifjs';
 import { environment } from '../../../environments/environment.development';
+import { PDFService } from '../../api/services/pdf/pdf.service';
+import { UserFieldService } from '../../api/services/userField/user-field.service';
 
 @Component({
   selector: 'app-schadeclaim-form',
@@ -110,7 +112,9 @@ export class SchadeclaimFormComponent implements OnInit {
     private insuranceformService: InsuranceFormService,
     private fieldcropService: FieldCropService,
     private imageService: ImageService,
-    private requestedImageService: RequestedImageService
+    private requestedImageService: RequestedImageService,
+    private pdfService: PDFService,
+    private userFieldService: UserFieldService,
   ) { }
 
   ngOnInit(): void {
@@ -169,6 +173,7 @@ export class SchadeclaimFormComponent implements OnInit {
   }
 
 
+  public noUserAccess: boolean = false
   // change field info when selecting field in dropdown
   onFieldSelect(): void {
     const selectedFieldId = this.schadeclaimForm.field;
@@ -191,11 +196,14 @@ export class SchadeclaimFormComponent implements OnInit {
           this.schadeclaimForm.crop = selectedField.crop || '';
         }
 
+
+
       },
       error: (err) => {
         console.error('Error fetching field data:', err);
       },
     });
+
 
   }
 
@@ -223,6 +231,21 @@ export class SchadeclaimFormComponent implements OnInit {
       });
   }
 
+  claimHasEOPlazaImages: { [key: number]: boolean } = {};
+
+  checkEOPlazaImages(claimId: number): void {
+    this.imageService.getEOplazaImages(claimId).subscribe({
+      next: (eoplazaResponse: any) => {
+        this.claimHasEOPlazaImages[claimId] = eoplazaResponse.images.length > 0;
+      },
+      error: (err) => {
+        console.error(`Error fetching EOPlaza images for claim ${claimId}:`, err);
+        this.claimHasEOPlazaImages[claimId] = false;
+      },
+    });
+  }
+
+
   //fetch claim data when form is aready created
   fetchClaimData(claimId: number): void {
     this.imageService.getImages(claimId).subscribe({
@@ -239,6 +262,10 @@ export class SchadeclaimFormComponent implements OnInit {
         console.error('Error fetching images:', err);
       },
     });
+
+    if (this.schadeclaimForm.status > 1) {
+      this.checkEOPlazaImages(claimId);
+    }
 
 
     //requested Images
@@ -321,32 +348,32 @@ export class SchadeclaimFormComponent implements OnInit {
           alert('Alleen JPG-bestanden zijn toegestaan.');
           return;
         }
-  
+
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const data = reader.result as string;
             const exif = piexif.load(data);
             const gps = exif['GPS'];
-  
+
             let xCord, yCord;
             if (gps) {
               const latitude = gps[piexif.GPSIFD.GPSLatitude];
               const latitudeRef = gps[piexif.GPSIFD.GPSLatitudeRef];
               const longitude = gps[piexif.GPSIFD.GPSLongitude];
               const longitudeRef = gps[piexif.GPSIFD.GPSLongitudeRef];
-  
+
               xCord = this.convertDMSToDecimal(latitude, latitudeRef);
               yCord = this.convertDMSToDecimal(longitude, longitudeRef);
             }
-  
+
             this.uploadedImages.push({
               file,
               url: reader.result as string,
               xCord: xCord?.toString() || '',
               yCord: yCord?.toString() || '',
             });
-  
+
           } catch (error) {
             console.error('Error parsing EXIF data:', error);
           }
@@ -355,7 +382,7 @@ export class SchadeclaimFormComponent implements OnInit {
       });
     }
   }
-  
+
 
   removeImage(index: number): void {
     this.uploadedImages.splice(index, 1);
@@ -395,6 +422,8 @@ export class SchadeclaimFormComponent implements OnInit {
         },
       });
   }
+
+
 
   onUpdate(): void {
     if (this.schadeclaimForm.status === 2) {
@@ -484,9 +513,41 @@ export class SchadeclaimFormComponent implements OnInit {
 
   confirmCreate(): void {
     this.confirmModal = true
+    this.userFieldService.getUserFieldByFieldId(this.schadeclaimForm.field).subscribe({
+      next: (response: any[]) => {
+        if (response.length > 0 && response[0].grantedEmails.length === 0) {
+          this.noUserAccess = true;
+        } else {
+          this.noUserAccess = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching user field data:', err);
+        this.noUserAccess = true;
+      }
+    });
   }
 
   cancelCreate(): void {
     this.confirmModal = false;
+  }
+
+  generateEOPlazaPDF(claimId: number): void {
+    this.pdfService.getEOplazaPDF(claimId)
+      .subscribe({
+        next: (response) => {
+          // Create a downloadable link for the PDF
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `claim_${claimId}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Failed to generate PDF', err);
+        }
+      });
   }
 }
