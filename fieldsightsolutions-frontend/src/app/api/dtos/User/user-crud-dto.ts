@@ -14,4 +14,6 @@ export interface UserCrudDto {
     id: number;
     name: string;
   };
+  overzicht_gemeente: string;
+
 }

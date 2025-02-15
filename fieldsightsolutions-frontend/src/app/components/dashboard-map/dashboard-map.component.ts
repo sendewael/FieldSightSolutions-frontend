@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import "leaflet/dist/leaflet.css"
 import * as L from 'leaflet';
 import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
@@ -8,21 +8,23 @@ import { UserService } from '../../api/services/user/user.service';
 import { FieldResponsetDto } from '../../api/dtos/Field/Field-response-dto';
 import { FieldService } from '../../api/services/field/field.service';
 import { CornerService } from '../../api/services/corner/corner.service';
+import { NgClass } from '@angular/common';
+import { InsuranceFormService } from '../../api/services/insuranceForm/insurance-form.service';
+import { InsuranceFormResponseDto } from '../../api/dtos/InsuranceForm/InsuranceForm-response-dto';
 
 @Component({
   selector: 'app-dashboard-map',
   standalone: true,
-  imports: [],
+  imports: [NgClass],
   templateUrl: './dashboard-map.component.html',
   styleUrl: './dashboard-map.component.css'
 })
 export class DashboardMapComponent {
 
   constructor(
-    private userFieldService: UserFieldService,
-    private userService: UserService,
     private fieldService: FieldService,
-    private cornerService: CornerService
+    private cornerService: CornerService,
+    private insuranceFormService: InsuranceFormService
   ) { }
 
   // Variablen
@@ -31,28 +33,24 @@ export class DashboardMapComponent {
 
   public userFieldsTable: UserFieldResponseDto[] = [];
   public fields: FieldResponsetDto[] = [];
+  public insuranceClaims: InsuranceFormResponseDto[] = [];
   public fieldPolygons: Map<number, L.Polygon> = new Map();
 
-  public userMunicipality: string | null = null;
-  public userId: number = 0
+  @Input() userMunicipality: string | null = null;
+
+  public selectedField: FieldResponsetDto | null = null;
+
 
 
   // Opstart methode
   ngOnInit(): void {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user && user.id) {
-      this.userId = user.id;
-      this.userService.getUserById(this.userId).subscribe({
-        next: (user) => {
-          //DEZE LIJN COMMENTEN
-          this.userMunicipality = "geel"
-          //DEZE LIJN UNCOMMENTEN
-          // this.userMunicipality = user.overzicht_gemeente
-          console.log(this.userMunicipality)
-          this.initMap()
-          this.loadFields()
-        }
-      })
+    this.initMap()
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userMunicipality']) {
+      console.log("userMunicipality is veranderd:", this.userMunicipality);
+      this.loadFields();
     }
   }
 
@@ -62,6 +60,7 @@ export class DashboardMapComponent {
       center: [51.1620, 4.9910],
       zoom: 13,
     });
+
 
     L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg', {
       attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -77,32 +76,38 @@ export class DashboardMapComponent {
     });
 
     this.map.addControl(searchControl);
+
   }
 
   // Laad de velden
   private loadFields(): void {
-    console.log("Load fields")
     if (this.userMunicipality) {
-      this.userFieldService.getUserFieldsByMunicipality(this.userMunicipality).subscribe(
-        (userFields) => {
-          this.userFieldsTable = userFields;
-          const fieldIds = userFields.map(uf => uf.field);
-          this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
-            next: (fields) => {
-              this.fields = fields;
-              console.log(fields);
-              if (fields.length > 0) {
-                // Centreer de kaart op het eerste veld
-                const firstField = fields[0];
-                this.centerMapOnField(firstField);
-              }
-              this.drawFieldsOnMap();
-            }
-          });
+      this.clearPolygons();
+      this.fieldService.getFieldsByGemeente(this.userMunicipality).subscribe(
+        (fields) => {
+          this.fields = fields;
+          if (fields.length > 0) {
+            const firstField = fields[0];
+            this.centerMapOnField(firstField);
+          }
+          this.drawFieldsOnMap();
         }
-      );
+      )
     }
   }
+
+  private clearPolygons(): void {
+    this.fieldPolygons.forEach((polygon) => {
+      this.map?.removeLayer(polygon);
+    });
+    this.fieldPolygons.clear();
+  }
+
+  public clearSelectedField(): void {
+    this.selectedField = null
+    console.log(this.selectedField, "cleared")
+  }
+
 
   private centerMapOnField(field: FieldResponsetDto): void {
     if (!this.map) return;
@@ -146,6 +151,7 @@ export class DashboardMapComponent {
 
           this.fieldPolygons.set(fieldId, polygon);
 
+          const field = this.fields.find(f => f.id === fieldId);
           const fieldName = this.fields.find(field => field.id === fieldId)?.name || `Field ${fieldId}`;
           const fieldOwner = this.fields.find(field => field.id === fieldId)?.user_name || `Field ${fieldId}`;
           const fieldCrop = this.fields.find(field => field.id === fieldId)?.crop || `Field ${fieldId}`;
@@ -154,10 +160,32 @@ export class DashboardMapComponent {
             { permanent: false, direction: 'center' }
           );
 
+          polygon.on('click', () => {
+            this.selectedField = field || null;
+            this.insuranceClaims = [];
+            this.getInsuranceClaimsForField(fieldId);
+
+            console.log("Geselecteerd veld:", this.selectedField);
+
+          });
+
         } else {
           console.error(`Geen hoeken gevonden voor veld ${fieldId}`);
         }
       });
+    }
+  }
+
+  private getInsuranceClaimsForField(fieldId: number): void {
+    if (this.selectedField) {
+      this.insuranceFormService.getInsuranceClaimsByFieldId(fieldId).subscribe(
+        (insuranceClaims) => {
+          if (insuranceClaims.length > 0) {
+            this.insuranceClaims = insuranceClaims;
+            console.log("Insurance claims", this.insuranceClaims)
+          }
+        }
+      )
     }
   }
 }
