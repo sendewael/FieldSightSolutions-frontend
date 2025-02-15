@@ -19,11 +19,33 @@
 	</div>
 }
 
+@if(schadeclaimForm.status === 2 || schadeclaimForm.status === 3 || schadeclaimForm.status === 4) {
+	<div class="w-screen flex justify-center">
+		<div class="p-3 bg-blue-400 rounded-md mb-3 w-5/12 flex items-center justify-center text-center text-white">
+			<i class="fas fa-exclamation-circle text-white mr-3 text-3xl"></i>
+				@if(!claimHasEOPlazaImages[schadeclaimForm.id]) {
+					<div>
+						<p>De PDF met extra bewijsmateriaal van EOplaza wordt voorbereid. Kom later terug om deze te downloaden.</p>
+					</div>
+				}
+				@else {
+				<div>
+					<p>De PDF met extra bewijsmateriaal van EOplaza is klaar. Download hem hier!</p>
+				</div>
+				<button (click)="generateEOPlazaPDF(schadeclaimForm.id)"  class="px-3 h-10 ml-3 bg-green-500 hover:bg-green-600 rounded-md transition-all text-white">
+					<i class="fa-solid fa-download mr-1"></i> EOplaza
+				</button>
+				}
+		</div>
+	</div>
+}
+
 <div class="w-screen flex justify-center mb-3">
 	<div class="w-1/2 flex justify-center space-x-32">
 		<form (ngSubmit)="onSubmit()" [ngClass]="{ 'w-full': schadeclaimForm.status === 0, 'w-1/2': schadeclaimForm.status > 0 }" class="lg:flex lg:space-x-32">
 			<div class="flex-1 flex flex-col">
-				<p class="text-xl text-center text-green-800 mb-3 w-full border-b border-green-800 pb-2">Gegevens van uw perceel</p>
+				<p class="text-xl text-center text-green-800 mb-1 w-full border-b border-green-800 pb-2">Gegevens van uw perceel</p>
+				<p class="text-sm text-center mb-6">Deze gegevens worden automatisch ingevuld.</p>
 				<div class="flex-grow">
 		
 		
@@ -105,7 +127,8 @@
 		
 		@if(schadeclaimForm.status > 0) {
 			<form (ngSubmit)="onUpdate()" class="w-1/2">
-					<p class="text-xl text-center text-green-800 mb-3 border-b border-green-800 pb-2">Persoonlijke gegevens</p>
+					<p class="text-xl text-center text-green-800 mb-1 border-b border-green-800 pb-2">Persoonlijke gegevens</p>
+					<p class="text-sm text-center mb-6">Deze gegevens worden automatisch ingevuld.</p>
 					<div class>
 						<div class="flex space-x-3">
 							<div class="mb-3 w-1/2">
@@ -207,7 +230,8 @@
 			<div class="w-1/2 flex justify-center">
 				<form (ngSubmit)="onUpdate()" class="w-full mb-3">
 					<!-- Single Centered Title -->
-					<p class="text-2xl text-center text-green-800 mb-6 mt-10 border-b border-green-800 pb-2">Schadebeschrijving</p>
+					<p class="text-2xl text-center text-green-800 mb-1 mt-10 border-b border-green-800 pb-2">Schadebeschrijving</p>
+					<p class="text-sm text-center mb-6">Vul de vereiste gegevens in.</p>
 				  
 					<div class="lg:flex lg:space-x-32">
 					  <div class="flex-1 flex flex-col">
@@ -287,8 +311,6 @@
 						  </div>
 				  
 						  <div *ngIf="uploadedImages.length === 0" class="mt-4 text-sm text-gray-500">Geen foto's geüpload. Upload foto's om een preview te zien.</div>
-						  <div *ngIf="schadeclaimForm.status === 2" class="mt-16">Even geduld. je pdf met bewijs wordt klaargemaakt. Kom later terug om je volledige pdf te downloaden.</div>
-						  <div *ngIf="schadeclaimForm.status === 3" class="mt-4">je pdf is klaar! download hier.</div>
 						</div>
 				  
 						@if(schadeclaimForm.status === 1) {
@@ -298,10 +320,15 @@
 						}
 						@if(confirmModal) {
 							<div class="w-screen h-full backdrop-blur-sm fixed left-0 top-0 z-50">
-								<div class="w-96 h-40 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-md text-center p-3">
+								<div class="w-96 max-h-72 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-md text-center p-3">
 									<p>Bent u zeker dat u deze schadeclaim wil indienen?</p>
-									<p class="text-sm">Let op! Deze kan nadien niet worden aangepast!</p>
-									<div class="flex mt-3 mb-3 text-white">
+									<p class="text-sm">De gegevens kunnen nadien niet meer aangepast worden!</p>
+									@if(noUserAccess) {
+										<p class="text-sm mt-2"><span class="font-bold">Let op!</span> U heeft nog geen toegang gegeven tot uw perceel. Dit betekend dat uw schadeclaim niet gecontroleerd kan worden.
+											Ga naar het percelenbeheer, en geef toegang aan een persoon.
+										</p>
+									}
+									<div class="flex mt-3 text-white">
 										<button type="button" (click)="cancelCreate()" class="h-10 w-3/5 bg-red-800 rounded-md mr-3 hover:bg-red-500 transition-all">Annuleer</button>
 										<button type="submit" (click)="cancelCreate()" class="h-10 w-3/5 bg-green-800 rounded-md hover:bg-green-700 transition-all">Indienen</button>
 									</div>

@@ -64,6 +64,7 @@ export class SchadeclaimsComponent implements OnInit {
     }
   }
 
+  claimHasEOPlazaImages: { [key: number]: boolean } = {};
 
   fetchInsuranceClaims(userId: number): void {
     this.isLoading = true;
@@ -84,6 +85,14 @@ export class SchadeclaimsComponent implements OnInit {
                 xCord: image.xCord,
                 yCord: image.yCord,
               })));
+            });
+
+            this.imageService.getEOplazaImages(claim.id).subscribe(eoplazaResponse => {
+              if (eoplazaResponse.images.length > 0) {
+                this.claimHasEOPlazaImages[claim.id] = true;
+              } else {
+                this.claimHasEOPlazaImages[claim.id] = false;
+              }
             });
           });
 
@@ -121,6 +130,11 @@ export class SchadeclaimsComponent implements OnInit {
       });
   }
 
+  hasEOPlazaImages(claimId: number): boolean {
+    return this.claimHasEOPlazaImages[claimId] ?? false;
+  }
+
+
 
   hasRequestedImages(claimId: number): boolean {
     return this.requestedImages.some(img => img.claimId === claimId);
@@ -133,6 +147,25 @@ export class SchadeclaimsComponent implements OnInit {
 
   generatePDF(claimId: number): void {
     this.pdfService.getPDF(claimId)
+      .subscribe({
+        next: (response) => {
+          // Create a downloadable link for the PDF
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `claim_${claimId}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+          console.error('Failed to generate PDF', err);
+        }
+      });
+  }
+
+  generateEOPlazaPDF(claimId: number): void {
+    this.pdfService.getEOplazaPDF(claimId)
       .subscribe({
         next: (response) => {
           // Create a downloadable link for the PDF

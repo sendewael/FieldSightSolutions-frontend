@@ -9,17 +9,25 @@ import { environment } from '../../../../environments/environment.development';
 })
 export class PDFService {
 
-    private apiUrl = `${environment.baseUrl}/generatepdf`;
-  
+  private apiUrl = `${environment.baseUrl}/generatepdf`;
+  private eoplazaApiUrl = `${environment.baseUrl}/generateEOplazapdf`;
+
 
   constructor(private httpClient: HttpClient) {
   }
 
 
   getPDF(insuranceId: number | undefined): Observable<Blob> {
-    return this.httpClient.get<Blob>(`${this.apiUrl}/${insuranceId}/`, { 
-      withCredentials: true, 
-      responseType: 'blob' as 'json' 
+    return this.httpClient.get<Blob>(`${this.apiUrl}/${insuranceId}/`, {
+      withCredentials: true,
+      responseType: 'blob' as 'json'
     });
-}
+  }
+
+  getEOplazaPDF(insuranceId: number | undefined): Observable<Blob> {
+    return this.httpClient.get<Blob>(`${this.eoplazaApiUrl}/${insuranceId}/`, {
+      withCredentials: true,
+      responseType: 'blob' as 'json'
+    });
+  }
 }
