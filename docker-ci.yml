@@ -21,5 +21,6 @@ docker-build:
       else
         exit 1
       fi
+    - cd fieldsightsolutions-frontend
     - docker build -t $DOCKER_IMAGE:$TAG .
     - docker push $DOCKER_IMAGE:$TAG
