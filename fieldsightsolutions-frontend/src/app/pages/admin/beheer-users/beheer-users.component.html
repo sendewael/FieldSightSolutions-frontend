@@ -21,15 +21,16 @@
         <tr>
           <th class="py-2">Naam</th>
           <th class="py-2">Rol</th>
-          <th class="py-2">Status</th>
           <th class="py-2">Acties</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of users$ | async; track: $index" [ngClass]="{
-            'bg-green-200': user.is_active,
-            'bg-red-200': !user.is_active
-          }">
+              'bg-green-200': user.userRole_id === 1,
+              'bg-red-200': user.userRole_id === 2,
+              'bg-yellow-200': user.userRole_id === 3,
+              'bg-blue-200': user.userRole_id === 4
+            }">
           <td class="border px-4 py-2">{{ user.firstName }} {{ user.lastName }}</td>
           <td class="border px-4 py-2">
             <ng-container *ngIf="user.isEditing; else viewMode">
@@ -41,7 +42,6 @@
             </ng-container>
             <ng-template #viewMode>{{ user.role?.name }}</ng-template>
           </td>
-          <td class="border px-4 py-2">{{ user.is_active ? "Actief" : "Niet Actief" }}</td>
           <td class="border px-4 py-2">
             <ng-container *ngIf="user.isEditing; else actionButtons">
               <button (click)="saveUser(user)" class="text-green-600 m-2 rounded hover:text-green-700 transition">
@@ -73,5 +73,23 @@
 
     <!-- Paginatie -->
     <pagination-controls (pageChange)="page = $event"></pagination-controls>
+
+    @if(confirmModal) {
+    <div class="w-screen h-full backdrop-blur-sm fixed left-0 top-0 z-50">
+      <div
+        class="w-96 max-h-72 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-md text-center p-3">
+        <p>Bent u zeker dat u <span class="font-bold">{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}
+          </span>wilt verwijderen?
+        </p>
+        <p class="text-sm">De gegevens worden permanent verwijderd!</p>
+        <div class="flex mt-3 text-white">
+          <button type="button" (click)="cancelDelete()"
+            class="h-10 w-3/5 bg-red-800 rounded-md mr-3 hover:bg-red-500 transition-all">Nee</button>
+          <button type="submit" (click)="confirmDelete()"
+            class="h-10 w-3/5 bg-green-800 rounded-md hover:bg-green-700 transition-all">Ja</button>
+        </div>
+      </div>
+    </div>
+    }
   </div>
 </div>
