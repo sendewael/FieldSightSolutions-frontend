@@ -134,7 +134,6 @@ export class SchadeclaimFormComponent implements OnInit {
       if (params['id']) {
         this.claimId = +params['id']; // Get claim ID from route
         this.fetchClaimData(this.claimId);
-        console.log("Doe het") // Fetch claim details
       }
     });
   }
