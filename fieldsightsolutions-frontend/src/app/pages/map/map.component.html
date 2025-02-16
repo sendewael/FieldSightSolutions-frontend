@@ -33,7 +33,7 @@
                             <p class="font-bold">✕</p>
                         </button>
                     </div>
-                    <div class="full-height-minus-72">
+                    <div class="full-height-minus-72 overflow-y-auto">
                     @for (perceel of filteredUserPercelen; track $index) {
                         <app-perceelknop [perceel]="perceel" [userRole]="userRole" (click)="focusOnField(perceel.id)"></app-perceelknop>
                     }
