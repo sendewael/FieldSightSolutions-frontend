@@ -823,6 +823,8 @@ export class MapComponent {
             this.fieldService.updateField(fieldId, this.selectedNewField).subscribe({
               next: (updatedField) => {
                 console.log("Field updated successfully:", updatedField);
+                this.openPerceelToevoegen();
+                this.loadUserFields(this.userId);
               },
               error: (error) => {
                 console.error("Error updating field:", error);
@@ -830,8 +832,7 @@ export class MapComponent {
             });
           }
 
-          this.openPerceelToevoegen();
-          this.loadUserFields(this.userId);
+
           // this.drawUserFieldsOnMap();
         },
         error: (error) => {
