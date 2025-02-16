@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import * as L from 'leaflet';
+import L from 'leaflet';
 import 'leaflet-draw';
 import "leaflet/dist/leaflet.css"
 import { PerceelknopComponent } from '../../components/perceelknop/perceelknop.component';
