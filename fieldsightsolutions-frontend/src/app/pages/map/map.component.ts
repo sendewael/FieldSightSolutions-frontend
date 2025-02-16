@@ -254,6 +254,7 @@ export class MapComponent {
           this.fieldService.getFieldsByFieldIds(fieldIds).subscribe({
             next: (fields) => {
               this.userPercelen = fields;
+              console.log("Dit is vanuit LoadUserFields. This.userPercelen wordt hier gevuld met: ", this.userPercelen)
               if (this.userPercelen.length < 1) {
                 this.noUserFields = true;
                 this.newField = true;
@@ -263,6 +264,7 @@ export class MapComponent {
                 this.noUserFields = false;
                 if (!this.selectedField) {
                   this.drawUserFieldsOnMap();
+                  console.log("drawUserFields opgeroepen")
                 } else {
                   this.isLoading = false;
                 }
@@ -819,11 +821,13 @@ export class MapComponent {
 
       this.userFieldService.addUserField(userField).subscribe({
         next: (response) => {
+          console.log("addUserField hier ", response)
           if (this.selectedNewField) {
             this.fieldService.updateField(fieldId, this.selectedNewField).subscribe({
               next: (updatedField) => {
                 console.log("Field updated successfully:", updatedField);
                 this.openPerceelToevoegen();
+                console.log("loadUserFields oproepen vanuit addUserField")
                 this.loadUserFields(this.userId);
               },
               error: (error) => {
