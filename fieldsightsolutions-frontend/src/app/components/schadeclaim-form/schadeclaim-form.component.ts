@@ -133,7 +133,8 @@ export class SchadeclaimFormComponent implements OnInit {
 
       if (params['id']) {
         this.claimId = +params['id']; // Get claim ID from route
-        this.fetchClaimData(this.claimId); // Fetch claim details
+        this.fetchClaimData(this.claimId);
+        console.log("Doe het") // Fetch claim details
       }
     });
   }
@@ -263,9 +264,8 @@ export class SchadeclaimFormComponent implements OnInit {
       },
     });
 
-    if (this.schadeclaimForm.status > 1) {
-      this.checkEOPlazaImages(claimId);
-    }
+
+    this.checkEOPlazaImages(claimId);
 
 
     //requested Images
