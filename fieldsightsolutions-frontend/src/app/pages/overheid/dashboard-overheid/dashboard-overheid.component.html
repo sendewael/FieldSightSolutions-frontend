@@ -1,31 +1,91 @@
-<h1 class="text-center font-bold">
-	Dashboard {{ selectedGemeente }}
+<!-- Titel meer naar links -->
+<h1 class="font-bold text-2xl ml-4 mt-2">
+  Dashboard {{ selectedGemeente }}
 </h1>
-<div class="flex justify-between items-start gap-4 p-3">
-	<!-- Left side: Fields list -->
-	<div class="w-1/2">
-		<h2 class="text-xl font-semibold">Fields</h2>
-		<!-- Gemeente Dropdown -->
-		<label for="gemeenteSelect"
-			class="block font-medium">
-			Select Gemeente:
-		</label>
-		<select [(ngModel)]="selectedGemeente"
-			(change)="onGemeenteChange($event)"
-			id="gemeenteSelect"
-			class="border p-2 rounded">
-			<option *ngFor="let gemeente of gemeentes"
-				[value]="gemeente">
-				{{ gemeente }}
-			</option>
-		</select>
-		<ul class="list-disc pl-4 mt-2">
-			<li *ngFor="let field of fields">
-				{{ field.name }} - {{ field.crop }} - {{ field.acreage }}
-			</li>
-		</ul>
-	</div>
-	<div class="relative w-1/2 h-1/2">
-		<app-dashboard-map [userMunicipality]="selectedGemeente"></app-dashboard-map>
-	</div>
+
+<!-- Flex container voor dropdown + kaart -->
+<!-- items-start zorgt dat beide bovenaan uitgelijnd worden -->
+<div class="flex items-start gap-4 mt-0">
+  <!-- Linkerzijde: Dropdown -->
+  <div class="w-1/2 ml-4">
+    <label for="gemeenteSelect" class="block font-medium">
+      Kies gemeente:
+    </label>
+    <select [(ngModel)]="selectedGemeente"
+            (change)="onGemeenteChange($event)"
+            id="gemeenteSelect"
+            class="border p-2 rounded">
+      <option *ngFor="let gemeente of gemeentes" [value]="gemeente">
+        {{ gemeente }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Rechterzijde: Kaart -->
+  <!-- Haal margin-top weg en evt. negatieve margin als je hem nog dichter wil -->
+  <div class="relative w-1/2 h-1/2 -mt-8">
+    <app-dashboard-map [userMunicipality]="selectedGemeente"></app-dashboard-map>
+  </div>
 </div>
+
+
+<!-- DIAGRAMMEN-SECTION -->
+<div class="p-3">
+  <!-- Schadeclaims per Maand (Eerste chart) -->
+  <!-- Dikke top margin via mt-16 -->
+  <div class="my-4" style="margin-top: 6rem !important; max-width: 700px; max-height: 350px;">
+    <h2 class="text-lg font-semibold">Schadeclaims per Maand</h2>
+    <div style="height: 300px; overflow-y: auto;">
+      <canvas #claimsBarChart></canvas>
+    </div>
+  </div>
+
+  <!-- Schadetypes en Claims per Landbouwer naast elkaar (Laatste 2 charts) -->
+  <!-- Iets kleinere top margin via mt-8 -->
+  <div class="flex w-full gap-4 mt-8">
+    <!-- Schadetypes (Horizontale Staafdiagram) -->
+    <div class="flex-1">
+      <h2 class="text-lg font-semibold">Schadetypes</h2>
+      <div style="height: 400px; overflow-y: auto;">
+        <canvas #damageBarChart></canvas>
+      </div>
+    </div>
+
+    <!-- Schadeclaims per Landbouwer (Horizontale Staafdiagram) -->
+    <div class="flex-1">
+      <h2 class="text-lg font-semibold">Schadeclaims per Landbouwer</h2>
+      <div style="height: 400px; overflow-y: auto;">
+        <canvas #farmerChart></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TABEL-SECTION -->
+<div class="p-3">
+  <h2 class="text-lg font-semibold">Alle Schadeclaims</h2>
+  <table class="table-auto w-full border-collapse border border-gray-300 mt-2">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border border-gray-300 p-2">ID</th>
+        <th class="border border-gray-300 p-2">Schadetype</th>
+        <th class="border border-gray-300 p-2">Startdatum</th>
+        <th class="border border-gray-300 p-2">Einddatum</th>
+        <th class="border border-gray-300 p-2">Geschatte Kosten</th>
+        <th class="border border-gray-300 p-2">Omschrijving</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let claim of claims">
+        <td class="border border-gray-300 p-2">{{ claim.id }}</td>
+        <td class="border border-gray-300 p-2">{{ claim.damage_type }}</td>
+        <td class="border border-gray-300 p-2">{{ claim.startDate }}</td>
+        <td class="border border-gray-300 p-2">{{ claim.endDate }}</td>
+        <td class="border border-gray-300 p-2">{{ claim.estimated_cost }}</td>
+        <td class="border border-gray-300 p-2">{{ claim.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
