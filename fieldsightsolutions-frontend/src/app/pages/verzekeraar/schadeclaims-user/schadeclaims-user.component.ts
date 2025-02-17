@@ -10,6 +10,7 @@ import { tap } from 'rxjs/operators';
 import { ToastComponent } from '../../../components/toast/toast.component';
 import { environment } from '../../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
+import { PDFService } from '../../../api/services/pdf/pdf.service';
 
 @Component({
   selector: 'app-schadeclaims-user',
@@ -21,6 +22,7 @@ import { HttpClient } from '@angular/common/http';
 export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
   schadeclaims$ = new BehaviorSubject<InsuranceFormResponseDto[]>([]);
   user!: UserResponseDto | undefined;
+  claimHasEOPlazaImages: { [key: number]: boolean } = {};
 
   @ViewChild('toast') toast!: ToastComponent;
   toastMessage: string = '';
@@ -34,8 +36,9 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
     private router: Router,
     private schadeclaimService: InsuranceFormService,
     private userService: UserService,
-    private http: HttpClient
-  ) { }
+    private http: HttpClient,
+    private pdfService: PDFService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams
@@ -54,7 +57,7 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
               .subscribe({
                 next: (claims) => {
                   this.schadeclaims$.next(claims); // Update de BehaviorSubject
-                  console.log(claims)
+                  console.log(claims);
                 },
                 error: (err) => {
                   console.error('Fout bij het ophalen van schadeclaims:', err);
@@ -148,8 +151,9 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
     this.toastHover = 'bg-green-400';
     this.toast.showToast();
 
-    this.router.navigate(['/'], { state: { fieldId, claimId, requestPhotos: true } });
-
+    this.router.navigate(['/'], {
+      state: { fieldId, claimId, requestPhotos: true },
+    });
   }
 
   // Approve the claim
@@ -203,6 +207,28 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
           this.toastHover = 'bg-red-400';
           this.toast.showToast();
         }
+      },
+    });
+  }
+
+  hasEOPlazaImages(claimId: number): boolean {
+    return this.claimHasEOPlazaImages[claimId] ?? false;
+  }
+
+  generateEOPlazaPDF(claimId: number): void {
+    this.pdfService.getEOplazaPDF(claimId).subscribe({
+      next: (response) => {
+        // Create a downloadable link for the PDF
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `claim_${claimId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Failed to generate PDF', err);
       },
     });
   }
