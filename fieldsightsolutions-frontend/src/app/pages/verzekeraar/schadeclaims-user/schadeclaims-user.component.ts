@@ -11,6 +11,7 @@ import { ToastComponent } from '../../../components/toast/toast.component';
 import { environment } from '../../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { PDFService } from '../../../api/services/pdf/pdf.service';
+import { ImageService } from '../../../api/services/image/image.service';
 
 @Component({
   selector: 'app-schadeclaims-user',
@@ -37,8 +38,9 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
     private schadeclaimService: InsuranceFormService,
     private userService: UserService,
     private http: HttpClient,
-    private pdfService: PDFService
-  ) {}
+    private pdfService: PDFService,
+    private imageService: ImageService,
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams
@@ -56,8 +58,20 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
               )
               .subscribe({
                 next: (claims) => {
-                  this.schadeclaims$.next(claims); // Update de BehaviorSubject
+                  this.schadeclaims$.next(claims);
                   console.log(claims);
+
+                  this.schadeclaims$.subscribe(claims => {
+                    claims.forEach(claim => {
+                      this.imageService.getEOplazaImages(claim.id).subscribe(eoplazaResponse => {
+                        if (eoplazaResponse.images.length > 0) {
+                          this.claimHasEOPlazaImages[claim.id] = true;
+                        } else {
+                          this.claimHasEOPlazaImages[claim.id] = false;
+                        }
+                      });
+                    });
+                  });
                 },
                 error: (err) => {
                   console.error('Fout bij het ophalen van schadeclaims:', err);
@@ -211,9 +225,11 @@ export class SchadeclaimsUserComponent implements OnInit, AfterViewInit {
     });
   }
 
+
   hasEOPlazaImages(claimId: number): boolean {
     return this.claimHasEOPlazaImages[claimId] ?? false;
   }
+
 
   generateEOPlazaPDF(claimId: number): void {
     this.pdfService.getEOplazaPDF(claimId).subscribe({
